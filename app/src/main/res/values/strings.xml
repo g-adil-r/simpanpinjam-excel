@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">QR.ArtoRahayu</string>
+    <string name="header_1">BUMDESa TIRTO KELURAHAN LANDUNGSARI</string>
+    <string name="header_2">UNIT SIMPAN PINJAM</string>
+    <string name="header_3">“ARTO RAHAYU”</string>
+
+    <string name="footer_1">JL. Tirto Rahayu No.77 RT.02 RW.04</string>
+    <string name="footer_2">Desa Landungsari Kec Dau Kab. Malang</string>
+
+    <string name="total_scan">Total Scan Data:</string>
+    <string name="total_setoran">Total Nominal:</string>
+
+    <string name="import_data">Import Data</string>
+    <string name="scan_qr">Scan QR</string>
+    <string name="lihat_data">Lihat Data</string>
+    <string name="export_data">Export Data</string>
+
+    <string name="rekening_title">Informasi Rekening:</string>
+    <string name="info_no_rek">No. Rekening</string>
+    <string name="info_nama">Nama</string>
+    <string name="info_saldo_simpanan">Saldo Simpanan</string>
+    <string name="info_saldo_pinjaman">Saldo Pinjaman</string>
+    <string name="info_angsuran">Angsuran Bulan Ini</string>
+    <string name="setoran_label">Masukkan setoran:</string>
+    <string name="colon">:</string>
+    <string name="currency">Rp</string>
+    <string name="currency_hint">0</string>
+    <string name="simpan">Simpan</string>
+
+    <string name="daftar_title">Daftar Setoran</string>
+    <string name="no_data">Belum ada data…</string>
+    <string name="no_date_setor">Belum ada setoran</string>
+
+    <string name="alert_dialog">%1$s sudah melakukan setoran sebesar &lt;b>%2$s&lt;/b> &lt;br> &lt;br> Simpan perubahan?</string>
+
+    <string name="ellipsis">…</string>
+    <string name="long_placeholder">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</string>
+    <string name="currency_placeholder">Rp200.000.000</string>
+</resources>

@@ -1,0 +1,189 @@
+package com.example.proyeksp.repository;
+
+import android.app.Application;
+import android.content.Context;
+import android.net.Uri;
+import android.util.Log;
+import android.widget.Toast;
+
+import androidx.documentfile.provider.DocumentFile;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
+import com.example.proyeksp.database.AppDatabase;
+import com.example.proyeksp.database.Rekening;
+import com.example.proyeksp.database.RekeningDAO;
+import com.example.proyeksp.helper.DateHelper;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+public class RekeningRepo {
+    private final RekeningDAO rekeningDAO;
+    private final Context context;
+    private LiveData<List<Rekening>> rekeningList;
+    private MutableLiveData<Boolean> success = new MutableLiveData<>();
+    private final ExecutorService executorService;
+    private final String[] headerExportTable = {
+            "NoRekening",
+            "Nama",
+            "TglTrans",
+            "Setoran"
+    };
+
+    public RekeningRepo(Application application) {
+        executorService = Executors.newSingleThreadExecutor();
+
+        AppDatabase db = AppDatabase.getDatabase(application);
+        this.rekeningDAO = db.rekeningDao();
+        rekeningList = rekeningDAO.getAllRekening();
+
+        this.context = application.getApplicationContext();
+    }
+
+    public LiveData<Boolean> getSuccess() {
+        return success;
+    }
+
+    public LiveData<List<Rekening>> getRekeningList() {
+        return rekeningList;
+    }
+    public Rekening findRekeningByNoRek(String s) {
+        Future<Rekening> future = executorService.submit(() -> rekeningDAO.getRekeningByNoRek(s));
+        try {
+            return future.get();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void update(final Rekening rekening) {
+        executorService.execute(() -> this.rekeningDAO.update(rekening));
+    }
+
+    public LiveData<Integer> getScanData() { return rekeningDAO.getScanData(); }
+
+    public LiveData<Long> getTotalSetoran() { return rekeningDAO.getTotalSetoran(); }
+
+    public void exportToXlsx(Uri uri) {
+        executorService.execute(() -> {
+            DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
+            Workbook workbook = new XSSFWorkbook();
+
+            Sheet sheet = workbook.createSheet();
+
+            List<Rekening> rekeningList = rekeningDAO.getRekeningExport();
+
+            // Create excel header
+            Row row0 = sheet.createRow(0);
+
+            Font font = workbook.createFont();
+            font.setBold(true);
+
+            CellStyle style = workbook.createCellStyle();
+            style.setFont(font);
+
+            // Excel header
+            int cellnum = 0;
+            for (String title:headerExportTable) {
+                Cell cell = row0.createCell(cellnum++);
+
+                cell.setCellValue(title);
+                cell.setCellStyle(style);
+            }
+
+            // Rest of excel file
+            int rownum = 1;
+            for (Rekening rekening: rekeningList) {
+                Row row = sheet.createRow(rownum++);
+
+                Cell cellNoRek = row.createCell(0);
+                Cell cellNama = row.createCell(1);
+                Cell cellTgl = row.createCell(2);
+                Cell cellSetoran = row.createCell(3);
+
+                String date;
+                if (rekening.getTglTrans() == 0) date = "-";
+                else date = formatter.format(new Date(rekening.getTglTrans()));
+
+                cellNoRek.setCellValue(rekening.getNoRek());
+                cellNama.setCellValue(rekening.getNama());
+                cellTgl.setCellValue(date);
+                cellSetoran.setCellValue(rekening.getSetoran());
+            }
+
+            try {
+                DocumentFile pickedDir = DocumentFile.fromTreeUri(context, uri);
+                if (pickedDir != null) {
+                    DocumentFile newFile = pickedDir.createFile(
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            "Export_"+ DateHelper.getCurrentDateString()+".xlsx");
+
+                    OutputStream out = context.getContentResolver().openOutputStream(newFile.getUri());
+                    workbook.write(out);
+                    out.close();
+                    success.postValue(true);
+                    success = new MutableLiveData<>();
+                }
+            } catch (IOException e) {
+                e.getStackTrace();
+            }
+        });
+    }
+
+    public void importFromXlsx(Uri uri) throws RuntimeException {
+        executorService.execute(() -> {
+            try {
+                rekeningDAO.removeAll();
+                InputStream inputStream = context.getContentResolver().openInputStream(uri);
+
+                Workbook workbook = new XSSFWorkbook(inputStream);
+
+                Sheet sheet = workbook.getSheetAt(0);
+                Iterator<Row> rows = sheet.iterator();
+                rows.next(); // Skips the header row
+
+                while (rows.hasNext()) {
+                    Row row = rows.next();
+                    Rekening newRekening = new Rekening(
+                            row.getCell(0).getStringCellValue(),
+                            row.getCell(1).getStringCellValue(),
+                            (long)row.getCell(2).getNumericCellValue(),
+                            (long)row.getCell(3).getNumericCellValue(),
+                            (long)row.getCell(4).getNumericCellValue()
+                    );
+
+                    rekeningDAO.insert(newRekening);
+                }
+                inputStream.close();
+                success.postValue(true);
+                success = new MutableLiveData<>();
+            } catch (IOException e) {
+                e.getStackTrace();
+            } catch (RuntimeException e) {
+                success.postValue(false);
+                success = new MutableLiveData<>();
+            }
+        });
+    }
+}
