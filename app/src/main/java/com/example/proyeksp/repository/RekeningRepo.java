@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.documentfile.provider.DocumentFile;
 import androidx.lifecycle.LiveData;
@@ -15,6 +14,9 @@ import com.example.proyeksp.database.Rekening;
 import com.example.proyeksp.database.RekeningDAO;
 import com.example.proyeksp.helper.DateHelper;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -23,6 +25,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -84,11 +87,11 @@ public class RekeningRepo {
 
     public LiveData<Long> getTotalSetoran() { return rekeningDAO.getTotalSetoran(); }
 
-    public void exportToXlsx(Uri uri) {
+    public void exportToXls(Uri uri) {
         executorService.execute(() -> {
             DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
-            Workbook workbook = new XSSFWorkbook();
+            HSSFWorkbook workbook = new HSSFWorkbook();
 
             Sheet sheet = workbook.createSheet();
 
@@ -97,11 +100,11 @@ public class RekeningRepo {
             // Create excel header
             Row row0 = sheet.createRow(0);
 
-            Font font = workbook.createFont();
-            font.setBold(true);
-
-            CellStyle style = workbook.createCellStyle();
-            style.setFont(font);
+//            Font font = workbook.createFont();
+//            font.setBold(true);
+//
+//            HSSFCellStyle style = workbook.createCellStyle();
+//            style.setFont(font);
 
             // Excel header
             int cellnum = 0;
@@ -109,7 +112,7 @@ public class RekeningRepo {
                 Cell cell = row0.createCell(cellnum++);
 
                 cell.setCellValue(title);
-                cell.setCellStyle(style);
+//                cell.setCellStyle(style);
             }
 
             // Rest of excel file
@@ -136,8 +139,8 @@ public class RekeningRepo {
                 DocumentFile pickedDir = DocumentFile.fromTreeUri(context, uri);
                 if (pickedDir != null) {
                     DocumentFile newFile = pickedDir.createFile(
-                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            "Export_"+ DateHelper.getCurrentDateString()+".xlsx");
+                            "application/vnd.ms-excel",
+                            "Export_"+ DateHelper.getCurrentDateString());
 
                     OutputStream out = context.getContentResolver().openOutputStream(newFile.getUri());
                     workbook.write(out);
@@ -157,7 +160,17 @@ public class RekeningRepo {
                 rekeningDAO.removeAll();
                 InputStream inputStream = context.getContentResolver().openInputStream(uri);
 
-                Workbook workbook = new XSSFWorkbook(inputStream);
+                Workbook workbook;
+                Log.d("ExtensionFile", FilenameUtils.getExtension(uri.getPath()));
+                if (FilenameUtils.isExtension(uri.getPath(),"xlsx")) {
+                    workbook = new XSSFWorkbook(inputStream);
+                } else if (FilenameUtils.isExtension(uri.getPath(),"xls")) {
+                    workbook = new HSSFWorkbook(inputStream);
+                } else {
+                    success.postValue(false);
+                    success = new MutableLiveData<>();
+                    return;
+                }
 
                 Sheet sheet = workbook.getSheetAt(0);
                 Iterator<Row> rows = sheet.iterator();

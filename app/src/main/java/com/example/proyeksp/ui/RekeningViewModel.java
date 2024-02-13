@@ -27,7 +27,7 @@ public class RekeningViewModel extends AndroidViewModel {
     LiveData<List<Rekening>> getAllRekening() { return rekeningList; }
     public void update(Rekening rekening) {mRepository.update(rekening);}
     public Rekening getRekeningByNoRek(String s) {return mRepository.findRekeningByNoRek(s);}
-    public void exportToXlsx(Uri uri) { mRepository.exportToXlsx(uri); }
+    public void exportToXls(Uri uri) { mRepository.exportToXls(uri); }
     public void importFromXlsx(Uri uri) {
         try {
             mRepository.importFromXlsx(uri);

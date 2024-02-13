@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Intent data = res.getData();
                         if (data != null) {
                             Uri uri = data.getData();
-                            rekViewModel.exportToXlsx(uri);
+                            rekViewModel.exportToXls(uri);
                             rekViewModel.getSuccess().observe(this, success -> {
                                 if (success)
                                     Toast.makeText(this, "Berhasil export data", Toast.LENGTH_SHORT).show();
@@ -110,7 +110,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (v.getId() == btImport.getId()) {
             Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             i.addCategory(Intent.CATEGORY_OPENABLE);
-            i.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            String[] mimeTypes = {"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel"};
+            i.setType("*/*");
+            i.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
             importCSVLauncher.launch(i);
         } else if (v.getId() == btScan.getId()) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
