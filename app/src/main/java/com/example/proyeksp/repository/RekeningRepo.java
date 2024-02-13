@@ -16,6 +16,7 @@ import com.example.proyeksp.helper.DateHelper;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -91,7 +92,7 @@ public class RekeningRepo {
         executorService.execute(() -> {
             DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
-            HSSFWorkbook workbook = new HSSFWorkbook();
+            Workbook workbook = new HSSFWorkbook();
 
             Sheet sheet = workbook.createSheet();
 
@@ -100,19 +101,12 @@ public class RekeningRepo {
             // Create excel header
             Row row0 = sheet.createRow(0);
 
-//            Font font = workbook.createFont();
-//            font.setBold(true);
-//
-//            HSSFCellStyle style = workbook.createCellStyle();
-//            style.setFont(font);
-
             // Excel header
             int cellnum = 0;
             for (String title:headerExportTable) {
                 Cell cell = row0.createCell(cellnum++);
 
                 cell.setCellValue(title);
-//                cell.setCellStyle(style);
             }
 
             // Rest of excel file
