@@ -154,17 +154,7 @@ public class RekeningRepo {
                 rekeningDAO.removeAll();
                 InputStream inputStream = context.getContentResolver().openInputStream(uri);
 
-                Workbook workbook;
-                Log.d("ExtensionFile", FilenameUtils.getExtension(uri.getPath()));
-                if (FilenameUtils.isExtension(uri.getPath(),"xlsx")) {
-                    workbook = new XSSFWorkbook(inputStream);
-                } else if (FilenameUtils.isExtension(uri.getPath(),"xls")) {
-                    workbook = new HSSFWorkbook(inputStream);
-                } else {
-                    success.postValue(false);
-                    success = new MutableLiveData<>();
-                    return;
-                }
+                Workbook workbook = new XSSFWorkbook(inputStream);
 
                 Sheet sheet = workbook.getSheetAt(0);
                 Iterator<Row> rows = sheet.iterator();

@@ -110,9 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (v.getId() == btImport.getId()) {
             Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             i.addCategory(Intent.CATEGORY_OPENABLE);
-            String[] mimeTypes = {"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel"};
-            i.setType("*/*");
-            i.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+            i.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             importCSVLauncher.launch(i);
         } else if (v.getId() == btScan.getId()) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
