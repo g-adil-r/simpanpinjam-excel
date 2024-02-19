@@ -67,7 +67,6 @@ public class RekeningRepo {
     public LiveData<Boolean> getSuccess() {
         return success;
     }
-
     public LiveData<List<Rekening>> getRekeningList() {
         return rekeningList;
     }
@@ -78,6 +77,9 @@ public class RekeningRepo {
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+    public LiveData<List<Rekening>> getDaftarRekening() {
+        return rekeningDAO.getDaftarRekening();
     }
 
     public void update(final Rekening rekening) {

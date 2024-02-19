@@ -21,11 +21,19 @@ public interface RekeningDAO {
     @Delete()
     void delete(Rekening rekening);
 
-    @Query("SELECT * from rekening ORDER BY no_rek ASC")
+    @Query("SELECT * FROM rekening ORDER BY no_rek ASC")
     LiveData<List<Rekening>> getAllRekening();
 
-    @Query("SELECT * from rekening ORDER BY no_rek ASC")
+    @Query("SELECT * FROM rekening ORDER BY no_rek ASC")
     List<Rekening> getRekeningExport();
+
+    @Query("SELECT * FROM rekening " +
+            "ORDER BY " +
+            "CASE " +
+            "   WHEN tgl_trans = 0 THEN 1 " +
+            "   ELSE 0 " +
+            "END, nama;")
+    LiveData<List<Rekening>> getDaftarRekening();
 
     @Query("SELECT * FROM rekening WHERE no_rek = :noRek")
     Rekening getRekeningByNoRek(String noRek);

@@ -35,7 +35,7 @@ public class RekeningViewModel extends AndroidViewModel {
             throw new RuntimeException(e);
         }
     }
-
+    public LiveData<List<Rekening>> getDaftarRekening() { return mRepository.getDaftarRekening(); }
     public LiveData<Integer> getScanData() { return mRepository.getScanData(); }
     public LiveData<Long> getTotalSetoran() {return mRepository.getTotalSetoran();}
 }

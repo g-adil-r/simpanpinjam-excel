@@ -27,6 +27,7 @@
         <item name="android:statusBarColor">@color/white</item>
         <!-- Customize your theme here. -->
         <item name="android:colorEdgeEffect">#000000</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
     
     <style name="main_button">

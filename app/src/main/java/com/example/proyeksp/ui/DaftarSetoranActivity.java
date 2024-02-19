@@ -5,7 +5,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.splashscreen.SplashScreen;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,7 +27,7 @@ public class DaftarSetoranActivity extends AppCompatActivity {
         rvRekening.setLayoutManager(new LinearLayoutManager(this));
 
         rekViewModel = new ViewModelProvider(this).get(RekeningViewModel.class);
-        rekViewModel.getAllRekening().observe(this, rekenings -> {
+        rekViewModel.getDaftarRekening().observe(this, rekenings -> {
             rekAdapter = new RekeningAdapter(this, rekenings);
             rvRekening.setAdapter(rekAdapter);
             if (rekenings.size() == 0) {

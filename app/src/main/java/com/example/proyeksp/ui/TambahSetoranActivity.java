@@ -71,9 +71,7 @@ public class TambahSetoranActivity extends AppCompatActivity implements View.OnC
 
             long setoran = Long.parseLong(etSetoran.getText().toString().replace(".",""));
 
-            if (setoran <= 0) {
-                etSetoran.setError("Harap isi nilai setoran");
-            } else if (rekening.getSetoran() > 0) {
+            if (rekening.getSetoran() > 0) {
                 showEditAlert(setoran);
             } else {
                 editSetoran(setoran);
