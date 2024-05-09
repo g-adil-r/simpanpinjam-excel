@@ -32,7 +32,7 @@ public interface RekeningDAO {
             "CASE " +
             "   WHEN tgl_trans = 0 THEN 1 " +
             "   ELSE 0 " +
-            "END, nama;")
+            "END, tgl_trans DESC, nama;")
     LiveData<List<Rekening>> getDaftarRekening();
 
     @Query("SELECT * FROM rekening WHERE no_rek = :noRek")
