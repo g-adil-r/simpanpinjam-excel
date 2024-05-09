@@ -16,6 +16,7 @@ import com.example.proyeksp.helper.CurrencyHelper;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -23,14 +24,14 @@ import java.util.Locale;
 public class RekeningAdapter extends RecyclerView.Adapter<RekeningAdapter.RekeningViewHolder> {
     private final LayoutInflater mInflater;
     private List<Rekening> rekeningList;
-    private DateFormat dateFormat;
-    private Context context;
+    private final DateFormat dateFormat;
+    private final Context context;
 
     public RekeningAdapter(Context context, List<Rekening> rekenings) {
         this.rekeningList = rekenings;
         this.context = context;
 
-        dateFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.getDefault());
+        dateFormat = new SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault());
         mInflater = LayoutInflater.from(context);
     }
 
