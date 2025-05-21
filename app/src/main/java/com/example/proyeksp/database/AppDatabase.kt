@@ -1,47 +1,47 @@
-package com.example.proyeksp.database;
+package com.example.proyeksp.database
 
-import android.content.Context;
+import android.content.Context
+import androidx.room.Database
+import androidx.room.DatabaseConfiguration
+import androidx.room.InvalidationTracker
+import androidx.room.Room.databaseBuilder
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteOpenHelper
+import kotlin.concurrent.Volatile
 
-import androidx.annotation.NonNull;
-import androidx.room.Database;
-import androidx.room.DatabaseConfiguration;
-import androidx.room.InvalidationTracker;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
+@Database(entities = [Rekening::class], version = 1)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun rekeningDao(): RekeningDAO?
 
-@Database(entities = {Rekening.class}, version = 1)
-public abstract class AppDatabase extends RoomDatabase {
-    public abstract RekeningDAO rekeningDao();
+    override fun clearAllTables() {
+    }
 
-    private static volatile AppDatabase INSTANCE;
+//    override fun createInvalidationTracker(): InvalidationTracker {
+//        return null
+//    }
+//
+//    override fun createOpenHelper(databaseConfiguration: DatabaseConfiguration): SupportSQLiteOpenHelper {
+//        return null
+//    }
 
-    public static AppDatabase getDatabase(final Context context){
-        if (INSTANCE == null){
-            synchronized (AppDatabase.class){
-                INSTANCE =
-                        Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "simpan_pinjam_db")
-                                .fallbackToDestructiveMigration()
-                                .build();
+    companion object {
+        @Volatile
+        private var INSTANCE: AppDatabase? = null
+
+        @JvmStatic
+        fun getDatabase(context: Context): AppDatabase? {
+            if (INSTANCE == null) {
+                synchronized(AppDatabase::class.java) {
+                    INSTANCE =
+                        databaseBuilder(
+                            context.applicationContext,
+                            AppDatabase::class.java, "simpan_pinjam_db"
+                        )
+                            .fallbackToDestructiveMigration()
+                            .build()
+                }
             }
+            return INSTANCE
         }
-        return INSTANCE;
-    }
-
-    @Override
-    public void clearAllTables() {
-
-    }
-
-    @NonNull
-    @Override
-    protected InvalidationTracker createInvalidationTracker() {
-        return null;
-    }
-
-    @NonNull
-    @Override
-    protected SupportSQLiteOpenHelper createOpenHelper(@NonNull DatabaseConfiguration databaseConfiguration) {
-        return null;
     }
 }

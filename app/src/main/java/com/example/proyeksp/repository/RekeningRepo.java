@@ -59,7 +59,7 @@ public class RekeningRepo {
 
         AppDatabase db = AppDatabase.getDatabase(application);
         this.rekeningDAO = db.rekeningDao();
-        rekeningList = rekeningDAO.getAllRekening();
+        rekeningList = rekeningDAO.allRekening;
 
         this.context = application.getApplicationContext();
     }
@@ -79,16 +79,16 @@ public class RekeningRepo {
         }
     }
     public LiveData<List<Rekening>> getDaftarRekening() {
-        return rekeningDAO.getDaftarRekening();
+        return rekeningDAO.daftarRekening;
     }
 
     public void update(final Rekening rekening) {
         executorService.execute(() -> this.rekeningDAO.update(rekening));
     }
 
-    public LiveData<Integer> getScanData() { return rekeningDAO.getScanData(); }
+    public LiveData<Integer> getScanData() { return rekeningDAO.scanData; }
 
-    public LiveData<Long> getTotalSetoran() { return rekeningDAO.getTotalSetoran(); }
+    public LiveData<Long> getTotalSetoran() { return rekeningDAO.totalSetoran; }
 
     public void exportToXls(Uri uri) {
         executorService.execute(() -> {
@@ -98,7 +98,7 @@ public class RekeningRepo {
 
             Sheet sheet = workbook.createSheet();
 
-            List<Rekening> rekeningList = rekeningDAO.getRekeningExport();
+            List<Rekening> rekeningList = rekeningDAO.rekeningExport;
 
             // Create excel header
             Row row0 = sheet.createRow(0);
@@ -122,13 +122,13 @@ public class RekeningRepo {
                 Cell cellSetoran = row.createCell(3);
 
                 String date;
-                if (rekening.getTglTrans() == 0) date = "-";
-                else date = formatter.format(new Date(rekening.getTglTrans()));
+                if (rekening.tglTrans == 0) date = "-";
+                else date = formatter.format(new Date(rekening.tglTrans));
 
                 cellNoRek.setCellValue(rekening.getNoRek());
-                cellNama.setCellValue(rekening.getNama());
+                cellNama.setCellValue(rekening.nama);
                 cellTgl.setCellValue(date);
-                cellSetoran.setCellValue(rekening.getSetoran());
+                cellSetoran.setCellValue(rekening.setoran);
             }
 
             try {

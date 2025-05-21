@@ -45,9 +45,9 @@ public class RekeningAdapter extends RecyclerView.Adapter<RekeningAdapter.Rekeni
     @Override
     public void onBindViewHolder(@NonNull RekeningViewHolder holder, int position) {
         Rekening current = rekeningList.get(position);
-        long longDate = current.getTglTrans();
+        long longDate = current.tglTrans;
 
-        holder.tvNama.setText(current.getNama());
+        holder.tvNama.setText(current.nama);
         holder.tvNoRek.setText(current.getNoRek());
 
         if (longDate == 0) {
@@ -55,7 +55,7 @@ public class RekeningAdapter extends RecyclerView.Adapter<RekeningAdapter.Rekeni
             holder.tvTgl.setText(context.getResources().getText(R.string.no_date_setor));
             holder.tvSetor.setText("-");
         } else {
-            holder.tvSetor.setText(CurrencyHelper.format(current.getSetoran()));
+            holder.tvSetor.setText(CurrencyHelper.format(current.setoran));
             holder.tvTgl.setTextColor(Color.rgb(34, 177, 76));
             holder.tvTgl.setText(dateFormat.format(new Date(longDate)));
         }

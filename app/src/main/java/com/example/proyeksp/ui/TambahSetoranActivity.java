@@ -51,13 +51,13 @@ public class TambahSetoranActivity extends AppCompatActivity implements View.OnC
         btSimpan = findViewById(R.id.bt_simpan);
 
         tvNoRek.setText(rekening.getNoRek());
-        tvNama.setText(rekening.getNama());
-        tvSimpanan.setText(CurrencyHelper.format(rekening.getSaldoSimpanan()));
-        tvPinjaman.setText(CurrencyHelper.format(rekening.getSaldoPinjaman()));
-        tvAngsuran.setText(CurrencyHelper.format(rekening.getAngsuran()));
+        tvNama.setText(rekening.nama);
+        tvSimpanan.setText(CurrencyHelper.format(rekening.saldoSimpanan));
+        tvPinjaman.setText(CurrencyHelper.format(rekening.saldoPinjaman));
+        tvAngsuran.setText(CurrencyHelper.format(rekening.angsuran));
 
         btSimpan.setOnClickListener(this);
-        etSetoran.setText(nf.format(rekening.getSetoran()));
+        etSetoran.setText(nf.format(rekening.setoran));
         etSetoran.addTextChangedListener(currencyTextWatcher());
     }
 
@@ -71,7 +71,7 @@ public class TambahSetoranActivity extends AppCompatActivity implements View.OnC
 
             long setoran = Long.parseLong(etSetoran.getText().toString().replace(".",""));
 
-            if (rekening.getSetoran() > 0) {
+            if (rekening.setoran > 0) {
                 showEditAlert(setoran);
             } else {
                 editSetoran(setoran);
@@ -80,8 +80,8 @@ public class TambahSetoranActivity extends AppCompatActivity implements View.OnC
     }
 
     private void editSetoran(Long setoran) {
-        rekening.setTglTrans(System.currentTimeMillis());
-        rekening.setSetoran(setoran);
+        rekening.tglTrans = System.currentTimeMillis();
+        rekening.setoran = setoran;
         rekViewModel.update(rekening);
 
         Toast.makeText(this, "Setoran berhasil disimpan", Toast.LENGTH_SHORT).show();
@@ -142,8 +142,8 @@ public class TambahSetoranActivity extends AppCompatActivity implements View.OnC
     public void showEditAlert(Long setoran) {
         String message = this.getString(
                 R.string.alert_dialog,
-                rekening.getNama(),
-                CurrencyHelper.format(rekening.getSetoran())
+                rekening.nama,
+                CurrencyHelper.format(rekening.setoran)
         );
 
         AlertDialog alert = new AlertDialog.Builder(this)
