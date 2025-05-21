@@ -59,7 +59,7 @@ public class RekeningRepo {
 
         AppDatabase db = AppDatabase.getDatabase(application);
         this.rekeningDAO = db.rekeningDao();
-        rekeningList = rekeningDAO.allRekening;
+        rekeningList = rekeningDAO.getAllRekening();
 
         this.context = application.getApplicationContext();
     }
@@ -79,16 +79,16 @@ public class RekeningRepo {
         }
     }
     public LiveData<List<Rekening>> getDaftarRekening() {
-        return rekeningDAO.daftarRekening;
+        return rekeningDAO.getDaftarRekening();
     }
 
     public void update(final Rekening rekening) {
         executorService.execute(() -> this.rekeningDAO.update(rekening));
     }
 
-    public LiveData<Integer> getScanData() { return rekeningDAO.scanData; }
+    public LiveData<Integer> getScanData() { return rekeningDAO.getScanData(); }
 
-    public LiveData<Long> getTotalSetoran() { return rekeningDAO.totalSetoran; }
+    public LiveData<Long> getTotalSetoran() { return rekeningDAO.getTotalSetoran(); }
 
     public void exportToXls(Uri uri) {
         executorService.execute(() -> {
@@ -98,7 +98,7 @@ public class RekeningRepo {
 
             Sheet sheet = workbook.createSheet();
 
-            List<Rekening> rekeningList = rekeningDAO.rekeningExport;
+            List<Rekening> rekeningList = rekeningDAO.getRekeningExport();
 
             // Create excel header
             Row row0 = sheet.createRow(0);
