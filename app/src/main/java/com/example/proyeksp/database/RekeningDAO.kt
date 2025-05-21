@@ -1,49 +1,49 @@
-package com.example.proyeksp.database;
+package com.example.proyeksp.database
 
-import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
-import androidx.room.Query;
-import androidx.room.Update;
-
-import java.util.List;
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
 
 @Dao
-public interface RekeningDAO {
+interface RekeningDAO {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    void insert(Rekening rekening);
+    fun insert(rekening: Rekening?)
 
-    @Update()
-    void update(Rekening rekening);
+    @Update
+    fun update(rekening: Rekening?)
 
-    @Delete()
-    void delete(Rekening rekening);
+    @Delete
+    fun delete(rekening: Rekening?)
 
-    @Query("SELECT * FROM rekening ORDER BY no_rek ASC")
-    LiveData<List<Rekening>> getAllRekening();
+    @get:Query("SELECT * FROM rekening ORDER BY no_rek ASC")
+    val allRekening: LiveData<List<Rekening?>?>?
 
-    @Query("SELECT * FROM rekening ORDER BY no_rek ASC")
-    List<Rekening> getRekeningExport();
+    @get:Query("SELECT * FROM rekening ORDER BY no_rek ASC")
+    val rekeningExport: List<Rekening?>?
 
-    @Query("SELECT * FROM rekening " +
-            "ORDER BY " +
-            "CASE " +
-            "   WHEN tgl_trans = 0 THEN 1 " +
-            "   ELSE 0 " +
-            "END, tgl_trans DESC, nama;")
-    LiveData<List<Rekening>> getDaftarRekening();
+    @get:Query(
+        ("SELECT * FROM rekening " +
+                "ORDER BY " +
+                "CASE " +
+                "   WHEN tgl_trans = 0 THEN 1 " +
+                "   ELSE 0 " +
+                "END, tgl_trans DESC, nama;")
+    )
+    val daftarRekening: LiveData<List<Rekening?>?>?
 
     @Query("SELECT * FROM rekening WHERE no_rek = :noRek")
-    Rekening getRekeningByNoRek(String noRek);
+    fun getRekeningByNoRek(noRek: String?): Rekening?
 
-    @Query("SELECT COUNT(*) FROM rekening WHERE setoran > 0")
-    LiveData<Integer> getScanData();
+    @get:Query("SELECT COUNT(*) FROM rekening WHERE setoran > 0")
+    val scanData: LiveData<Int?>?
 
-    @Query("SELECT SUM(setoran) FROM rekening")
-    LiveData<Long> getTotalSetoran();
+    @get:Query("SELECT SUM(setoran) FROM rekening")
+    val totalSetoran: LiveData<Long?>?
 
     @Query("DELETE FROM rekening")
-    void removeAll();
+    fun removeAll()
 }
