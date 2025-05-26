@@ -15,7 +15,7 @@ import androidx.room.PrimaryKey
 class Rekening : Parcelable {
     @PrimaryKey
     @ColumnInfo(name = "no_rek")
-    private var noRek: String? = null
+    var noRek: String? = null
 
     @ColumnInfo(name = "nama")
     var nama: String? = null
