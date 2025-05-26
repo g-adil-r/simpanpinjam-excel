@@ -33,7 +33,7 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     val etSetoran: TextView by lazy { findViewById(R.id.tv_simpanan) }
     val btSimpan: TextView by lazy { findViewById(R.id.tv_simpanan) }
     var rekening: Rekening? = null
-    val nf: NumberFormat? = null
+    var nf: NumberFormat? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,13 +55,13 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
 //        btSimpan = findViewById(R.id.bt_simpan)
 
         tvNoRek.setText(rekening!!.noRek)
-        tvNama.setText(rekening.getNama())
-        tvSimpanan.setText(CurrencyHelper.format(rekening.getSaldoSimpanan()))
-        tvPinjaman.setText(CurrencyHelper.format(rekening.getSaldoPinjaman()))
-        tvAngsuran.setText(CurrencyHelper.format(rekening.getAngsuran()))
+        tvNama.setText(rekening!!.nama)
+        tvSimpanan.setText(CurrencyHelper.format(rekening!!.saldoSimpanan))
+        tvPinjaman.setText(CurrencyHelper.format(rekening!!.saldoPinjaman))
+        tvAngsuran.setText(CurrencyHelper.format(rekening!!.angsuran))
 
         btSimpan.setOnClickListener(this)
-        etSetoran.setText(nf.format(rekening.getSetoran()))
+        etSetoran.setText(nf.format(rekening!!.setoran))
         etSetoran.addTextChangedListener(currencyTextWatcher())
     }
 
@@ -74,7 +74,7 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
 
             val setoran = etSetoran!!.text.toString().replace(".", "").toLong()
 
-            if (rekening.getSetoran() > 0) {
+            if (rekening!!.setoran > 0) {
                 showEditAlert(setoran)
             } else {
                 editSetoran(setoran)
@@ -83,8 +83,8 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun editSetoran(setoran: Long) {
-        rekening.setTglTrans(System.currentTimeMillis())
-        rekening.setSetoran(setoran)
+        rekening!!.setTglTrans(System.currentTimeMillis())
+        rekening!!.setSetoran(setoran)
         rekViewModel!!.update(rekening)
 
         Toast.makeText(this, "Setoran berhasil disimpan", Toast.LENGTH_SHORT).show()

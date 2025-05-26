@@ -14,7 +14,7 @@ import com.example.proyeksp.R
 import com.example.proyeksp.analyzer.BarcodeAnalyzer
 
 class ScanActivity : AppCompatActivity() {
-    var previewView: PreviewView? = null
+    val previewView: PreviewView by lazy { findViewById(R.id.preview_view) }
     var rekViewModel: RekeningViewModel? = null
     var cameraController: LifecycleCameraController? = null
     var toastMessage: Toast? = null
@@ -22,7 +22,7 @@ class ScanActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan)
-        previewView = findViewById(R.id.preview_view)
+//        previewView = findViewById(R.id.preview_view)
 
         rekViewModel = ViewModelProvider(this).get(
             RekeningViewModel::class.java
@@ -53,11 +53,12 @@ class ScanActivity : AppCompatActivity() {
 
         if (rekening == null) {
             if (toastMessage != null) toastMessage!!.cancel()
-            toastMessage = Toast.makeText(
+            val newToast = Toast.makeText(
                 this,
                 "Nomor rekening '$s' tidak ditemukan", Toast.LENGTH_SHORT
             )
-            toastMessage.show()
+            newToast.show()
+            toastMessage = newToast
         } else {
             cameraController!!.unbind()
             val i = Intent(this, TambahSetoranActivity::class.java)
