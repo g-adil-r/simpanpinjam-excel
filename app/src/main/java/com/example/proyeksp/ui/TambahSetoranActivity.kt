@@ -30,10 +30,10 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     val tvSimpanan: TextView by lazy { findViewById(R.id.tv_simpanan) }
     val tvPinjaman: TextView by lazy { findViewById(R.id.tv_simpanan) }
     val tvAngsuran: TextView by lazy { findViewById(R.id.tv_angsuran) }
-    val etSetoran: TextView by lazy { findViewById(R.id.tv_simpanan) }
-    val btSimpan: TextView by lazy { findViewById(R.id.tv_simpanan) }
+    val etSetoran: EditText by lazy { findViewById(R.id.tv_simpanan) }
+    val btSimpan: Button by lazy { findViewById(R.id.tv_simpanan) }
     var rekening: Rekening? = null
-    var nf: NumberFormat? = null
+    val nf: NumberFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag("ID"))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +41,6 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
         rekViewModel = ViewModelProvider(this).get(
             RekeningViewModel::class.java
         )
-        nf = NumberFormat.getNumberInstance(Locale.forLanguageTag("ID"))
 
         val noRek = intent.getStringExtra("noRek")
         rekening = rekViewModel!!.getRekeningByNoRek(noRek)
@@ -66,13 +65,13 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View) {
-        if (v.id == btSimpan!!.id) {
-            if (etSetoran!!.text.toString() == "") {
-                etSetoran!!.error = "Harap isi nilai setoran"
+        if (v.id == btSimpan.id) {
+            if (etSetoran.text.toString() == "") {
+                etSetoran.error = "Harap isi nilai setoran"
                 return
             }
 
-            val setoran = etSetoran!!.text.toString().replace(".", "").toLong()
+            val setoran = etSetoran.text.toString().replace(".", "").toLong()
 
             if (rekening!!.setoran > 0) {
                 showEditAlert(setoran)
@@ -83,8 +82,8 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun editSetoran(setoran: Long) {
-        rekening!!.setTglTrans(System.currentTimeMillis())
-        rekening!!.setSetoran(setoran)
+        rekening!!.tglTrans = System.currentTimeMillis()
+        rekening!!.setoran = setoran
         rekViewModel!!.update(rekening)
 
         Toast.makeText(this, "Setoran berhasil disimpan", Toast.LENGTH_SHORT).show()
@@ -115,20 +114,20 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
                 // Parse the cleanedString back to int and format it with decimal separator
                 try {
                     val parsedInt = cleanedString.toInt()
-                    val formattedString = nf!!.format(parsedInt.toLong())
+                    val formattedString = nf.format(parsedInt.toLong())
 
                     // Calculate the cursor position
                     val lengthDiff = formattedString.length - originalString.length
-                    var newCursorPos = etSetoran!!.selectionStart + lengthDiff
+                    var newCursorPos = etSetoran.selectionStart + lengthDiff
                     newCursorPos = max(newCursorPos.toDouble(), 0.0).toInt()
 
                     // If the new string is the same as the old one (except for the cursor position), restore the old string
                     if (newCursorPos == 1 && formattedString == previousText) {
-                        etSetoran!!.setText(previousText)
-                        etSetoran!!.setSelection(etSetoran!!.text.length)
+                        etSetoran.setText(previousText)
+                        etSetoran.setSelection(etSetoran.text.length)
                     } else {
-                        etSetoran!!.setText(formattedString)
-                        etSetoran!!.setSelection(
+                        etSetoran.setText(formattedString)
+                        etSetoran.setSelection(
                             min(
                                 newCursorPos.toDouble(),
                                 formattedString.length.toDouble()
@@ -147,8 +146,8 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     fun showEditAlert(setoran: Long) {
         val message = this.getString(
             R.string.alert_dialog,
-            rekening.getNama(),
-            CurrencyHelper.format(rekening.getSetoran())
+            rekening!!.nama,
+            CurrencyHelper.format(rekening!!.setoran)
         )
 
         val alert = AlertDialog.Builder(this)

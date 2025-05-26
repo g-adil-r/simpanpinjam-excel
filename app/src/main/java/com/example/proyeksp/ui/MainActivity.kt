@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -19,48 +20,46 @@ import com.example.proyeksp.R
 import com.example.proyeksp.helper.CurrencyHelper
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
-    var btImport: Button? = null
-    var btScan: Button? = null
-    var btViewData: Button? = null
-    var btExport: Button? = null
-    var tvScanCount: TextView? = null
-    var tvTotalSetoran: TextView? = null
+    val btImport: Button by lazy { findViewById(R.id.bt_import) }
+    val btScan: Button by lazy { findViewById(R.id.bt_scan) }
+    val btViewData: Button by lazy { findViewById(R.id.bt_view_data) }
+    val btExport: Button by lazy { findViewById(R.id.bt_export) }
+    val tvScanCount: TextView by lazy { findViewById(R.id.tv_scan_count) }
+    val tvTotalSetoran: TextView by lazy { findViewById(R.id.tv_total_setoran) }
     var rekViewModel: RekeningViewModel? = null
     var exportCSVLauncher: ActivityResultLauncher<Intent>? = null
     var importCSVLauncher: ActivityResultLauncher<Intent>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val splashScreen: SplashScreen = installSplashScreen.installSplashScreen(
-            this
-        )
+//        val splashScreen: SplashScreen = installSplashScreen.installSplashScreen(
+//            this
+//        )
         setContentView(R.layout.activity_main)
 
-        rekViewModel = ViewModelProvider(this).get(
-            RekeningViewModel::class.java
-        )
+        rekViewModel = ViewModelProvider(this)[RekeningViewModel::class.java]
 
-        btImport = findViewById(R.id.bt_import)
-        btScan = findViewById(R.id.bt_scan)
-        btViewData = findViewById(R.id.bt_view_data)
-        btExport = findViewById(R.id.bt_export)
+//        btImport = findViewById(R.id.bt_import)
+//        btScan = findViewById(R.id.bt_scan)
+//        btViewData = findViewById(R.id.bt_view_data)
+//        btExport = findViewById(R.id.bt_export)
 
-        tvScanCount = findViewById(R.id.tv_scan_count)
-        tvTotalSetoran = findViewById(R.id.tv_total_setoran)
+//        tvScanCount = findViewById(R.id.tv_scan_count)
+//        tvTotalSetoran = findViewById(R.id.tv_total_setoran)
 
         btImport.setOnClickListener(this)
         btScan.setOnClickListener(this)
         btViewData.setOnClickListener(this)
         btExport.setOnClickListener(this)
 
-        rekViewModel.getScanData().observe(
+        rekViewModel!!.scanData?.observe(
             this
         ) { scanCount: Int? -> tvScanCount.setText(scanCount.toString()) }
-        rekViewModel.getTotalSetoran().observe(
+        rekViewModel!!.totalSetoran?.observe(
             this
-        ) { total: Long ->
+        ) { total: Long? ->
             try {
-                tvTotalSetoran.setText(CurrencyHelper.format(total))
+                tvTotalSetoran.setText(total?.let { CurrencyHelper.format(it) })
             } catch (e: RuntimeException) {
                 if (total == null) {
                     tvTotalSetoran.setText("Rp0")
@@ -76,14 +75,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         exportCSVLauncher = registerForActivityResult<Intent, ActivityResult>(
-            StartActivityForResult()
+            ActivityResultContracts.StartActivityForResult()
         ) { res: ActivityResult ->
             if (res.resultCode == RESULT_OK) {
                 val data = res.data
                 if (data != null) {
                     val uri = data.data
-                    rekViewModel!!.exportToXls(uri)
-                    rekViewModel.getSuccess().observe(
+                    if (uri != null) {
+                        rekViewModel!!.exportToXls(uri)
+                    }
+                    rekViewModel?.success?.observe(
                         this
                     ) { success: Boolean? ->
                         if (success!!) Toast.makeText(
@@ -103,14 +104,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         importCSVLauncher = registerForActivityResult<Intent, ActivityResult>(
-            StartActivityForResult()
+            ActivityResultContracts.StartActivityForResult()
         ) { res: ActivityResult ->
             if (res.resultCode == RESULT_OK) {
                 val data = res.data
                 if (data != null) {
                     val uri = data.data
-                    rekViewModel!!.importFromXlsx(uri)
-                    rekViewModel.getSuccess().observe(
+                    if (uri != null) {
+                        rekViewModel!!.importFromXlsx(uri)
+                    }
+                    rekViewModel?.success?.observe(
                         this
                     ) { success: Boolean? ->
                         if (success!!) Toast.makeText(
