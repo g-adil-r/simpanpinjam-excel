@@ -11,8 +11,8 @@ import com.example.proyeksp.R
 import com.example.proyeksp.database.Rekening
 
 class DaftarSetoranActivity : AppCompatActivity() {
-    var tvNoData: TextView? = null
-    var rvRekening: RecyclerView? = null
+    val tvNoData: TextView by lazy { findViewById(R.id.tv_no_data) }
+    val rvRekening: RecyclerView by lazy { findViewById(R.id.rek_recycler) }
     var rekAdapter: RekeningAdapter? = null
     var rekViewModel: RekeningViewModel? = null
 
@@ -20,14 +20,14 @@ class DaftarSetoranActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_daftar_setoran)
 
-        tvNoData = findViewById(R.id.tv_no_data)
-        rvRekening = findViewById(R.id.rek_recycler)
+//        tvNoData = findViewById(R.id.tv_no_data)
+//        rvRekening = findViewById(R.id.rek_recycler)
         rvRekening.setLayoutManager(LinearLayoutManager(this))
 
         rekViewModel = ViewModelProvider(this).get(
             RekeningViewModel::class.java
         )
-        rekViewModel.getDaftarRekening().observe(
+        rekViewModel!!.daftarRekening?.observe(
             this
         ) { rekenings: List<Rekening?>? ->
             rekAdapter = RekeningAdapter(this, rekenings)

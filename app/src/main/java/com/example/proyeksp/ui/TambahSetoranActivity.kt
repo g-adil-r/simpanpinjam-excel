@@ -25,15 +25,15 @@ import kotlin.math.min
 
 class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     var rekViewModel: RekeningViewModel? = null
-    var tvNoRek: TextView? = null
-    var tvNama: TextView? = null
-    var tvSimpanan: TextView? = null
-    var tvPinjaman: TextView? = null
-    var tvAngsuran: TextView? = null
-    var etSetoran: EditText? = null
-    var btSimpan: Button? = null
+    val tvNoRek: TextView by lazy { findViewById(R.id.tv_no_rek) }
+    val tvNama: TextView by lazy { findViewById(R.id.tv_nama) }
+    val tvSimpanan: TextView by lazy { findViewById(R.id.tv_simpanan) }
+    val tvPinjaman: TextView by lazy { findViewById(R.id.tv_simpanan) }
+    val tvAngsuran: TextView by lazy { findViewById(R.id.tv_angsuran) }
+    val etSetoran: TextView by lazy { findViewById(R.id.tv_simpanan) }
+    val btSimpan: TextView by lazy { findViewById(R.id.tv_simpanan) }
     var rekening: Rekening? = null
-    var nf: NumberFormat? = null
+    val nf: NumberFormat? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,13 +46,13 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
         val noRek = intent.getStringExtra("noRek")
         rekening = rekViewModel!!.getRekeningByNoRek(noRek)
 
-        tvNoRek = findViewById(R.id.tv_no_rek)
-        tvNama = findViewById(R.id.tv_nama)
-        tvSimpanan = findViewById(R.id.tv_simpanan)
-        tvPinjaman = findViewById(R.id.tv_pinjaman)
-        tvAngsuran = findViewById(R.id.tv_angsuran)
-        etSetoran = findViewById(R.id.et_setoran)
-        btSimpan = findViewById(R.id.bt_simpan)
+//        tvNoRek = findViewById(R.id.tv_no_rek)
+//        tvNama = findViewById(R.id.tv_nama)
+//        tvSimpanan = findViewById(R.id.tv_simpanan)
+//        tvPinjaman = findViewById(R.id.tv_pinjaman)
+//        tvAngsuran = findViewById(R.id.tv_angsuran)
+//        etSetoran = findViewById(R.id.et_setoran)
+//        btSimpan = findViewById(R.id.bt_simpan)
 
         tvNoRek.setText(rekening!!.noRek)
         tvNama.setText(rekening.getNama())

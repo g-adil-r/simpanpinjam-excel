@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class RekeningAdapter(private val context: Context, private val rekeningList: List<Rekening>) :
+class RekeningAdapter(private val context: Context, private val rekeningList: List<Rekening?>?) :
     RecyclerView.Adapter<RekeningViewHolder>() {
     private val mInflater: LayoutInflater = LayoutInflater.from(context)
     private val dateFormat: DateFormat =
@@ -28,25 +28,27 @@ class RekeningAdapter(private val context: Context, private val rekeningList: Li
     }
 
     override fun onBindViewHolder(holder: RekeningViewHolder, position: Int) {
-        val current = rekeningList[position]
-        val longDate = current.tglTrans
+        val current = rekeningList?.get(position)
+        val longDate = current?.tglTrans
 
-        holder.tvNama.text = current.nama
-        holder.tvNoRek.text = current.noRek
+        holder.tvNama.text = current?.nama
+        holder.tvNoRek.text = current?.noRek
 
         if (longDate == 0L) {
             holder.tvTgl.setTextColor(Color.RED)
             holder.tvTgl.text = context.resources.getText(R.string.no_date_setor)
             holder.tvSetor.text = "-"
         } else {
-            holder.tvSetor.text = CurrencyHelper.format(current.setoran)
+            if (current != null) {
+                holder.tvSetor.text = CurrencyHelper.format(current.setoran)
+            }
             holder.tvTgl.setTextColor(Color.rgb(34, 177, 76))
-            holder.tvTgl.text = dateFormat.format(Date(longDate))
+            holder.tvTgl.text = dateFormat.format(longDate?.let { Date(it) })
         }
     }
 
     override fun getItemCount(): Int {
-        return rekeningList.size
+        return rekeningList!!.size
     }
 
     class RekeningViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

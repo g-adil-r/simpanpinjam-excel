@@ -11,8 +11,8 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
     private val mRepository = RekeningRepo(application)
     val allRekening: LiveData<List<Rekening?>?>? = mRepository.rekeningList
 
-    val success: LiveData<Boolean?>?
-        get() = mRepository.success
+    val success: LiveData<Boolean>
+        get() = mRepository.getSuccess()
 
     fun update(rekening: Rekening?) {
         mRepository.update(rekening)
