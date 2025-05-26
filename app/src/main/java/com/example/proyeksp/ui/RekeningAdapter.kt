@@ -43,7 +43,7 @@ class RekeningAdapter(private val context: Context, private val rekeningList: Li
                 holder.tvSetor.text = CurrencyHelper.format(current.setoran)
             }
             holder.tvTgl.setTextColor(Color.rgb(34, 177, 76))
-            holder.tvTgl.text = dateFormat.format(longDate?.let { Date(it) })
+            holder.tvTgl.text = longDate?.let { Date(it) }?.let { dateFormat.format(it) }
         }
     }
 

@@ -43,7 +43,7 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
         )
 
         val noRek = intent.getStringExtra("noRek")
-        rekening = rekViewModel!!.getRekeningByNoRek(noRek)
+        rekening = noRek?.let { rekViewModel!!.getRekeningByNoRek(it) }
 
 //        tvNoRek = findViewById(R.id.tv_no_rek)
 //        tvNama = findViewById(R.id.tv_nama)
@@ -84,7 +84,7 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     private fun editSetoran(setoran: Long) {
         rekening!!.tglTrans = System.currentTimeMillis()
         rekening!!.setoran = setoran
-        rekViewModel!!.update(rekening)
+        rekViewModel!!.update(rekening!!)
 
         Toast.makeText(this, "Setoran berhasil disimpan", Toast.LENGTH_SHORT).show()
         val i = Intent(this, MainActivity::class.java)
@@ -106,7 +106,7 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
             }
 
             override fun afterTextChanged(s: Editable) {
-                etSetoran!!.removeTextChangedListener(this)
+                etSetoran.removeTextChangedListener(this)
 
                 val originalString = s.toString()
                 val cleanedString = originalString.replace(".", "")
@@ -138,7 +138,7 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
                     nfe.printStackTrace()
                 }
 
-                etSetoran!!.addTextChangedListener(this)
+                etSetoran.addTextChangedListener(this)
             }
         }
     }

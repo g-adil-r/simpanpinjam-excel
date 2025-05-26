@@ -12,7 +12,7 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import java.util.function.Consumer
 
-class BarcodeAnalyzer(onBarcodeScanned: Consumer<String?>) :
+class BarcodeAnalyzer(onBarcodeScanned: (String) -> Unit) :
     ImageAnalysis.Analyzer {
     private val scanner: BarcodeScanner
     private val onBarcodeScanned: Consumer<String?>

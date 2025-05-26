@@ -28,7 +28,7 @@ class ScanActivity : AppCompatActivity() {
             RekeningViewModel::class.java
         )
 
-        val analyzer = BarcodeAnalyzer { s: String? ->
+        val analyzer = BarcodeAnalyzer { s: String ->
             this.onDetectBarcode(
                 s
             )
@@ -48,7 +48,7 @@ class ScanActivity : AppCompatActivity() {
         cameraController!!.bindToLifecycle(this)
     }
 
-    private fun onDetectBarcode(s: String?) {
+    private fun onDetectBarcode(s: String) {
         val rekening = rekViewModel!!.getRekeningByNoRek(s)
 
         if (rekening == null) {

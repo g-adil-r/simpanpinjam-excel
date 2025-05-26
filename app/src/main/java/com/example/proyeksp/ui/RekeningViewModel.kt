@@ -9,16 +9,16 @@ import com.example.proyeksp.repository.RekeningRepo
 
 class RekeningViewModel(application: Application) : AndroidViewModel(application) {
     private val mRepository = RekeningRepo(application)
-    val allRekening: LiveData<List<Rekening?>?>? = mRepository.rekeningList
+    val allRekening: LiveData<List<Rekening>> = mRepository.rekeningList
 
     val success: LiveData<Boolean>
         get() = mRepository.getSuccess()
 
-    fun update(rekening: Rekening?) {
+    fun update(rekening: Rekening) {
         mRepository.update(rekening)
     }
 
-    fun getRekeningByNoRek(s: String?): Rekening? {
+    fun getRekeningByNoRek(s: String): Rekening? {
         return mRepository.findRekeningByNoRek(s)
     }
 
@@ -34,9 +34,9 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    val daftarRekening: LiveData<List<Rekening?>?>?
+    val daftarRekening: LiveData<List<Rekening>>?
         get() = mRepository.daftarRekening
-    val scanData: LiveData<Int?>?
+    val scanData: LiveData<Int>?
         get() = mRepository.scanData
     val totalSetoran: LiveData<Long?>?
         get() = mRepository.totalSetoran

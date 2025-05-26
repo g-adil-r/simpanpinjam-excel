@@ -26,7 +26,7 @@ import java.util.concurrent.Executors
 class RekeningRepo(application: Application) {
     private val rekeningDAO: RekeningDAO?
     private val context: Context
-    val rekeningList: LiveData<List<Rekening?>?>?
+    val rekeningList: LiveData<List<Rekening>>
     private var success = MutableLiveData<Boolean>()
     private val executorService: ExecutorService =
         Executors.newSingleThreadExecutor()
@@ -38,9 +38,9 @@ class RekeningRepo(application: Application) {
     )
 
     init {
-        val db: AppDatabase = AppDatabase.getDatabase(application)!!
+        val db: AppDatabase = AppDatabase.getDatabase(application)
         this.rekeningDAO = db.rekeningDao()
-        rekeningList = rekeningDAO?.allRekening
+        rekeningList = rekeningDAO.allRekening
 
         this.context = application.applicationContext
     }
@@ -49,7 +49,7 @@ class RekeningRepo(application: Application) {
         return success
     }
 
-    fun findRekeningByNoRek(s: String?): Rekening? {
+    fun findRekeningByNoRek(s: String): Rekening? {
         val future = executorService.submit<Rekening?> {
             rekeningDAO!!.getRekeningByNoRek(
                 s
@@ -64,14 +64,14 @@ class RekeningRepo(application: Application) {
         }
     }
 
-    val daftarRekening: LiveData<List<Rekening?>?>?
+    val daftarRekening: LiveData<List<Rekening>>?
         get() = rekeningDAO?.daftarRekening
 
-    fun update(rekening: Rekening?) {
+    fun update(rekening: Rekening) {
         executorService.execute { rekeningDAO!!.update(rekening) }
     }
 
-    val scanData: LiveData<Int?>?
+    val scanData: LiveData<Int>?
         get() = rekeningDAO?.scanData
 
     val totalSetoran: LiveData<Long?>?
@@ -107,10 +107,10 @@ class RekeningRepo(application: Application) {
                 val cellNama = row.createCell(1)
                 val cellTgl = row.createCell(2)
                 val cellSetoran = row.createCell(3)
-                var date = if (rekening!!.tglTrans == 0L) "-"
-                else rekening?.let { Date(it.tglTrans) }?.let { formatter.format(it) }
+                val date = if (rekening.tglTrans == 0L) "-"
+                else Date(rekening.tglTrans).let { formatter.format(it) }
 
-                cellNoRek.setCellValue(rekening!!.noRek)
+                cellNoRek.setCellValue(rekening.noRek)
                 cellNama.setCellValue(rekening.nama)
                 cellTgl.setCellValue(date)
                 cellSetoran.setCellValue(rekening.setoran.toDouble())

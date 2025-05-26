@@ -137,12 +137,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View) {
-        if (v.id == btImport!!.id) {
+        if (v.id == btImport.id) {
             val i = Intent(Intent.ACTION_OPEN_DOCUMENT)
             i.addCategory(Intent.CATEGORY_OPENABLE)
             i.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
             importCSVLauncher!!.launch(i)
-        } else if (v.id == btScan!!.id) {
+        } else if (v.id == btScan.id) {
             if (ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.CAMERA
@@ -156,9 +156,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             } else {
                 startActivity(Intent(this, ScanActivity::class.java))
             }
-        } else if (v.id == btViewData!!.id) {
+        } else if (v.id == btViewData.id) {
             startActivity(Intent(this, DaftarSetoranActivity::class.java))
-        } else if (v.id == btExport!!.id) {
+        } else if (v.id == btExport.id) {
             exportCSVLauncher!!.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE))
         }
     }
