@@ -38,9 +38,9 @@ class RekeningRepo(application: Application) {
     )
 
     init {
-        val db: AppDatabase = AppDatabase.Companion.getDatabase(application)
+        val db: AppDatabase = AppDatabase.getDatabase(application)!!
         this.rekeningDAO = db.rekeningDao()
-        rekeningList = rekeningDAO.allRekening
+        rekeningList = rekeningDAO?.allRekening
 
         this.context = application.applicationContext
     }
@@ -65,17 +65,17 @@ class RekeningRepo(application: Application) {
     }
 
     val daftarRekening: LiveData<List<Rekening?>?>?
-        get() = rekeningDAO.getDaftarRekening()
+        get() = rekeningDAO?.daftarRekening
 
     fun update(rekening: Rekening?) {
         executorService.execute { rekeningDAO!!.update(rekening) }
     }
 
     val scanData: LiveData<Int?>?
-        get() = rekeningDAO.getScanData()
+        get() = rekeningDAO?.scanData
 
     val totalSetoran: LiveData<Long?>?
-        get() = rekeningDAO.getTotalSetoran()
+        get() = rekeningDAO?.totalSetoran
 
     fun exportToXls(uri: Uri) {
         executorService.execute {
@@ -85,7 +85,7 @@ class RekeningRepo(application: Application) {
 
             val sheet = workbook.createSheet()
 
-            val rekeningList = rekeningDAO.getRekeningExport()
+            val rekeningList = rekeningDAO?.rekeningExport
 
             // Create excel header
             val row0 = sheet.createRow(0)
@@ -107,10 +107,10 @@ class RekeningRepo(application: Application) {
                 val cellNama = row.createCell(1)
                 val cellTgl = row.createCell(2)
                 val cellSetoran = row.createCell(3)
-                var date = if (rekening.tglTrans == 0L) "-"
-                else formatter.format(Date(rekening.tglTrans))
+                var date = if (rekening!!.tglTrans == 0L) "-"
+                else rekening?.let { Date(it.tglTrans) }?.let { formatter.format(it) }
 
-                cellNoRek.setCellValue(rekening!!.noRek)
+                cellNoRek.setCellValue(rekening!!.getNoRek())
                 cellNama.setCellValue(rekening.nama)
                 cellTgl.setCellValue(date)
                 cellSetoran.setCellValue(rekening.setoran.toDouble())
@@ -120,7 +120,7 @@ class RekeningRepo(application: Application) {
                 if (pickedDir != null) {
                     val newFile = pickedDir.createFile(
                         "application/vnd.ms-excel",
-                        "Export_" + DateHelper.getCurrentDateString()
+                        "Export_" + DateHelper.currentDateString
                     )
 
                     val out = context.contentResolver.openOutputStream(
