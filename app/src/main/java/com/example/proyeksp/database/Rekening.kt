@@ -1,103 +1,158 @@
 package com.example.proyeksp.database
 
-import android.os.Parcel
 import android.os.Parcelable
-import android.os.Parcelable.Creator
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize // Import for @Parcelize
 
+@Parcelize // Use Kotlin's @Parcelize for simpler Parcelable implementation
 @Entity(
     tableName = "rekening",
     indices = [Index(name = "no_rek_index", value = ["no_rek"], unique = true)]
 )
-class Rekening : Parcelable {
+data class Rekening( // Changed to a data class - highly recommended for entities
     @PrimaryKey
     @ColumnInfo(name = "no_rek")
-    private var noRek: String? = null
+    var noRek: String, // << CHANGED: Now non-nullable String
 
-    @JvmField
     @ColumnInfo(name = "nama")
-    var nama: String? = null
+    var nama: String? = null, // Can remain nullable if 'nama' can be absent
 
-    @JvmField
     @ColumnInfo(name = "saldo_simpanan")
-    var saldoSimpanan: Long = 0
+    var saldoSimpanan: Long = 0L, // Use L for Long literals for clarity
 
-    @JvmField
     @ColumnInfo(name = "saldo_pinjaman")
-    var saldoPinjaman: Long = 0
+    var saldoPinjaman: Long = 0L,
 
-    @JvmField
     @ColumnInfo(name = "angsuran")
-    var angsuran: Long = 0
+    var angsuran: Long = 0L,
 
-    @JvmField
     @ColumnInfo(name = "tgl_trans")
-    var tglTrans: Long = 0
+    var tglTrans: Long = 0L,
 
-    @JvmField
     @ColumnInfo(name = "setoran")
-    var setoran: Long = 0
-
-    constructor()
-
+    var setoran: Long = 0L
+) : Parcelable {
     constructor(
         noRek: String,
         nama: String?,
         saldoSimpanan: Long,
         saldoPinjaman: Long,
         angsuran: Long
-    ) {
-        this.noRek = noRek
-        this.nama = nama
-        this.saldoSimpanan = saldoSimpanan
-        this.saldoPinjaman = saldoPinjaman
-        this.angsuran = angsuran
-        this.tglTrans = 0
-        this.setoran = 0
-    }
+    ) : this( // Delegate to the primary constructor
+        noRek = noRek,
+        nama = nama,
+        saldoSimpanan = saldoSimpanan,
+        saldoPinjaman = saldoPinjaman,
+        angsuran = angsuran,
+        tglTrans = 0L, // Default values for fields not in this constructor
+        setoran = 0L
+    )
 
-    protected constructor(`in`: Parcel) {
-        noRek = `in`.readString()
-        nama = `in`.readString()
-        saldoSimpanan = `in`.readInt().toLong()
-        saldoPinjaman = `in`.readInt().toLong()
-        angsuran = `in`.readInt().toLong()
-        tglTrans = `in`.readLong()
-        setoran = `in`.readInt().toLong()
-    }
+//    constructor(
+//        noRek: String,
+//        nama: String?,
+//        saldoSimpanan: Long,
+//        saldoPinjaman: Long,
+//        angsuran: Long
+//    ) {
+//        this.noRek = noRek
+//        this.nama = nama
+//        this.saldoSimpanan = saldoSimpanan
+//        this.saldoPinjaman = saldoPinjaman
+//        this.angsuran = angsuran
+//        this.tglTrans = 0
+//        this.setoran = 0
+//    }
 
-    fun getNoRek(): String {
-        return noRek!!
-    }
-
-    fun setNoRek(noRek: String) {
-        this.noRek = noRek
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeString(this.noRek)
-        dest.writeString(this.nama)
-        dest.writeLong(this.saldoSimpanan)
-        dest.writeLong(this.saldoPinjaman)
-        dest.writeLong(this.angsuran)
-        dest.writeLong(this.tglTrans)
-        dest.writeLong(this.setoran)
-    }
-
-    companion object CREATOR : Creator<Rekening> {
-        override fun createFromParcel(parcel: Parcel): Rekening {
-            return Rekening(parcel)
-        }
-
-        override fun newArray(size: Int): Array<Rekening?> {
-            return arrayOfNulls(size)
-        }
-    }
+    // @Parcelize handles all Parcelable boilerplate.
+    // So, you can remove:
+    // - protected constructor(`in`: Parcel)
+    // - override fun describeContents(): Int
+    // - override fun writeToParcel(dest: Parcel, flags: Int)
+    // - companion object CREATOR
 }
+
+//    @PrimaryKey
+//    @ColumnInfo(name = "no_rek")
+//    var noRek: String? = null
+//
+//    @ColumnInfo(name = "nama")
+//    var nama: String? = null
+//
+//    @ColumnInfo(name = "saldo_simpanan")
+//    var saldoSimpanan: Long = 0
+//
+//    @ColumnInfo(name = "saldo_pinjaman")
+//    var saldoPinjaman: Long = 0
+//
+//    @ColumnInfo(name = "angsuran")
+//    var angsuran: Long = 0
+//
+//    @ColumnInfo(name = "tgl_trans")
+//    var tglTrans: Long = 0
+//
+//    @ColumnInfo(name = "setoran")
+//    var setoran: Long = 0
+//
+//    constructor()
+//
+//    constructor(
+//        noRek: String,
+//        nama: String?,
+//        saldoSimpanan: Long,
+//        saldoPinjaman: Long,
+//        angsuran: Long
+//    ) {
+//        this.noRek = noRek
+//        this.nama = nama
+//        this.saldoSimpanan = saldoSimpanan
+//        this.saldoPinjaman = saldoPinjaman
+//        this.angsuran = angsuran
+//        this.tglTrans = 0
+//        this.setoran = 0
+//    }
+//
+//    protected constructor(`in`: Parcel) {
+//        noRek = `in`.readString()
+//        nama = `in`.readString()
+//        saldoSimpanan = `in`.readInt().toLong()
+//        saldoPinjaman = `in`.readInt().toLong()
+//        angsuran = `in`.readInt().toLong()
+//        tglTrans = `in`.readLong()
+//        setoran = `in`.readInt().toLong()
+//    }
+//
+////    fun getNoRek(): String {
+////        return noRek!!
+////    }
+////
+////    fun setNoRek(noRek: String) {
+////        this.noRek = noRek
+////    }
+//
+//    override fun describeContents(): Int {
+//        return 0
+//    }
+//
+//    override fun writeToParcel(dest: Parcel, flags: Int) {
+//        dest.writeString(this.noRek)
+//        dest.writeString(this.nama)
+//        dest.writeLong(this.saldoSimpanan)
+//        dest.writeLong(this.saldoPinjaman)
+//        dest.writeLong(this.angsuran)
+//        dest.writeLong(this.tglTrans)
+//        dest.writeLong(this.setoran)
+//    }
+//
+//    companion object CREATOR : Creator<Rekening> {
+//        override fun createFromParcel(parcel: Parcel): Rekening {
+//            return Rekening(parcel)
+//        }
+//
+//        override fun newArray(size: Int): Array<Rekening?> {
+//            return arrayOfNulls(size)
+//        }
+//    }
