@@ -4,10 +4,22 @@ import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
 
-class CurrencyHelper {
+object CurrencyHelper {
+    // Still better to make it a val if its configuration doesn't change after first init
+    private val format: NumberFormat by lazy {
+        NumberFormat.getCurrencyInstance(Locale("in", "ID")).apply {
+            currency = Currency.getInstance("IDR")
+            maximumFractionDigits = 0
+            isGroupingUsed = true
+        }
+    }
+
+    fun format(n: Long): String {
+        return format.format(n)
+    }
+
 //    private var format: NumberFormat? = null
 //
-//    @JvmStatic
 //    fun format(n: Long): String {
 //        if (format == null) {
 //            format = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
@@ -17,24 +29,4 @@ class CurrencyHelper {
 //        }
 //
 //        return format!!.format(n)
-//    }
-    companion object {
-        // Use the 'lazy' delegate for thread-safe, once-only initialization
-        private val currencyFormatter: NumberFormat by lazy {
-            // Locale "in" for Indonesian language, "ID" for Indonesia country
-            val locale = Locale("in", "ID")
-            NumberFormat.getCurrencyInstance(locale).apply {
-                // Explicitly set currency for maximum clarity and robustness,
-                // though getCurrencyInstance(locale) should infer it.
-                currency = Currency.getInstance("IDR")
-                maximumFractionDigits = 0
-                isGroupingUsed = true // Use property access syntax for setters
-            }
-        }
-
-    @JvmStatic
-        fun format(amount: Long): String {
-            return currencyFormatter.format(amount)
-        }
-    }
 }
