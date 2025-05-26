@@ -30,8 +30,8 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     val tvSimpanan: TextView by lazy { findViewById(R.id.tv_simpanan) }
     val tvPinjaman: TextView by lazy { findViewById(R.id.tv_simpanan) }
     val tvAngsuran: TextView by lazy { findViewById(R.id.tv_angsuran) }
-    val etSetoran: EditText by lazy { findViewById(R.id.tv_simpanan) }
-    val btSimpan: Button by lazy { findViewById(R.id.tv_simpanan) }
+    val etSetoran: EditText by lazy { findViewById(R.id.et_setoran) }
+    val btSimpan: Button by lazy { findViewById(R.id.bt_simpan) }
     var rekening: Rekening? = null
     val nf: NumberFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag("ID"))
 
