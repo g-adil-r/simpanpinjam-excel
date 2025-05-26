@@ -37,7 +37,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 //        )
         setContentView(R.layout.activity_main)
 
-        rekViewModel = ViewModelProvider(this)[RekeningViewModel::class.java]
+        rekViewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+        )[RekeningViewModel::class.java]
 
 //        btImport = findViewById(R.id.bt_import)
 //        btScan = findViewById(R.id.bt_scan)

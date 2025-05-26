@@ -110,7 +110,7 @@ class RekeningRepo(application: Application) {
                 var date = if (rekening!!.tglTrans == 0L) "-"
                 else rekening?.let { Date(it.tglTrans) }?.let { formatter.format(it) }
 
-                cellNoRek.setCellValue(rekening!!.getNoRek())
+                cellNoRek.setCellValue(rekening!!.noRek)
                 cellNama.setCellValue(rekening.nama)
                 cellTgl.setCellValue(date)
                 cellSetoran.setCellValue(rekening.setoran.toDouble())

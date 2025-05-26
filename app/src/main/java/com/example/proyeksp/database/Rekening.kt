@@ -63,13 +63,13 @@ class Rekening : Parcelable {
         setoran = `in`.readInt().toLong()
     }
 
-    fun getNoRek(): String {
-        return noRek!!
-    }
-
-    fun setNoRek(noRek: String) {
-        this.noRek = noRek
-    }
+//    fun getNoRek(): String {
+//        return noRek!!
+//    }
+//
+//    fun setNoRek(noRek: String) {
+//        this.noRek = noRek
+//    }
 
     override fun describeContents(): Int {
         return 0
