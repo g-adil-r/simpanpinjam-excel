@@ -9,7 +9,12 @@ import androidx.lifecycle.MutableLiveData
 import com.example.proyeksp.database.AppDatabase
 import com.example.proyeksp.database.Rekening
 import com.example.proyeksp.database.RekeningDAO
+import com.example.proyeksp.database.SupabaseService
 import com.example.proyeksp.helper.DateHelper
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.filter.FilterOperator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Workbook
@@ -24,12 +29,12 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class RekeningRepo(application: Application) {
+    private val supabase = SupabaseService.client
     private val rekeningDAO: RekeningDAO?
     private val context: Context
     val rekeningList: LiveData<List<Rekening>>
     private var success = MutableLiveData<Boolean>()
-    private val executorService: ExecutorService =
-        Executors.newSingleThreadExecutor()
+    private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
     private val headerExportTable = arrayOf(
         "NoRekening",
         "Nama",
@@ -51,9 +56,7 @@ class RekeningRepo(application: Application) {
 
     fun findRekeningByNoRek(s: String): Rekening? {
         val future = executorService.submit<Rekening?> {
-            rekeningDAO!!.getRekeningByNoRek(
-                s
-            )
+            rekeningDAO!!.getRekeningByNoRek(s)
         }
         try {
             return future.get()
@@ -64,8 +67,36 @@ class RekeningRepo(application: Application) {
         }
     }
 
-    val daftarRekening: LiveData<List<Rekening>>?
-        get() = rekeningDAO?.daftarRekening
+    suspend fun getRekeningByNoRek(s: String): Rekening {
+        return withContext(Dispatchers.IO) {
+            try {
+                supabase.from("Rekening").select {
+                    filter {
+                        eq("no_rek", s)
+                    }
+                }.decodeSingle<Rekening>()
+            } catch (e: Exception) {
+                // Handle error (log, throw custom exception, return emptyList)
+                e.printStackTrace()
+                Rekening("", "", 0, 0, 0)
+            }
+        }
+    }
+
+    suspend fun getAllRekening(): List<Rekening> {
+        return withContext(Dispatchers.IO) {
+            try {
+                supabase.from("Rekening").select().decodeList<Rekening>()
+            } catch (e: Exception) {
+                // Handle error (log, throw custom exception, return emptyList)
+                e.printStackTrace()
+                emptyList()
+            }
+        }
+    }
+
+//    val daftarRekening: LiveData<List<Rekening>>?
+//        get() = rekeningDAO?.daftarRekening
 
     fun update(rekening: Rekening) {
         executorService.execute { rekeningDAO!!.update(rekening) }
