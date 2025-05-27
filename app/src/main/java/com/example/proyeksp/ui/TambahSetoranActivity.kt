@@ -28,7 +28,7 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     val tvNoRek: TextView by lazy { findViewById(R.id.tv_no_rek) }
     val tvNama: TextView by lazy { findViewById(R.id.tv_nama) }
     val tvSimpanan: TextView by lazy { findViewById(R.id.tv_simpanan) }
-    val tvPinjaman: TextView by lazy { findViewById(R.id.tv_simpanan) }
+    val tvPinjaman: TextView by lazy { findViewById(R.id.tv_pinjaman) }
     val tvAngsuran: TextView by lazy { findViewById(R.id.tv_angsuran) }
     val etSetoran: EditText by lazy { findViewById(R.id.et_setoran) }
     val btSimpan: Button by lazy { findViewById(R.id.bt_simpan) }
@@ -38,12 +38,22 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tambah_setoran)
-        rekViewModel = ViewModelProvider(this).get(
-            RekeningViewModel::class.java
-        )
+        rekViewModel = ViewModelProvider(this)[RekeningViewModel::class.java]
 
         val noRek = intent.getStringExtra("noRek")
-        rekening = noRek?.let { rekViewModel!!.getRekeningByNoRek(it) }
+        rekViewModel?.getRekeningFromNoRek(noRek!!)
+        rekViewModel?.foundRekening?.observe(this) {
+            rekening = rekViewModel!!.foundRekening.value
+            tvNoRek.setText(rekening!!.noRek)
+            tvNama.setText(rekening!!.nama)
+            tvSimpanan.setText(CurrencyHelper.format(rekening!!.saldoSimpanan))
+            tvPinjaman.setText(CurrencyHelper.format(rekening!!.saldoPinjaman))
+            tvAngsuran.setText(CurrencyHelper.format(rekening!!.angsuran))
+
+            btSimpan.setOnClickListener(this)
+            etSetoran.setText(nf.format(rekening!!.setoran))
+            etSetoran.addTextChangedListener(currencyTextWatcher())
+        }
 
 //        tvNoRek = findViewById(R.id.tv_no_rek)
 //        tvNama = findViewById(R.id.tv_nama)
@@ -52,16 +62,6 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
 //        tvAngsuran = findViewById(R.id.tv_angsuran)
 //        etSetoran = findViewById(R.id.et_setoran)
 //        btSimpan = findViewById(R.id.bt_simpan)
-
-        tvNoRek.setText(rekening!!.noRek)
-        tvNama.setText(rekening!!.nama)
-        tvSimpanan.setText(CurrencyHelper.format(rekening!!.saldoSimpanan))
-        tvPinjaman.setText(CurrencyHelper.format(rekening!!.saldoPinjaman))
-        tvAngsuran.setText(CurrencyHelper.format(rekening!!.angsuran))
-
-        btSimpan.setOnClickListener(this)
-        etSetoran.setText(nf.format(rekening!!.setoran))
-        etSetoran.addTextChangedListener(currencyTextWatcher())
     }
 
     override fun onClick(v: View) {

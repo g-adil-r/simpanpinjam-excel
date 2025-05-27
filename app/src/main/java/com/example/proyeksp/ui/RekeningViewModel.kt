@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 class RekeningViewModel(application: Application) : AndroidViewModel(application) {
     private val mRepository = RekeningRepo(application)
     val _allRekening = MutableLiveData<List<Rekening>>()
+    val foundRekening = MutableLiveData<Rekening>()
     val allRekening: LiveData<List<Rekening>> = mRepository.rekeningList
 
     val success: LiveData<Boolean>
@@ -46,9 +47,18 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
     val totalSetoran: LiveData<Long?>?
         get() = mRepository.totalSetoran
 
+    // ------------------------------------------------------
+
     fun fetchAllRekening() {
         viewModelScope.launch {
             _allRekening.value = mRepository.getAllRekening()
+            Log.d("RekeningViewModel", "Fetched ${_allRekening.value?.size} records")
+        }
+    }
+
+    fun getRekeningFromNoRek(s: String) {
+        viewModelScope.launch {
+            foundRekening.value = mRepository.getRekeningByNoRek(s)
             Log.d("RekeningViewModel", "Fetched ${_allRekening.value?.size} records")
         }
     }
