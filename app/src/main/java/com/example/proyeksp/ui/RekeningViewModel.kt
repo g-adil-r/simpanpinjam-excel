@@ -15,7 +15,7 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
     private val mRepository = RekeningRepo(application)
     val _allRekening = MutableLiveData<List<Rekening>>()
     val foundRekening = MutableLiveData<Rekening>()
-    val allRekening: LiveData<List<Rekening>> = mRepository.rekeningList
+//    val allRekening: LiveData<List<Rekening>> = mRepository.rekeningList
 
     val success: LiveData<Boolean>
         get() = mRepository.getSuccess()

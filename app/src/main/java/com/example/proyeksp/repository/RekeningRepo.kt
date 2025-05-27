@@ -102,6 +102,10 @@ class RekeningRepo(application: Application) {
         executorService.execute { rekeningDAO!!.update(rekening) }
     }
 
+    suspend fun updateRekening(rekening: Rekening) {
+
+    }
+
     val scanData: LiveData<Int>?
         get() = rekeningDAO?.scanData
 

@@ -99,8 +99,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                             this,
                             "Gagal export data",
                             Toast.LENGTH_SHORT
-                        )
-                            .show()
+                        ).show()
                     }
                 }
             }
