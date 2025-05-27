@@ -12,6 +12,8 @@ import com.example.proyeksp.database.RekeningDAO
 import com.example.proyeksp.database.SupabaseService
 import com.example.proyeksp.helper.DateHelper
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Count
+import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.postgrest.query.filter.FilterOperator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -55,18 +57,18 @@ class RekeningRepo(application: Application) {
         return success
     }
 
-    fun findRekeningByNoRek(s: String): Rekening? {
-        val future = executorService.submit<Rekening?> {
-            rekeningDAO!!.getRekeningByNoRek(s)
-        }
-        try {
-            return future.get()
-        } catch (e: ExecutionException) {
-            throw RuntimeException(e)
-        } catch (e: InterruptedException) {
-            throw RuntimeException(e)
-        }
-    }
+//    fun findRekeningByNoRek(s: String): Rekening? {
+//        val future = executorService.submit<Rekening?> {
+//            rekeningDAO!!.getRekeningByNoRek(s)
+//        }
+//        try {
+//            return future.get()
+//        } catch (e: ExecutionException) {
+//            throw RuntimeException(e)
+//        } catch (e: InterruptedException) {
+//            throw RuntimeException(e)
+//        }
+//    }
 
     suspend fun getRekeningByNoRek(s: String): Rekening {
         return withContext(Dispatchers.IO) {
@@ -87,7 +89,9 @@ class RekeningRepo(application: Application) {
     suspend fun getAllRekening(): List<Rekening> {
         return withContext(Dispatchers.IO) {
             try {
-                supabase.from("Rekening").select().decodeList<Rekening>()
+                supabase.from("Rekening").select {
+                    order("no_rek", order = Order.ASCENDING)
+                }.decodeList<Rekening>()
             } catch (e: Exception) {
                 // Handle error (log, throw custom exception, return emptyList)
                 e.printStackTrace()
@@ -99,9 +103,9 @@ class RekeningRepo(application: Application) {
 //    val daftarRekening: LiveData<List<Rekening>>?
 //        get() = rekeningDAO?.daftarRekening
 
-    fun update(rekening: Rekening) {
-        executorService.execute { rekeningDAO!!.update(rekening) }
-    }
+//    fun update(rekening: Rekening) {
+//        executorService.execute { rekeningDAO!!.update(rekening) }
+//    }
 
     suspend fun updateRekening(rekening: Rekening) {
         withContext(Dispatchers.IO) {
@@ -123,6 +127,20 @@ class RekeningRepo(application: Application) {
 
     val scanData: LiveData<Int>?
         get() = rekeningDAO?.scanData
+
+    suspend fun getNumberOfScan(): Int {
+        return withContext(Dispatchers.IO) {
+            try {
+                supabase.from("Rekening").select {
+                    count(Count.EXACT)
+                }.decodeSingle<Int>()
+            } catch (e: Exception) {
+                // Handle error (log, throw custom exception, return emptyList)
+                e.printStackTrace()
+                0
+            }
+        }
+    }
 
     val totalSetoran: LiveData<Long?>?
         get() = rekeningDAO?.totalSetoran

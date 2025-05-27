@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
 import com.example.proyeksp.R
 import com.example.proyeksp.helper.CurrencyHelper
@@ -32,9 +33,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        val splashScreen: SplashScreen = installSplashScreen.installSplashScreen(
-//            this
-//        )
+        val splashScreen: SplashScreen = installSplashScreen()
         setContentView(R.layout.activity_main)
 
         rekViewModel = ViewModelProvider(
@@ -55,7 +54,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         btViewData.setOnClickListener(this)
         btExport.setOnClickListener(this)
 
-        rekViewModel!!.scanData?.observe(
+        rekViewModel!!.getScanData()
+        rekViewModel!!.scanNum.observe(
             this
         ) { scanCount: Int? -> tvScanCount.setText(scanCount.toString()) }
         rekViewModel!!.totalSetoran?.observe(

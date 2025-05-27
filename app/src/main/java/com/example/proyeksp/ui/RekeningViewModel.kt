@@ -15,18 +15,19 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
     private val mRepository = RekeningRepo(application)
     val _allRekening = MutableLiveData<List<Rekening>>()
     val foundRekening = MutableLiveData<Rekening>()
+    val scanNum = MutableLiveData<Int>()
 //    val allRekening: LiveData<List<Rekening>> = mRepository.rekeningList
 
     val success: LiveData<Boolean>
         get() = mRepository.getSuccess()
 
-    fun update(rekening: Rekening) {
-        mRepository.update(rekening)
-    }
+//    fun update(rekening: Rekening) {
+//        mRepository.update(rekening)
+//    }
 
-    fun getRekeningByNoRek(s: String): Rekening? {
-        return mRepository.findRekeningByNoRek(s)
-    }
+//    fun getRekeningByNoRek(s: String): Rekening? {
+//        return mRepository.findRekeningByNoRek(s)
+//    }
 
     fun exportToXls(uri: Uri) {
         mRepository.exportToXls(uri)
@@ -66,6 +67,12 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
     fun updateRekening(rekening: Rekening) {
         viewModelScope.launch {
             mRepository.updateRekening(rekening)
+        }
+    }
+
+    fun getScanData() {
+        viewModelScope.launch {
+            scanNum.value = mRepository.getNumberOfScan()
         }
     }
 }
