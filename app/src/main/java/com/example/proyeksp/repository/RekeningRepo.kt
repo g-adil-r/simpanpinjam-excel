@@ -20,6 +20,7 @@ import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.IOException
+import java.lang.reflect.Array.set
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -103,7 +104,21 @@ class RekeningRepo(application: Application) {
     }
 
     suspend fun updateRekening(rekening: Rekening) {
-
+        withContext(Dispatchers.IO) {
+            try {
+                supabase.from("Rekening").update({
+                    set("tgl_trans", rekening.tglTrans)
+                    set("setoran", rekening.setoran)
+                }) {
+                    filter {
+                        eq("no_rek", rekening.noRek)
+                    }
+                }
+            } catch (e: Exception) {
+                // Handle error (log, throw custom exception, return emptyList)
+                e.printStackTrace()
+            }
+        }
     }
 
     val scanData: LiveData<Int>?

@@ -62,4 +62,10 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
             Log.d("RekeningViewModel", "Fetched ${_allRekening.value?.size} records")
         }
     }
+
+    fun updateRekening(rekening: Rekening) {
+        viewModelScope.launch {
+            mRepository.updateRekening(rekening)
+        }
+    }
 }

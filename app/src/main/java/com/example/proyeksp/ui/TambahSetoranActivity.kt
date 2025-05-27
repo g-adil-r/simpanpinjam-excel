@@ -84,7 +84,7 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     private fun editSetoran(setoran: Long) {
         rekening!!.tglTrans = System.currentTimeMillis()
         rekening!!.setoran = setoran
-        rekViewModel!!.update(rekening!!)
+        rekViewModel!!.updateRekening(rekening!!)
 
         Toast.makeText(this, "Setoran berhasil disimpan", Toast.LENGTH_SHORT).show()
         val i = Intent(this, MainActivity::class.java)
