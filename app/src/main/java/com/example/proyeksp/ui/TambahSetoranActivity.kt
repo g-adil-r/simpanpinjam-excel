@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.Html
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -40,15 +41,16 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_tambah_setoran)
         rekViewModel = ViewModelProvider(this)[RekeningViewModel::class.java]
 
-        val noRek = intent.getStringExtra("noRek")
+        val noRek = intent.getStringExtra("rekening")
+        Log.d("TambahSetoranActivity", "Received noRek: $noRek")
         rekViewModel?.getRekeningFromNoRek(noRek!!)
         rekViewModel?.foundRekening?.observe(this) {
             rekening = rekViewModel!!.foundRekening.value
-            tvNoRek.setText(rekening!!.noRek)
-            tvNama.setText(rekening!!.nama)
-            tvSimpanan.setText(CurrencyHelper.format(rekening!!.saldoSimpanan))
-            tvPinjaman.setText(CurrencyHelper.format(rekening!!.saldoPinjaman))
-            tvAngsuran.setText(CurrencyHelper.format(rekening!!.angsuran))
+            tvNoRek.text = rekening!!.noRek
+            tvNama.text = rekening!!.nama
+            tvSimpanan.text = CurrencyHelper.format(rekening!!.saldoSimpanan)
+            tvPinjaman.text = CurrencyHelper.format(rekening!!.saldoPinjaman)
+            tvAngsuran.text = CurrencyHelper.format(rekening!!.angsuran)
 
             btSimpan.setOnClickListener(this)
             etSetoran.setText(nf.format(rekening!!.setoran))
@@ -82,6 +84,7 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun editSetoran(setoran: Long) {
+        val transaksi = 0
         rekening!!.tglTrans = System.currentTimeMillis()
         rekening!!.setoran = setoran
         rekViewModel!!.updateRekening(rekening!!)

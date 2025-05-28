@@ -59,7 +59,7 @@ class ScanActivity : AppCompatActivity() {
             if (it != null) {
                 cameraController!!.unbind()
                 val i = Intent(this, TambahSetoranActivity::class.java)
-                i.putExtra("noRek", s)
+                i.putExtra("rekening", it.noRek)
                 startActivity(i)
             } else {
                 if (toastMessage != null) toastMessage!!.cancel()

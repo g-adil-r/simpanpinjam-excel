@@ -31,8 +31,8 @@ class DaftarSetoranActivity : AppCompatActivity() {
         ) { rekenings: List<Rekening?>? ->
             rekAdapter = RekeningAdapter(this, rekenings)
             rvRekening.setAdapter(rekAdapter)
-            if (rekenings!!.size == 0) {
-                tvNoData.setVisibility(View.VISIBLE)
+            if (rekenings!!.isEmpty()) {
+                tvNoData.visibility = View.VISIBLE
             }
         }
     }

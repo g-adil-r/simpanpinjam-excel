@@ -3,15 +3,19 @@ package com.example.proyeksp.repository
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.proyeksp.database.AppDatabase
+import com.example.proyeksp.database.Nasabah
 import com.example.proyeksp.database.Rekening
 import com.example.proyeksp.database.RekeningDAO
 import com.example.proyeksp.database.SupabaseService
+import com.example.proyeksp.database.Transaksi
 import com.example.proyeksp.helper.DateHelper
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
 import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.postgrest.query.filter.FilterOperator
@@ -70,17 +74,30 @@ class RekeningRepo(application: Application) {
 //        }
 //    }
 
-    suspend fun getRekeningByNoRek(s: String): Rekening {
+    suspend fun getRekeningFromNoRek(s: String): Rekening {
         return withContext(Dispatchers.IO) {
             try {
-                supabase.from("Rekening").select {
+                val columns = Columns.raw("""
+                    no_rek,
+                    nama,
+                    saldo_simpanan,
+                    saldo_pinjaman,
+                    angsuran
+                """.trimIndent())
+                val rekening = supabase.from("nasabah").select(
+                    columns = columns
+                ) {
                     filter {
                         eq("no_rek", s)
                     }
                 }.decodeSingle<Rekening>()
+                Log.d("ScanActivity", "Rekening found: $rekening")
+                rekening
             } catch (e: Exception) {
                 // Handle error (log, throw custom exception, return emptyList)
                 e.printStackTrace()
+                Log.d("ScanActivity", "Error: ${e.printStackTrace()}")
+                Log.d("ScanActivity", "Rekening not found. Return empty instead")
                 Rekening("", "", 0, 0, 0)
             }
         }
@@ -120,6 +137,16 @@ class RekeningRepo(application: Application) {
                 }
             } catch (e: Exception) {
                 // Handle error (log, throw custom exception, return emptyList)
+                e.printStackTrace()
+            }
+        }
+    }
+
+    suspend fun addSetoran(transaksi: Transaksi) {
+        withContext(Dispatchers.IO) {
+            try {
+                supabase.from("transaksi").upsert(transaksi)
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }

@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.proyeksp.database.Rekening
+import com.example.proyeksp.database.Transaksi
 import com.example.proyeksp.repository.RekeningRepo
 import kotlinx.coroutines.launch
 
@@ -48,7 +49,7 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
     val totalSetoran: LiveData<Long?>?
         get() = mRepository.totalSetoran
 
-    // ------------------------------------------------------
+    // -------------------------------------------------------------------------------------
 
     fun fetchAllRekening() {
         viewModelScope.launch {
@@ -59,14 +60,19 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
 
     fun getRekeningFromNoRek(s: String) {
         viewModelScope.launch {
-            foundRekening.value = mRepository.getRekeningByNoRek(s)
-            Log.d("RekeningViewModel", "Fetched ${_allRekening.value?.size} records")
+            foundRekening.value = mRepository.getRekeningFromNoRek(s)
         }
     }
 
     fun updateRekening(rekening: Rekening) {
         viewModelScope.launch {
             mRepository.updateRekening(rekening)
+        }
+    }
+
+    fun addSetoran(transaksi: Transaksi) {
+        viewModelScope.launch {
+            mRepository.addSetoran(transaksi)
         }
     }
 
