@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.proyeksp.R
 import com.example.proyeksp.database.Rekening
+import com.example.proyeksp.database.Transaksi
 import com.example.proyeksp.helper.CurrencyHelper
 import java.text.NumberFormat
 import java.util.Locale
@@ -84,10 +85,15 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun editSetoran(setoran: Long) {
-        val transaksi = 0
+        val transaksi = Transaksi(
+            noRek = rekening!!.noRek,
+            tglTrans =  System.currentTimeMillis(),
+            setoran = setoran
+        )
         rekening!!.tglTrans = System.currentTimeMillis()
         rekening!!.setoran = setoran
         rekViewModel!!.updateRekening(rekening!!)
+        rekViewModel!!.addSetoran(transaksi)
 
         Toast.makeText(this, "Setoran berhasil disimpan", Toast.LENGTH_SHORT).show()
         val i = Intent(this, MainActivity::class.java)

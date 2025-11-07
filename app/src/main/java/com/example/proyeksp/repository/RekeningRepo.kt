@@ -142,12 +142,14 @@ class RekeningRepo(application: Application) {
         }
     }
 
-    suspend fun addSetoran(transaksi: Transaksi) {
-        withContext(Dispatchers.IO) {
+    suspend fun addSetoran(transaksi: Transaksi): Boolean {
+        return withContext(Dispatchers.IO) {
             try {
                 supabase.from("transaksi").upsert(transaksi)
+                true
             } catch (e: Exception) {
                 e.printStackTrace()
+                false
             }
         }
     }
