@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
+import com.example.proyeksp.BuildConfig
 import com.example.proyeksp.R
 import com.example.proyeksp.helper.CurrencyHelper
 
