@@ -4,7 +4,10 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proyeksp.repository.AuthRepo
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,12 +27,12 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     val sessionStatus : StateFlow<SessionStatus> = mRepository.sessionStatus
 
-    // For testing purposes only!!!
-    init {
-        viewModelScope.launch {
-            mRepository.logout()
-        }
-    }
+    // TODO: Remove this since this is for testing only
+//    init {
+//        viewModelScope.launch {
+//            mRepository.logout()
+//        }
+//    }
 
     fun login(emailInput: String, passwordInput: String) {
         viewModelScope.launch {
@@ -45,5 +48,9 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
         }
+    }
+
+    suspend fun getCurrentUserRole(): String? {
+        return mRepository.getCurrentUserRole()
     }
 }

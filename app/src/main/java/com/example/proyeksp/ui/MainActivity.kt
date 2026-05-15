@@ -17,9 +17,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.proyeksp.BuildConfig
 import com.example.proyeksp.R
 import com.example.proyeksp.helper.CurrencyHelper
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     val btImport: Button by lazy { findViewById(R.id.bt_import) }
@@ -29,6 +31,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     val tvScanCount: TextView by lazy { findViewById(R.id.tv_scan_count) }
     val tvTotalSetoran: TextView by lazy { findViewById(R.id.tv_total_setoran) }
     var rekViewModel: RekeningViewModel? = null
+    var authViewModel: AuthViewModel? = null
     var exportCSVLauncher: ActivityResultLauncher<Intent>? = null
     var importCSVLauncher: ActivityResultLauncher<Intent>? = null
 
@@ -41,6 +44,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(application)
         )[RekeningViewModel::class.java]
+        authViewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+        )[AuthViewModel::class.java]
 
 //        btImport = findViewById(R.id.bt_import)
 //        btScan = findViewById(R.id.bt_scan)

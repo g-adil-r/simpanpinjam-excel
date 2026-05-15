@@ -63,6 +63,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    // TODO: add progress bar or spinner
     private fun observeUiState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

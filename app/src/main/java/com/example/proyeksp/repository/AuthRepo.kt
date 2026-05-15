@@ -1,10 +1,17 @@
 package com.example.proyeksp.repository
 
+import android.util.Log
 import com.example.proyeksp.database.SupabaseService
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.status.SessionStatus
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class UserRole(val role: String)
 
 class AuthRepo {
     private val supabase = SupabaseService.client
@@ -16,9 +23,9 @@ class AuthRepo {
                 this.email = email
                 this.password = password
             }
-            Result.success(Unit) // Success!
+            Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)    // Failed! Pass the exception back.
+            Result.failure(e)
         }
     }
 
@@ -33,5 +40,17 @@ class AuthRepo {
 
     fun getCurrentUserEmail(): String? {
         return supabase.auth.currentUserOrNull()?.email
+    }
+
+    suspend fun getCurrentUserRole(): String? {
+        val user = supabase.auth.currentUserOrNull()
+
+        return if (user != null)
+            supabase
+                .from("petugas")
+                .select(
+                    Columns.list("role")
+                ).decodeSingleOrNull<UserRole>()?.role ?: "Not found"
+        else "Not Found"
     }
 }
