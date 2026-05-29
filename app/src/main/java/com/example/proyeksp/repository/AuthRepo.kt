@@ -1,6 +1,7 @@
 package com.example.proyeksp.repository
 
 import android.util.Log
+import com.example.proyeksp.database.Petugas
 import com.example.proyeksp.database.SupabaseService
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
@@ -42,15 +43,24 @@ class AuthRepo {
         return supabase.auth.currentUserOrNull()?.email
     }
 
-    suspend fun getCurrentUserRole(): String? {
+    suspend fun getCurrentPetugas(): Petugas? {
         val user = supabase.auth.currentUserOrNull()
 
-        return if (user != null)
-            supabase
-                .from("petugas")
-                .select(
-                    Columns.list("role")
-                ).decodeSingleOrNull<UserRole>()?.role ?: "Not found"
-        else "Not Found"
+        if (user == null) return null
+
+        Log.d("AuthRepo", "ID: ${user.id}")
+
+        val petugas = supabase
+            .from("petugas")
+            .select(
+                Columns.list("userid", "username", "role")
+            ) {
+                filter {
+                    eq("userid", user.id)
+                }
+            }
+            .decodeSingleOrNull<Petugas>()
+        Log.d("AuthRepo", "Petugas: $petugas")
+        return petugas
     }
 }

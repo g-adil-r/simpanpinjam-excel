@@ -35,7 +35,6 @@ class LoginActivity : AppCompatActivity() {
             ViewModelProvider.AndroidViewModelFactory.getInstance(application)
         )[AuthViewModel::class.java]
 
-        observeSession()
         observeUiState()
 
         btLogin.setOnClickListener {
@@ -43,23 +42,6 @@ class LoginActivity : AppCompatActivity() {
             val password = etPass.text.toString()
 
             authViewModel!!.login(email, password)
-        }
-    }
-
-    private fun observeSession() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                authViewModel!!.sessionStatus.collect { status ->
-                    when (status) {
-                        is SessionStatus.Authenticated -> {
-                            val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                            startActivity(intent)
-                            finish()
-                        }
-                        else -> Unit
-                    }
-                }
-            }
         }
     }
 
@@ -76,9 +58,17 @@ class LoginActivity : AppCompatActivity() {
                             // showProgressBar(false)
                             Toast.makeText(this@LoginActivity, state.message, Toast.LENGTH_SHORT).show()
                         }
-                        is AuthUiState.Success -> {
-                            // The sessionStatus observer will handle navigation
+                        is AuthUiState.SuccessPetugas -> {
                             Toast.makeText(this@LoginActivity, "Selamat datang", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        }
+                        is AuthUiState.SuccessAdmin -> {
+                            Toast.makeText(this@LoginActivity, "Selamat datang", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this@LoginActivity, MainAdminActivity::class.java)
+                            startActivity(intent)
+                            finish()
                         }
                         else -> Unit
                     }

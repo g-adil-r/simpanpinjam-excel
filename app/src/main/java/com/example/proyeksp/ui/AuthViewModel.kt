@@ -4,10 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proyeksp.repository.AuthRepo
-import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
-import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +13,8 @@ import kotlinx.coroutines.launch
 sealed class AuthUiState {
     object Idle : AuthUiState()
     object Loading : AuthUiState()
-    object Success : AuthUiState()
+    object SuccessAdmin : AuthUiState()
+    object SuccessPetugas : AuthUiState()
     data class Error(val message: String) : AuthUiState()
 }
 
@@ -28,11 +26,11 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     val sessionStatus : StateFlow<SessionStatus> = mRepository.sessionStatus
 
     // TODO: Remove this since this is for testing only
-//    init {
-//        viewModelScope.launch {
-//            mRepository.logout()
-//        }
-//    }
+    init {
+        viewModelScope.launch {
+            mRepository.logout()
+        }
+    }
 
     fun login(emailInput: String, passwordInput: String) {
         viewModelScope.launch {
@@ -41,16 +39,23 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             val result = mRepository.login(emailInput, passwordInput)
 
             result.onSuccess {
-                _uiState.value = AuthUiState.Success
+                val user = mRepository.getCurrentPetugas()
+                if (user != null) {
+                    if (user.isAdmin()) {
+                        _uiState.value = AuthUiState.SuccessAdmin
+                    } else {
+                        _uiState.value = AuthUiState.SuccessPetugas
+                    }
+                } else {
+                    _uiState.value = AuthUiState.Error(
+                        message = "An unknown error occurred"
+                    )
+                }
             }.onFailure { exception ->
                 _uiState.value = AuthUiState.Error(
                     message = exception.localizedMessage ?: "An unknown error occurred"
                 )
             }
         }
-    }
-
-    suspend fun getCurrentUserRole(): String? {
-        return mRepository.getCurrentUserRole()
     }
 }
