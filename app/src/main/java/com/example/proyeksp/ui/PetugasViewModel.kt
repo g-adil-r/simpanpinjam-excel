@@ -42,6 +42,7 @@ class PetugasViewModel : ViewModel() {
             } else {
                 _uiState.value = AdminState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
             }
+            getAllPetugas()
         }
     }
 }
