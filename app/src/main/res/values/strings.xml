@@ -12,8 +12,11 @@
 
     <string name="import_data">Import Data</string>
     <string name="scan_qr">Scan QR</string>
-    <string name="lihat_data">Lihat Data</string>
+    <string name="lihat_data">Lihat Setor</string>
     <string name="export_data">Export Data</string>
+
+    <string name="kelola_petugas">Kelola Petugas</string>
+    <string name="buat_laporan">Buat Laporan</string>
 
     <string name="rekening_title">Informasi Rekening:</string>
     <string name="info_no_rek">No. Rekening</string>

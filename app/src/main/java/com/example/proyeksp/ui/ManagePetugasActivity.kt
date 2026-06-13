@@ -1,0 +1,241 @@
+package com.example.proyeksp.ui
+
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.widget.ImageView
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import com.example.proyeksp.R
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.ViewModelProvider
+import com.example.proyeksp.database.Petugas
+
+class ManagePetugasActivity : ComponentActivity() {
+    private val viewModel: PetugasViewModel by lazy { PetugasViewModel() }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
+        setContent {
+            // Use your app theme here
+//            MaterialTheme {
+//                Surface(
+//                    modifier = Modifier.fillMaxSize(),
+//                ) {
+                    ManagePetugasScreen(viewModel)
+//                }
+//            }
+        }
+    }
+}
+
+//@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun ManagePetugasScreen(petugasViewModel: PetugasViewModel = viewModel()) {
+    val petugasList by petugasViewModel.petugasList.observeAsState(emptyList())
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .paint(
+                painter = painterResource(id = R.drawable.background),
+                contentScale = ContentScale.FillBounds
+            ),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            AndroidView(
+                modifier = Modifier.fillMaxWidth(),
+                factory = { context ->
+                    LayoutInflater.from(context).inflate(R.layout.header, null, true)
+                },
+                update = { view ->
+                    // Gambar tidak muncul kalau tidak diset manual
+                    val imageView = view.findViewById<ImageView>(R.id.imageView)
+                    imageView.setImageResource(R.drawable.logo_bumdes)
+                }
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Kelola Petugas",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+                Button(
+                    onClick = { /* Handle navigation to Add Petugas screen */ }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Petugas"
+                    )
+                    Text(" Add Petugas")
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            LazyColumn(
+                modifier = Modifier.weight(1f)
+            ) {
+                items(petugasList) { petugas ->
+                    PetugasItem(petugas)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+
+            AndroidView(
+                modifier = Modifier.fillMaxWidth(),
+                factory = { context ->
+                    // Replace R.layout.footer with your actual footer xml name
+                    LayoutInflater.from(context).inflate(R.layout.footer, null)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun PetugasItem(petugas: Petugas) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        onClick = { expanded = !expanded }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = petugas.namaLengkap.toString(),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                fontSize = 27.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            if (expanded) {
+                Column (
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    InfoRow("Username", petugas.username.toString())
+                    Spacer(modifier = Modifier.height(6.dp))
+                    InfoRow("No. KTP", petugas.noKtp.toString())
+                    Spacer(modifier = Modifier.height(6.dp))
+                    InfoRow("Alamat", petugas.alamat.toString())
+                    Spacer(modifier = Modifier.height(6.dp))
+                    InfoRow("No. Telp", petugas.noTelp.toString())
+                    Spacer(modifier = Modifier.height(6.dp))
+                    InfoRow("Role", petugas.role.toString())
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row (
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Button(
+                            onClick = { /* Handle navigation to Edit Petugas screen */ }
+                        ) {
+                            Text("Edit")
+                        }
+                        Button(
+                            onClick = { /* Handle delete action */ }
+                        ) {
+                            Text("Nonaktifkan")
+                        }
+                    }
+                }
+            } else {
+                Text(
+                    text = petugas.username.toString(),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = 17.sp,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = petugas.role.toString(),
+                    fontSize = 17.sp,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun InfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+    ) {
+        Text(
+            text = label,
+            fontSize = 17.sp,
+            modifier = Modifier
+                .weight(4f)
+        )
+
+        Text(
+            text = ":",
+            fontSize = 17.sp,
+            modifier = Modifier.weight(0.1f)
+        )
+
+        Text(
+            text = value,
+            fontSize = 17.sp,
+            textAlign = TextAlign.End,
+            modifier = Modifier
+                .weight(6f)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ScreenPreview() {
+//    val petugasList = listOf(
+//        Petugas(1, "Budi Santoso", "budi123", "08123456789", "1234567890123456", "Jl.123", "Admin"),
+//        Petugas(2, "Siti Aminah", "sssiti", "08123456789", "1234567890123456", "Jl.1245","Petugas Lapangan"),
+//        Petugas(3, "Agus Hermawan", "AgusH", "08123456789", "1234567890123456", "Jl.Aapap", "Bendahara")
+//    )
+    ManagePetugasScreen()
+}

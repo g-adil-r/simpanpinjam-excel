@@ -22,9 +22,7 @@ class ScanActivity : AppCompatActivity() {
     var cameraController: LifecycleCameraController? = null
     var toastMessage: Toast? = null
     val analyzer = BarcodeAnalyzer { s: String ->
-        this.onDetectBarcode(
-            s
-        )
+        this.onDetectBarcode(s)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

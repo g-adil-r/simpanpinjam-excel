@@ -2,9 +2,74 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.MainAdminActivity">
+    android:background="@drawable/background"
+    app:layout_constraintBottom_toBottomOf="parent"
+    tools:context=".ui.MainActivity">
+
+    <include
+        android:id="@+id/header"
+        app:layout_constraintTop_toTopOf="parent"
+        layout="@layout/header" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="176dp"
+        app:layout_constraintBottom_toTopOf="@id/footer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintVertical_bias="0.0">
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:divider="@drawable/empty_8dp"
+            android:orientation="vertical"
+            android:showDividers="middle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <Button
+                android:id="@+id/bt_manage"
+                style="@style/main_button"
+                android:layout_width="match_parent"
+                android:backgroundTint="@color/sp_lavender"
+                android:text="@string/kelola_petugas"
+                app:icon="@drawable/import_data_icon" />
+
+            <Button
+                android:id="@+id/bt_view_data"
+                style="@style/main_button"
+                android:layout_width="match_parent"
+                android:backgroundTint="@color/sp_green"
+                android:text="@string/lihat_data"
+                app:icon="@drawable/view_data_icon" />
+
+            <Button
+                android:id="@+id/bt_scan"
+                style="@style/main_button"
+                android:layout_width="match_parent"
+                android:backgroundTint="@color/sp_pink"
+                android:text="@string/buat_laporan"
+                app:icon="@drawable/qr_code_scan_icon" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        layout="@layout/footer"
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

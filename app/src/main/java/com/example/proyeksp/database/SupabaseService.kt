@@ -5,6 +5,7 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.functions.Functions
 
 object SupabaseService {
     val client: SupabaseClient by lazy {
@@ -14,6 +15,7 @@ object SupabaseService {
         ) {
             install(Postgrest)
             install(Auth)
+            install(Functions)
         }
     }
 }
