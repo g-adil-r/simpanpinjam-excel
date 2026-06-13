@@ -41,18 +41,23 @@ class PetugasRepo {
     suspend fun addPetugas(petugas: Petugas, password: String): Result<Unit> {
         val payload = CreatePetugasPayload(petugas, password)
         val requestBody = RequestBody("create", payload)
-        val response = supabase.functions.invoke(
-            function = funcName,
-            body = requestBody,
-            headers = Headers.build {
-                append(HttpHeaders.ContentType, "application/json")
+        try {
+            val response = supabase.functions.invoke(
+                function = funcName,
+                body = requestBody,
+                headers = Headers.build {
+                    append(HttpHeaders.ContentType, "application/json")
+                }
+            )
+            return if (response.status.value == 200) {
+                Result.success(Unit)
+            } else {
+                Log.d("PetugasRepo", "Error: ${response.status.value}")
+                Result.failure(Exception("Failed to add petugas"))
             }
-        )
-        return if (response.status.value == 200) {
-            Result.success(Unit)
-        } else {
-            Log.d("PetugasRepo", "Error: ${response.status.value}")
-            Result.failure(Exception("Failed to add petugas"))
+        } catch (e: Exception) {
+            Log.d("PetugasRepo", "Error: ${e.message}")
+            return Result.failure(e)
         }
     }
 

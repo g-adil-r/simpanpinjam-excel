@@ -1,6 +1,7 @@
 package com.example.proyeksp.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.Toast
@@ -53,6 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyeksp.R
 import com.example.proyeksp.database.Petugas
+import com.example.proyeksp.helper.PhoneNumberHelper
 
 enum class WorkerRole { PETUGAS, ADMIN }
 
@@ -67,6 +69,7 @@ class PetugasFormActivity : ComponentActivity() {
             nama: String, ktp: String, telp: String, alamat: String,
             user: String, pass: String, role: WorkerRole) -> Unit = {
             nama, ktp, telp, alamat, user, pass, role ->
+                val cleanedNoTelp = PhoneNumberHelper.formatToE164(telp)
                 val roleString = when (role) {
                     WorkerRole.PETUGAS -> "petugas"
                     WorkerRole.ADMIN -> "admin"
@@ -74,7 +77,7 @@ class PetugasFormActivity : ComponentActivity() {
                 val petugas = Petugas(
                     namaLengkap = nama,
                     noKtp = ktp,
-                    noTelp = telp,
+                    noTelp = cleanedNoTelp,
                     alamat = alamat,
                     username = user,
                     role = roleString
