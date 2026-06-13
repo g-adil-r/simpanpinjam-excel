@@ -123,7 +123,6 @@ fun ManagePetugasScreen(petugasViewModel: PetugasViewModel = viewModel()) {
             AndroidView(
                 modifier = Modifier.fillMaxWidth(),
                 factory = { context ->
-                    // Replace R.layout.footer with your actual footer xml name
                     LayoutInflater.from(context).inflate(R.layout.footer, null)
                 }
             )

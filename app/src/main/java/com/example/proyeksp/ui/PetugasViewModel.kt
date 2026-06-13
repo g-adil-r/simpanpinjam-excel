@@ -39,10 +39,10 @@ class PetugasViewModel : ViewModel() {
             val result = petugasRepo.addPetugas(petugas, password)
             if (result.isSuccess) {
                 _uiState.value = AdminState.Success
+                getAllPetugas()
             } else {
                 _uiState.value = AdminState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
             }
-            getAllPetugas()
         }
     }
 }

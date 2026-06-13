@@ -65,16 +65,15 @@ class PetugasRepo {
 //        val payload = EditPetugasPayload(petugas, password)
 //        val requestBody = RequestBody("update", payload)
 //    }
+    @Serializable
+    private data class RequestBody<T>(
+        val action: String,
+        val payload: T,
+    )
+
+    @Serializable
+    private data class CreatePetugasPayload(
+        val petugas: Petugas,
+        val password: String,
+    )
 }
-
-@Serializable
-data class RequestBody<T>(
-    val action: String,
-    val payload: T,
-)
-
-@Serializable
-data class CreatePetugasPayload(
-    val petugas: Petugas,
-    val password: String,
-)
