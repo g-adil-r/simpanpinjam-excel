@@ -1,13 +1,12 @@
 package com.example.proyeksp.ui
 
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
 import com.example.proyeksp.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,17 +26,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.ViewModelProvider
 import com.example.proyeksp.database.Petugas
+import kotlin.jvm.java
 
 class ManagePetugasActivity : ComponentActivity() {
     private val viewModel: PetugasViewModel by lazy { PetugasViewModel() }
@@ -64,6 +62,7 @@ class ManagePetugasActivity : ComponentActivity() {
 @Composable
 fun ManagePetugasScreen(petugasViewModel: PetugasViewModel = viewModel()) {
     val petugasList by petugasViewModel.petugasList.observeAsState(emptyList())
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -81,7 +80,7 @@ fun ManagePetugasScreen(petugasViewModel: PetugasViewModel = viewModel()) {
             AndroidView(
                 modifier = Modifier.fillMaxWidth(),
                 factory = { context ->
-                    LayoutInflater.from(context).inflate(R.layout.header, null, true)
+                    LayoutInflater.from(context).inflate(R.layout.header, null)
                 },
                 update = { view ->
                     // Gambar tidak muncul kalau tidak diset manual
@@ -100,7 +99,9 @@ fun ManagePetugasScreen(petugasViewModel: PetugasViewModel = viewModel()) {
                     style = MaterialTheme.typography.headlineMedium
                 )
                 Button(
-                    onClick = { /* Handle navigation to Add Petugas screen */ }
+                    onClick = {
+                        context.startActivity(Intent(context, PetugasFormActivity::class.java))
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
@@ -229,13 +230,13 @@ fun InfoRow(label: String, value: String) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun ScreenPreview() {
-//    val petugasList = listOf(
-//        Petugas(1, "Budi Santoso", "budi123", "08123456789", "1234567890123456", "Jl.123", "Admin"),
-//        Petugas(2, "Siti Aminah", "sssiti", "08123456789", "1234567890123456", "Jl.1245","Petugas Lapangan"),
-//        Petugas(3, "Agus Hermawan", "AgusH", "08123456789", "1234567890123456", "Jl.Aapap", "Bendahara")
-//    )
-    ManagePetugasScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun ScreenPreview() {
+////    val petugasList = listOf(
+////        Petugas(1, "Budi Santoso", "budi123", "08123456789", "1234567890123456", "Jl.123", "Admin"),
+////        Petugas(2, "Siti Aminah", "sssiti", "08123456789", "1234567890123456", "Jl.1245","Petugas Lapangan"),
+////        Petugas(3, "Agus Hermawan", "AgusH", "08123456789", "1234567890123456", "Jl.Aapap", "Bendahara")
+////    )
+//    ManagePetugasScreen()
+//}

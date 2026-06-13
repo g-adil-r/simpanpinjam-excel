@@ -31,7 +31,6 @@ class PetugasRepo {
                 .from("petugas")
                 .select(columns = columns)
                 .decodeList<Petugas>()
-            Log.d("PetugasRepo", "Fetched ${data.size} records")
             data
         } catch (e: Exception) {
             Log.d("PetugasRepo", "Error: ${e.message}")
@@ -52,6 +51,7 @@ class PetugasRepo {
         return if (response.status.value == 200) {
             Result.success(Unit)
         } else {
+            Log.d("PetugasRepo", "Error: ${response.status.value}")
             Result.failure(Exception("Failed to add petugas"))
         }
     }

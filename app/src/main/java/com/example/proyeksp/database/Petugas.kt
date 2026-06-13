@@ -1,11 +1,14 @@
 package com.example.proyeksp.database
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Parcelize
 @Serializable
 data class Petugas (
-    var id: Int,
+    var id: Int? = null,
 
     @SerialName("nama_lengkap")
     var namaLengkap: String? = null,
@@ -21,7 +24,7 @@ data class Petugas (
     var alamat: String? = null,
 
     var role: String? = null,
-) {
+) : Parcelable {
     fun isAdmin(): Boolean {
         return this.role?.lowercase() == "admin"
     }
