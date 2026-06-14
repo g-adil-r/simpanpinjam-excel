@@ -8,11 +8,19 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.serialization.Serializable
 
-class PetugasRepo {
+object PetugasRepo {
     private val supabase = SupabaseService.client
     private val funcName = "sp-admin"
+
+    private val _petugasList = MutableStateFlow<List<Petugas>>(emptyList())
+    val petugasList: StateFlow<List<Petugas>> = _petugasList.asStateFlow()
+
 
     suspend fun getAllPetugas(): List<Petugas> {
         Log.d("PetugasRepo", "Fetching records...")
@@ -31,6 +39,7 @@ class PetugasRepo {
                 .from("petugas")
                 .select(columns = columns)
                 .decodeList<Petugas>()
+            _petugasList.value = data
             data
         } catch (e: Exception) {
             Log.d("PetugasRepo", "Error: ${e.message}")
@@ -50,6 +59,7 @@ class PetugasRepo {
                 }
             )
             return if (response.status.value == 200) {
+                _petugasList.update { it + petugas }
                 Result.success(Unit)
             } else {
                 Log.d("PetugasRepo", "Error: ${response.status.value}")

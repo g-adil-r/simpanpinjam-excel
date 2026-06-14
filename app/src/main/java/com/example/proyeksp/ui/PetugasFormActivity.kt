@@ -1,7 +1,6 @@
 package com.example.proyeksp.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.Toast
@@ -35,9 +34,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
@@ -50,11 +49,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.IntentCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyeksp.R
 import com.example.proyeksp.database.Petugas
-import com.example.proyeksp.helper.PhoneNumberHelper
 
 enum class WorkerRole { PETUGAS, ADMIN }
 
@@ -65,11 +64,12 @@ class PetugasFormActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        val petugas = IntentCompat.getParcelableExtra(intent, "petugas", Petugas::class.java)
+
         val onSaveClick: (
             nama: String, ktp: String, telp: String, alamat: String,
             user: String, pass: String, role: WorkerRole) -> Unit = {
             nama, ktp, telp, alamat, user, pass, role ->
-                val cleanedNoTelp = PhoneNumberHelper.formatToE164(telp)
                 val roleString = when (role) {
                     WorkerRole.PETUGAS -> "petugas"
                     WorkerRole.ADMIN -> "admin"
@@ -77,7 +77,7 @@ class PetugasFormActivity : ComponentActivity() {
                 val petugas = Petugas(
                     namaLengkap = nama,
                     noKtp = ktp,
-                    noTelp = cleanedNoTelp,
+                    noTelp = telp,
                     alamat = alamat,
                     username = user,
                     role = roleString
@@ -91,13 +91,14 @@ class PetugasFormActivity : ComponentActivity() {
         }
 
         setContent {
-            PetugasFormScreen(onSaveClick, onCancelClick, viewModel)
+            PetugasFormScreen(petugas, onSaveClick, onCancelClick, viewModel)
         }
     }
 }
 
 @Composable
 fun PetugasFormScreen(
+    petugas: Petugas?,
     onSaveClick: (
         nama: String, ktp: String, telp: String, alamat: String,
         user: String, pass: String, role: WorkerRole
@@ -106,13 +107,19 @@ fun PetugasFormScreen(
     viewModel: PetugasViewModel = viewModel(),
 ) {
     // Form States
-    var namaLengkap by remember { mutableStateOf("") }
-    var nomorKtp by remember { mutableStateOf("") }
-    var nomorTelepon by remember { mutableStateOf("") }
-    var alamat by remember { mutableStateOf("") }
-    var username by remember { mutableStateOf("") }
+    var namaLengkap by remember { mutableStateOf(petugas?.namaLengkap ?: "") }
+    var nomorKtp by remember { mutableStateOf(petugas?.noKtp ?: "") }
+    var nomorTelepon by remember { mutableStateOf(petugas?.noTelp ?: "") }
+    var alamat by remember { mutableStateOf(petugas?.alamat ?: "") }
+    var username by remember { mutableStateOf(petugas?.username ?: "") }
+
     var password by remember { mutableStateOf("") }
-    var selectedRole by remember { mutableStateOf(WorkerRole.PETUGAS) }
+
+    var selectedRole by remember {
+        mutableStateOf(
+            if (petugas?.role?.lowercase() == "admin") WorkerRole.ADMIN else WorkerRole.PETUGAS
+        )
+    }
 
     var isPasswordVisible by remember { mutableStateOf(false) }
 
@@ -157,7 +164,12 @@ fun PetugasFormScreen(
                 .verticalScroll(rememberScrollState()), // Handles small screens and keyboard overlay
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Informasi Pribadi", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = if (petugas == null) "Tambah Petugas" else "Edit Petugas",
+                style = MaterialTheme.typography.headlineSmall
+            )
+
+//            Text("Informasi Pribadi", style = MaterialTheme.typography.titleMedium)
 
             OutlinedTextField(
                 value = namaLengkap,
@@ -257,7 +269,7 @@ fun PetugasFormScreen(
                 if (isLoading) {
                     Text("Menyimpan...")
                 } else {
-                    Text("Simpan Akun")
+                    Text(if (petugas == null) "Simpan Akun" else "Perbarui Akun")
                 }
             }
 
@@ -290,5 +302,7 @@ fun PetugasFormScreenPreview() {
 
     val dummyOnCancel: () -> Unit = {}
 
-    PetugasFormScreen(dummyOnSave, dummyOnCancel)
+    val dummyData = Petugas(0,"Nama lengkap", "myusername", "myno telp", "myno ktp", "myalamat", "petugas")
+
+    PetugasFormScreen(dummyData, dummyOnSave, dummyOnCancel)
 }

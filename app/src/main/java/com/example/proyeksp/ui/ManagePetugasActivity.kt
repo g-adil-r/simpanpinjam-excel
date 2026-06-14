@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.proyeksp.database.Petugas
 import kotlin.jvm.java
 
@@ -61,8 +62,8 @@ class ManagePetugasActivity : ComponentActivity() {
 //@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun ManagePetugasScreen(petugasViewModel: PetugasViewModel = viewModel()) {
-    val petugasList by petugasViewModel.petugasList.observeAsState(emptyList())
-    val context = LocalContext.current
+    val petugasList by petugasViewModel.petugasList.collectAsStateWithLifecycle()
+    val ctx = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -100,7 +101,7 @@ fun ManagePetugasScreen(petugasViewModel: PetugasViewModel = viewModel()) {
                 )
                 Button(
                     onClick = {
-                        context.startActivity(Intent(context, PetugasFormActivity::class.java))
+                        ctx.startActivity(Intent(ctx, PetugasFormActivity::class.java))
                     }
                 ) {
                     Icon(
@@ -133,6 +134,7 @@ fun ManagePetugasScreen(petugasViewModel: PetugasViewModel = viewModel()) {
 @Composable
 fun PetugasItem(petugas: Petugas) {
     var expanded by remember { mutableStateOf(false) }
+    val ctx = LocalContext.current
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -173,7 +175,11 @@ fun PetugasItem(petugas: Petugas) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Button(
-                            onClick = { /* Handle navigation to Edit Petugas screen */ }
+                            onClick = {
+                                val intent = Intent(ctx, PetugasFormActivity::class.java)
+                                intent.putExtra("petugas", petugas)
+                                ctx.startActivity(intent)
+                            }
                         ) {
                             Text("Edit")
                         }

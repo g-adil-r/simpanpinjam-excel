@@ -17,8 +17,7 @@ sealed class AdminState {
 }
 
 class PetugasViewModel : ViewModel() {
-    private val petugasRepo = PetugasRepo()
-    val petugasList = MutableLiveData<List<Petugas>>()
+    val petugasList : StateFlow<List<Petugas>> = PetugasRepo.petugasList
 
     private val _uiState = MutableStateFlow<AdminState>(AdminState.Idle)
     val uiState: StateFlow<AdminState> = _uiState
@@ -30,16 +29,15 @@ class PetugasViewModel : ViewModel() {
     }
 
     suspend fun getAllPetugas() {
-        petugasList.value = petugasRepo.getAllPetugas()
+        PetugasRepo.getAllPetugas()
     }
 
     fun addPetugas(petugas: Petugas, password: String) {
         viewModelScope.launch {
             _uiState.value = AdminState.Loading
-            val result = petugasRepo.addPetugas(petugas, password)
+            val result = PetugasRepo.addPetugas(petugas, password)
             if (result.isSuccess) {
                 _uiState.value = AdminState.Success
-                getAllPetugas()
             } else {
                 _uiState.value = AdminState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
             }
