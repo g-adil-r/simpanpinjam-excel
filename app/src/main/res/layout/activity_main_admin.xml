@@ -42,7 +42,7 @@
                 android:layout_width="match_parent"
                 android:backgroundTint="@color/sp_lavender"
                 android:text="@string/kelola_petugas"
-                app:icon="@drawable/import_data_icon" />
+                app:icon="@drawable/baseline_person_24" />
 
             <Button
                 android:id="@+id/bt_view_data"
@@ -58,7 +58,7 @@
                 android:layout_width="match_parent"
                 android:backgroundTint="@color/sp_pink"
                 android:text="@string/buat_laporan"
-                app:icon="@drawable/qr_code_scan_icon" />
+                app:icon="@drawable/outline_docs_24" />
 
         </LinearLayout>
 
