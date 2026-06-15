@@ -33,10 +33,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.proyeksp.database.Petugas
+import com.example.proyeksp.ui.theme.MyTypography
 import kotlin.jvm.java
 
 class ManagePetugasActivity : ComponentActivity() {
@@ -97,7 +99,7 @@ fun ManagePetugasScreen(petugasViewModel: PetugasViewModel = viewModel()) {
             ) {
                 Text(
                     text = "Kelola Petugas",
-                    style = MaterialTheme.typography.headlineMedium
+                    style = MyTypography.textTitle
                 )
                 Button(
                     onClick = {
@@ -106,9 +108,9 @@ fun ManagePetugasScreen(petugasViewModel: PetugasViewModel = viewModel()) {
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add Petugas"
+                        contentDescription = "Tambah Petugas"
                     )
-                    Text(" Add Petugas")
+                    Text("Tambah Petugas")
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -151,7 +153,7 @@ fun PetugasItem(petugas: Petugas) {
         ) {
             Text(
                 text = petugas.namaLengkap.toString(),
-                style = MaterialTheme.typography.titleMedium,
+                style = MyTypography.textTitle,
                 fontWeight = FontWeight.Bold,
                 fontSize = 27.sp
             )
@@ -193,13 +195,13 @@ fun PetugasItem(petugas: Petugas) {
             } else {
                 Text(
                     text = petugas.username.toString(),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MyTypography.textNormal,
                     fontSize = 17.sp,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = petugas.role.toString(),
-                    fontSize = 17.sp,
+                    style = MyTypography.textBold,
                 )
             }
         }
@@ -214,20 +216,20 @@ fun InfoRow(label: String, value: String) {
     ) {
         Text(
             text = label,
-            fontSize = 17.sp,
+            style = MyTypography.textNormal,
             modifier = Modifier
                 .weight(4f)
         )
 
         Text(
             text = ":",
-            fontSize = 17.sp,
+            style = MyTypography.textNormal,
             modifier = Modifier.weight(0.1f)
         )
 
         Text(
             text = value,
-            fontSize = 17.sp,
+            style = MyTypography.textNormal,
             textAlign = TextAlign.End,
             modifier = Modifier
                 .weight(6f)
@@ -235,13 +237,13 @@ fun InfoRow(label: String, value: String) {
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun ScreenPreview() {
-////    val petugasList = listOf(
-////        Petugas(1, "Budi Santoso", "budi123", "08123456789", "1234567890123456", "Jl.123", "Admin"),
-////        Petugas(2, "Siti Aminah", "sssiti", "08123456789", "1234567890123456", "Jl.1245","Petugas Lapangan"),
-////        Petugas(3, "Agus Hermawan", "AgusH", "08123456789", "1234567890123456", "Jl.Aapap", "Bendahara")
-////    )
-//    ManagePetugasScreen()
-//}
+@Preview(showBackground = true)
+@Composable
+fun ScreenPreview() {
+//    val petugasList = listOf(
+//        Petugas(1, "Budi Santoso", "budi123", "08123456789", "1234567890123456", "Jl.123", "Admin"),
+//        Petugas(2, "Siti Aminah", "sssiti", "08123456789", "1234567890123456", "Jl.1245","Petugas Lapangan"),
+//        Petugas(3, "Agus Hermawan", "AgusH", "08123456789", "1234567890123456", "Jl.Aapap", "Bendahara")
+//    )
+    ManagePetugasScreen()
+}
