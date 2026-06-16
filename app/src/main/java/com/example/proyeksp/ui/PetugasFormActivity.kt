@@ -6,7 +6,6 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -54,6 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyeksp.R
 import com.example.proyeksp.database.Petugas
+import com.example.proyeksp.ui.theme.MyTypography
 
 enum class WorkerRole { PETUGAS, ADMIN }
 
@@ -123,6 +123,11 @@ fun PetugasFormScreen(
 
     var isPasswordVisible by remember { mutableStateOf(false) }
 
+    var isUsernameValid = username.isNotEmpty()
+    var isPasswordValid = password.isNotEmpty()
+
+    var isFormValid = isUsernameValid && isPasswordValid
+
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
     val isLoading = uiState.value == AdminState.Loading
     val ctx = LocalContext.current
@@ -161,15 +166,13 @@ fun PetugasFormScreen(
             modifier = Modifier
                 .padding(16.dp)
                 .weight(1f)
-                .verticalScroll(rememberScrollState()), // Handles small screens and keyboard overlay
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
                 text = if (petugas == null) "Tambah Petugas" else "Edit Petugas",
-                style = MaterialTheme.typography.headlineSmall
+                style = MyTypography.textTitle
             )
-
-//            Text("Informasi Pribadi", style = MaterialTheme.typography.titleMedium)
 
             OutlinedTextField(
                 value = namaLengkap,
@@ -208,14 +211,26 @@ fun PetugasFormScreen(
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
-                label = { Text("Username") },
+                isError = !isUsernameValid,
+                supportingText = {
+                    if (!isUsernameValid) {
+                        Text("Username harus diisi")
+                    }
+                },
+                label = { Text("Username*") },
                 modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text("Password*") },
+                isError = !isPasswordValid,
+                supportingText = {
+                    if (!isPasswordValid) {
+                        Text("Password harus diisi")
+                    }
+                },
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
@@ -261,7 +276,11 @@ fun PetugasFormScreen(
             // Action Buttons
             Button(
                 onClick = {
-                    onSaveClick(namaLengkap, nomorKtp, nomorTelepon, alamat, username, password, selectedRole)
+                    if (isFormValid) {
+                        onSaveClick(namaLengkap, nomorKtp, nomorTelepon, alamat, username, password, selectedRole)
+                    } else {
+                        Toast.makeText(ctx, "Harap lengkapi semua form wajib (*)", Toast.LENGTH_SHORT).show()
+                    }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !isLoading // Disable button while saving
