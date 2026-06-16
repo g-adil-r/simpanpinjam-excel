@@ -7,6 +7,8 @@ import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import com.example.proyeksp.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -30,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -47,7 +51,7 @@ class ManagePetugasActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        enableEdgeToEdge()
+//        enableEdgeToEdge()
         setContent {
             // Use your app theme here
 //            MaterialTheme {
@@ -138,8 +142,16 @@ fun PetugasItem(petugas: Petugas) {
     var expanded by remember { mutableStateOf(false) }
     val ctx = LocalContext.current
 
+    // 1. Animate the rotation angle (0 degrees when collapsed, 180 degrees when expanded)
+    val rotationState by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        label = "ChevronRotation"
+    )
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize(), // 2. Smoothly animates height changes during expansion
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
@@ -151,13 +163,28 @@ fun PetugasItem(petugas: Petugas) {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Text(
-                text = petugas.namaLengkap.toString(),
-                style = MyTypography.textTitle,
-                fontWeight = FontWeight.Bold,
-                fontSize = 27.sp
-            )
+            // 3. Wrap Title and Chevron in a Row to push the arrow to the right
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = petugas.namaLengkap.toString(),
+                    style = MyTypography.textTitle,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 27.sp,
+                    modifier = Modifier.weight(1f) // Prevents long names from overlapping the icon
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (expanded) "Sembunyikan Detail" else "Tampilkan Detail",
+                    modifier = Modifier.rotate(rotationState) // Applies the rotating transition
+                )
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
+
             if (expanded) {
                 Column (
                     modifier = Modifier.fillMaxWidth()

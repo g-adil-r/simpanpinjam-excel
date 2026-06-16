@@ -79,12 +79,14 @@ class RekeningRepo(application: Application) {
             try {
                 val columns = Columns.raw("""
                     no_rek,
-                    nama,
-                    saldo_simpanan,
-                    saldo_pinjaman,
-                    angsuran
+                    angsuran,
+                    pinjaman_awal,
+                    anggota (
+                        nama,
+                        no_ktp
+                    )
                 """.trimIndent())
-                val rekening = supabase.from("nasabah").select(
+                val rekening = supabase.from("rekening").select(
                     columns = columns
                 ) {
                     filter {

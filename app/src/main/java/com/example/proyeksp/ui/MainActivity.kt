@@ -24,12 +24,12 @@ import com.example.proyeksp.helper.CurrencyHelper
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
-    val btImport: Button by lazy { findViewById(R.id.bt_import) }
+//    val btImport: Button by lazy { findViewById(R.id.bt_import) }
     val btScan: Button by lazy { findViewById(R.id.bt_scan) }
     val btViewData: Button by lazy { findViewById(R.id.bt_view_data) }
-    val btExport: Button by lazy { findViewById(R.id.bt_export) }
-    val tvScanCount: TextView by lazy { findViewById(R.id.tv_scan_count) }
-    val tvTotalSetoran: TextView by lazy { findViewById(R.id.tv_total_setoran) }
+//    val btExport: Button by lazy { findViewById(R.id.bt_export) }
+//    val tvScanCount: TextView by lazy { findViewById(R.id.tv_scan_count) }
+//    val tvTotalSetoran: TextView by lazy { findViewById(R.id.tv_total_setoran) }
     var rekViewModel: RekeningViewModel? = null
     var authViewModel: AuthViewModel? = null
     var exportCSVLauncher: ActivityResultLauncher<Intent>? = null
@@ -57,33 +57,33 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 //        tvScanCount = findViewById(R.id.tv_scan_count)
 //        tvTotalSetoran = findViewById(R.id.tv_total_setoran)
 
-        btImport.setOnClickListener(this)
+//        btImport.setOnClickListener(this)
         btScan.setOnClickListener(this)
         btViewData.setOnClickListener(this)
-        btExport.setOnClickListener(this)
+//        btExport.setOnClickListener(this)
 
         rekViewModel!!.getScanData()
-        rekViewModel!!.scanNum.observe(
-            this
-        ) { scanCount: Int? -> tvScanCount.setText(scanCount.toString()) }
-        rekViewModel!!.totalSetoran?.observe(
-            this
-        ) { total: Long? ->
-            try {
-                tvTotalSetoran.setText(total?.let { CurrencyHelper.format(it) })
-            } catch (e: RuntimeException) {
-                if (total == null) {
-                    tvTotalSetoran.setText("Rp0")
-                } else {
-                    Toast.makeText(
-                        this,
-                        "Error: " + e.localizedMessage,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    tvTotalSetoran.setText("-")
-                }
-            }
-        }
+//        rekViewModel!!.scanNum.observe(
+//            this
+//        ) { scanCount: Int? -> tvScanCount.setText(scanCount.toString()) }
+//        rekViewModel!!.totalSetoran?.observe(
+//            this
+//        ) { total: Long? ->
+//            try {
+//                tvTotalSetoran.setText(total?.let { CurrencyHelper.format(it) })
+//            } catch (e: RuntimeException) {
+//                if (total == null) {
+//                    tvTotalSetoran.setText("Rp0")
+//                } else {
+//                    Toast.makeText(
+//                        this,
+//                        "Error: " + e.localizedMessage,
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                    tvTotalSetoran.setText("-")
+//                }
+//            }
+//        }
 
         exportCSVLauncher = registerForActivityResult<Intent, ActivityResult>(
             ActivityResultContracts.StartActivityForResult()
@@ -144,12 +144,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View) {
-        if (v.id == btImport.id) {
-            val i = Intent(Intent.ACTION_OPEN_DOCUMENT)
-            i.addCategory(Intent.CATEGORY_OPENABLE)
-            i.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-            importCSVLauncher!!.launch(i)
-        } else if (v.id == btScan.id) {
+        if (v.id == btScan.id) {
             if (ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.CAMERA
@@ -165,10 +160,35 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
         } else if (v.id == btViewData.id) {
             startActivity(Intent(this, DaftarSetoranActivity::class.java))
-        } else if (v.id == btExport.id) {
-            exportCSVLauncher!!.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE))
         }
     }
+
+//    override fun onClick(v: View) {
+//        if (v.id == btImport.id) {
+//            val i = Intent(Intent.ACTION_OPEN_DOCUMENT)
+//            i.addCategory(Intent.CATEGORY_OPENABLE)
+//            i.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+//            importCSVLauncher!!.launch(i)
+//        } else if (v.id == btScan.id) {
+//            if (ContextCompat.checkSelfPermission(
+//                    this,
+//                    Manifest.permission.CAMERA
+//                ) != PackageManager.PERMISSION_GRANTED
+//            ) {
+//                ActivityCompat.requestPermissions(
+//                    this,
+//                    arrayOf(Manifest.permission.CAMERA),
+//                    PERMISSION_CODE
+//                )
+//            } else {
+//                startActivity(Intent(this, ScanActivity::class.java))
+//            }
+//        } else if (v.id == btViewData.id) {
+//            startActivity(Intent(this, DaftarSetoranActivity::class.java))
+//        } else if (v.id == btExport.id) {
+//            exportCSVLauncher!!.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE))
+//        }
+//    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

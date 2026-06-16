@@ -3,6 +3,7 @@ package com.example.proyeksp.repository
 import android.util.Log
 import com.example.proyeksp.database.Petugas
 import com.example.proyeksp.database.SupabaseService
+import io.github.jan.supabase.exceptions.BadRequestRestException
 import io.github.jan.supabase.functions.functions
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
@@ -23,7 +24,6 @@ object PetugasRepo {
 
 
     suspend fun getAllPetugas(): List<Petugas> {
-        Log.d("PetugasRepo", "Fetching records...")
         val columns = Columns.raw("""
                     id,
                     nama_lengkap,
@@ -62,11 +62,12 @@ object PetugasRepo {
                 _petugasList.update { it + petugas }
                 Result.success(Unit)
             } else {
-                Log.d("PetugasRepo", "Error: ${response.status.value}")
                 Result.failure(Exception("Failed to add petugas"))
             }
+        } catch (e: BadRequestRestException) {
+            return if (e.error == "user_already_exists") Result.failure(Exception("Username sudah digunakan"))
+            else Result.failure(e)
         } catch (e: Exception) {
-            Log.d("PetugasRepo", "Error: ${e.message}")
             return Result.failure(e)
         }
     }

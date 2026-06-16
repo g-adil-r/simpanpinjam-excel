@@ -62,7 +62,7 @@ class PetugasFormActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+//        enableEdgeToEdge()
 
         val petugas = IntentCompat.getParcelableExtra(intent, "petugas", Petugas::class.java)
 
@@ -133,7 +133,7 @@ fun PetugasFormScreen(
             onCancelClick()
         }
         else if (uiState.value is AdminState.Error) {
-            Toast.makeText(ctx, "Gagal menambahkan petugas", Toast.LENGTH_SHORT).show()
+            Toast.makeText(ctx, (uiState.value as AdminState.Error).message, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -302,7 +302,7 @@ fun PetugasFormScreenPreview() {
 
     val dummyOnCancel: () -> Unit = {}
 
-    val dummyData = Petugas(0,"Nama lengkap", "myusername", "myno telp", "myno ktp", "myalamat", "petugas")
+    val dummyData = Petugas(0,"Ghifari Adil", "username", "08123456789", "3507229191910001", "Jalan Puncak Indah", "petugas")
 
     PetugasFormScreen(dummyData, dummyOnSave, dummyOnCancel)
 }
