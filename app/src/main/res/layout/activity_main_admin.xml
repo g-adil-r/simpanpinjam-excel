@@ -53,7 +53,7 @@
                 app:icon="@drawable/view_data_icon" />
 
             <Button
-                android:id="@+id/bt_scan"
+                android:id="@+id/bt_report"
                 style="@style/main_button"
                 android:layout_width="match_parent"
                 android:backgroundTint="@color/sp_pink"

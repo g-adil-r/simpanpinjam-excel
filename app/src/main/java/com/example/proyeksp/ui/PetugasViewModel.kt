@@ -1,6 +1,5 @@
 package com.example.proyeksp.ui
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proyeksp.database.Petugas

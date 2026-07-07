@@ -9,10 +9,12 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 
 object PetugasRepo {
@@ -21,7 +23,6 @@ object PetugasRepo {
 
     private val _petugasList = MutableStateFlow<List<Petugas>>(emptyList())
     val petugasList: StateFlow<List<Petugas>> = _petugasList.asStateFlow()
-
 
     suspend fun getAllPetugas(): List<Petugas> {
         val columns = Columns.raw("""
@@ -34,41 +35,45 @@ object PetugasRepo {
                     role
                 """.trimIndent())
 
-        return try {
-            val data = supabase
-                .from("petugas")
-                .select(columns = columns)
-                .decodeList<Petugas>()
-            _petugasList.value = data
-            data
-        } catch (e: Exception) {
-            Log.d("PetugasRepo", "Error: ${e.message}")
-            emptyList()
+        return withContext(Dispatchers.IO) {
+            try {
+                val data = supabase
+                    .from("petugas")
+                    .select(columns = columns)
+                    .decodeList<Petugas>()
+                _petugasList.value = data
+                data
+            } catch (e: Exception) {
+                Log.d("PetugasRepo", "Error: ${e.message}")
+                emptyList()
+            }
         }
     }
 
     suspend fun addPetugas(petugas: Petugas, password: String): Result<Unit> {
         val payload = CreatePetugasPayload(petugas, password)
         val requestBody = RequestBody("create", payload)
-        try {
-            val response = supabase.functions.invoke(
-                function = funcName,
-                body = requestBody,
-                headers = Headers.build {
-                    append(HttpHeaders.ContentType, "application/json")
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = supabase.functions.invoke(
+                    function = funcName,
+                    body = requestBody,
+                    headers = Headers.build {
+                        append(HttpHeaders.ContentType, "application/json")
+                    }
+                )
+                 if (response.status.value == 200) {
+                    _petugasList.update { it + petugas }
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("Failed to add petugas"))
                 }
-            )
-            return if (response.status.value == 200) {
-                _petugasList.update { it + petugas }
-                Result.success(Unit)
-            } else {
-                Result.failure(Exception("Failed to add petugas"))
+            } catch (e: BadRequestRestException) {
+                if (e.error == "user_already_exists") Result.failure(Exception("Username sudah digunakan"))
+                else Result.failure(e)
+            } catch (e: Exception) {
+                Result.failure(e)
             }
-        } catch (e: BadRequestRestException) {
-            return if (e.error == "user_already_exists") Result.failure(Exception("Username sudah digunakan"))
-            else Result.failure(e)
-        } catch (e: Exception) {
-            return Result.failure(e)
         }
     }
 
