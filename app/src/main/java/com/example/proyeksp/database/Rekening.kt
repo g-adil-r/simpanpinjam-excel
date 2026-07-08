@@ -6,81 +6,88 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize // Import for @Parcelize
+import kotlinx.parcelize.RawValue
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Parcelize // Use Kotlin's @Parcelize for simpler Parcelable implementation
-@Entity(
-    tableName = "rekening",
-    indices = [Index(name = "no_rek_index", value = ["no_rek"], unique = true)]
-)
+//@Entity(
+//    tableName = "rekening",
+//    indices = [Index(name = "no_rek_index", value = ["no_rek"], unique = true)]
+//)
 @Serializable
 data class Rekening( // Changed to a data class - highly recommended for entities
-    @PrimaryKey
-    @ColumnInfo(name = "no_rek")
+//    @PrimaryKey
+//    @ColumnInfo(name = "no_rek")
     @SerialName("no_rek")
     var noRek: String, // << CHANGED: Now non-nullable String
 
-    @ColumnInfo(name = "nama")
+//    @ColumnInfo(name = "nama")
     var nama: String? = null, // Can remain nullable if 'nama' can be absent
 
-    @ColumnInfo(name = "saldo_simpanan")
+//    @ColumnInfo(name = "saldo_simpanan")
     @SerialName("saldo_simpanan")
     var saldoSimpanan: Long = 0L, // Use L for Long literals for clarity
 
-    @ColumnInfo(name = "saldo_pinjaman")
+//    @ColumnInfo(name = "saldo_pinjaman")
     @SerialName("saldo_pinjaman")
     var saldoPinjaman: Long = 0L,
+
+//    @ColumnInfo(name = "pinjaman_awal")
+    @SerialName("pinjaman_awal")
+    var pinjamanAwal: Long = 0L,
 
     @ColumnInfo(name = "angsuran")
     var angsuran: Long = 0L,
 
-    @ColumnInfo(name = "tgl_trans")
+//    @ColumnInfo(name = "tgl_trans")
     @SerialName("tgl_trans")
     var tglTrans: Long = 0L,
 
-    @ColumnInfo(name = "setoran")
-    var setoran: Long = 0L
-) : Parcelable {
-    constructor(
-        noRek: String,
-        nama: String?,
-        saldoSimpanan: Long,
-        saldoPinjaman: Long,
-        angsuran: Long
-    ) : this( // Delegate to the primary constructor
-        noRek = noRek,
-        nama = nama,
-        saldoSimpanan = saldoSimpanan,
-        saldoPinjaman = saldoPinjaman,
-        angsuran = angsuran,
-        tglTrans = 0L, // Default values for fields not in this constructor
-        setoran = 0L
-    )
+//    @ColumnInfo(name = "setoran")
+    var setoran: Long = 0L,
 
+    var anggota: Nasabah? = null
+)
+//    : Parcelable {
 //    constructor(
 //        noRek: String,
 //        nama: String?,
 //        saldoSimpanan: Long,
 //        saldoPinjaman: Long,
 //        angsuran: Long
-//    ) {
-//        this.noRek = noRek
-//        this.nama = nama
-//        this.saldoSimpanan = saldoSimpanan
-//        this.saldoPinjaman = saldoPinjaman
-//        this.angsuran = angsuran
-//        this.tglTrans = 0
-//        this.setoran = 0
-//    }
-
-    // @Parcelize handles all Parcelable boilerplate.
-    // So, you can remove:
-    // - protected constructor(`in`: Parcel)
-    // - override fun describeContents(): Int
-    // - override fun writeToParcel(dest: Parcel, flags: Int)
-    // - companion object CREATOR
-}
+//    ) : this( // Delegate to the primary constructor
+//        noRek = noRek,
+//        nama = nama,
+//        saldoSimpanan = saldoSimpanan,
+//        saldoPinjaman = saldoPinjaman,
+//        angsuran = angsuran,
+//        tglTrans = 0L, // Default values for fields not in this constructor
+//        setoran = 0L
+//    )
+//
+////    constructor(
+////        noRek: String,
+////        nama: String?,
+////        saldoSimpanan: Long,
+////        saldoPinjaman: Long,
+////        angsuran: Long
+////    ) {
+////        this.noRek = noRek
+////        this.nama = nama
+////        this.saldoSimpanan = saldoSimpanan
+////        this.saldoPinjaman = saldoPinjaman
+////        this.angsuran = angsuran
+////        this.tglTrans = 0
+////        this.setoran = 0
+////    }
+//
+//    // @Parcelize handles all Parcelable boilerplate.
+//    // So, you can remove:
+//    // - protected constructor(`in`: Parcel)
+//    // - override fun describeContents(): Int
+//    // - override fun writeToParcel(dest: Parcel, flags: Int)
+//    // - companion object CREATOR
+//}
 
 //    @PrimaryKey
 //    @ColumnInfo(name = "no_rek")

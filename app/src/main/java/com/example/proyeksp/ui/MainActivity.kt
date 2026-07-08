@@ -85,62 +85,62 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 //            }
 //        }
 
-        exportCSVLauncher = registerForActivityResult<Intent, ActivityResult>(
-            ActivityResultContracts.StartActivityForResult()
-        ) { res: ActivityResult ->
-            if (res.resultCode == RESULT_OK) {
-                val data = res.data
-                if (data != null) {
-                    val uri = data.data
-                    if (uri != null) {
-                        rekViewModel!!.exportToXls(uri)
-                    }
-                    rekViewModel?.success?.observe(
-                        this
-                    ) { success: Boolean? ->
-                        if (success!!) Toast.makeText(
-                            this,
-                            "Berhasil export data",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        else Toast.makeText(
-                            this,
-                            "Gagal export data",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            }
-        }
+//        exportCSVLauncher = registerForActivityResult<Intent, ActivityResult>(
+//            ActivityResultContracts.StartActivityForResult()
+//        ) { res: ActivityResult ->
+//            if (res.resultCode == RESULT_OK) {
+//                val data = res.data
+//                if (data != null) {
+//                    val uri = data.data
+//                    if (uri != null) {
+//                        rekViewModel!!.exportToXls(uri)
+//                    }
+//                    rekViewModel?.success?.observe(
+//                        this
+//                    ) { success: Boolean? ->
+//                        if (success!!) Toast.makeText(
+//                            this,
+//                            "Berhasil export data",
+//                            Toast.LENGTH_SHORT
+//                        ).show()
+//                        else Toast.makeText(
+//                            this,
+//                            "Gagal export data",
+//                            Toast.LENGTH_SHORT
+//                        ).show()
+//                    }
+//                }
+//            }
+//        }
 
-        importCSVLauncher = registerForActivityResult<Intent, ActivityResult>(
-            ActivityResultContracts.StartActivityForResult()
-        ) { res: ActivityResult ->
-            if (res.resultCode == RESULT_OK) {
-                val data = res.data
-                if (data != null) {
-                    val uri = data.data
-                    if (uri != null) {
-                        rekViewModel!!.importFromXlsx(uri)
-                    }
-                    rekViewModel?.success?.observe(
-                        this
-                    ) { success: Boolean? ->
-                        if (success!!) Toast.makeText(
-                            this,
-                            "Berhasil import data",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        else Toast.makeText(
-                            this,
-                            "Gagal import data",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    }
-                }
-            }
-        }
+//        importCSVLauncher = registerForActivityResult<Intent, ActivityResult>(
+//            ActivityResultContracts.StartActivityForResult()
+//        ) { res: ActivityResult ->
+//            if (res.resultCode == RESULT_OK) {
+//                val data = res.data
+//                if (data != null) {
+//                    val uri = data.data
+//                    if (uri != null) {
+//                        rekViewModel!!.importFromXlsx(uri)
+//                    }
+//                    rekViewModel?.success?.observe(
+//                        this
+//                    ) { success: Boolean? ->
+//                        if (success!!) Toast.makeText(
+//                            this,
+//                            "Berhasil import data",
+//                            Toast.LENGTH_SHORT
+//                        ).show()
+//                        else Toast.makeText(
+//                            this,
+//                            "Gagal import data",
+//                            Toast.LENGTH_SHORT
+//                        )
+//                            .show()
+//                    }
+//                }
+//            }
+//        }
     }
 
     override fun onClick(v: View) {

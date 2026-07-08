@@ -24,9 +24,9 @@
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/footer"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header"
-        app:layout_constraintVertical_bias="0.65"
+        app:layout_constraintVertical_bias="0.432"
         tools:layout_editor_absoluteX="0dp">
 
         <LinearLayout
@@ -36,18 +36,9 @@
             android:divider="@drawable/empty_8dp"
             android:orientation="vertical"
             android:showDividers="middle"
-            app:layout_constraintBottom_toTopOf="@id/cardView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
-
-            <Button
-                android:id="@+id/bt_import"
-                style="@style/main_button"
-                android:layout_width="match_parent"
-                android:backgroundTint="@color/sp_lavender"
-                android:text="@string/import_data"
-                app:icon="@drawable/import_data_icon" />
 
             <Button
                 android:id="@+id/bt_scan"
@@ -65,91 +56,7 @@
                 android:text="@string/lihat_data"
                 app:icon="@drawable/view_data_icon" />
 
-            <Button
-                android:id="@+id/bt_export"
-                style="@style/main_button"
-                android:layout_width="match_parent"
-                android:backgroundTint="@color/sp_orange"
-                android:text="@string/export_data"
-                app:icon="@drawable/export_data_icon" />
-
         </LinearLayout>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="30dp"
-            android:layout_marginEnd="25dp"
-            android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/sp_teal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.3"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="15dp"
-                android:layout_marginTop="15dp"
-                android:layout_marginEnd="15dp"
-                android:layout_marginBottom="15dp"
-                android:divider="@drawable/empty_8dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:showDividers="middle">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:divider="@drawable/empty_8dp"
-                    android:orientation="horizontal"
-                    tools:showDividers="middle">
-
-                    <TextView
-                        android:id="@+id/textView10"
-                        style="@style/text.big.bold"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/total_scan"
-                        android:textAlignment="viewEnd" />
-
-                    <TextView
-                        android:id="@+id/tv_scan_count"
-                        style="@style/text.big.bold"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/ellipsis" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/textView9"
-                        style="@style/text.big.bold"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/total_setoran"
-                        android:textAlignment="center" />
-
-                    <TextView
-                        android:id="@+id/tv_total_setoran"
-                        style="@style/text.big.bold"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="@string/ellipsis" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

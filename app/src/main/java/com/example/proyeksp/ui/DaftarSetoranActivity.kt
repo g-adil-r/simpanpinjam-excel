@@ -25,7 +25,7 @@ class DaftarSetoranActivity : AppCompatActivity() {
         rvRekening.setLayoutManager(LinearLayoutManager(this))
 
         rekViewModel = ViewModelProvider(this)[RekeningViewModel::class.java]
-        rekViewModel!!.fetchAllRekening()
+//        rekViewModel!!.fetchAllRekening()
         rekViewModel!!._allRekening.observe(
             this
         ) { rekenings: List<Rekening?>? ->

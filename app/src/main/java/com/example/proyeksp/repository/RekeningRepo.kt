@@ -7,10 +7,8 @@ import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.proyeksp.database.AppDatabase
 import com.example.proyeksp.database.Nasabah
 import com.example.proyeksp.database.Rekening
-import com.example.proyeksp.database.RekeningDAO
 import com.example.proyeksp.database.SupabaseService
 import com.example.proyeksp.database.Transaksi
 import com.example.proyeksp.helper.DateHelper
@@ -37,9 +35,12 @@ import java.util.concurrent.Executors
 
 class RekeningRepo(application: Application) {
     private val supabase = SupabaseService.client
-    private val rekeningDAO: RekeningDAO?
+//    private val rekeningDAO: RekeningDAO?
     private val context: Context
-    val rekeningList: LiveData<List<Rekening>>
+    // 1. Initialize as a MutableLiveData
+    private val _rekeningList = MutableLiveData<List<Rekening>>()
+
+    val rekeningList: LiveData<List<Rekening>> = _rekeningList
     private var success = MutableLiveData<Boolean>()
     private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
     private val headerExportTable = arrayOf(
@@ -50,9 +51,9 @@ class RekeningRepo(application: Application) {
     )
 
     init {
-        val db: AppDatabase = AppDatabase.getDatabase(application)
-        this.rekeningDAO = db.rekeningDao()
-        rekeningList = rekeningDAO.allRekening
+//        val db: AppDatabase = AppDatabase.getDatabase(application)
+//        this.rekeningDAO = db.rekeningDao()
+//        rekeningList = rekeningDAO.allRekening
 
         this.context = application.applicationContext
     }
@@ -92,9 +93,10 @@ class RekeningRepo(application: Application) {
                     filter {
                         eq("no_rek", s)
                     }
-                }.decodeSingle<Rekening>()
+                }
                 Log.d("ScanActivity", "Rekening found: $rekening")
-                rekening
+
+                rekening.decodeSingle<Rekening>()
             } catch (e: Exception) {
                 // Handle error (log, throw custom exception, return emptyList)
                 e.printStackTrace()
@@ -156,8 +158,8 @@ class RekeningRepo(application: Application) {
         }
     }
 
-    val scanData: LiveData<Int>?
-        get() = rekeningDAO?.scanData
+//    val scanData: LiveData<Int>?
+//        get() = rekeningDAO?.scanData
 
     suspend fun getNumberOfScan(): Int {
         return withContext(Dispatchers.IO) {
@@ -173,8 +175,8 @@ class RekeningRepo(application: Application) {
         }
     }
 
-    val totalSetoran: LiveData<Long?>?
-        get() = rekeningDAO?.totalSetoran
+//    val totalSetoran: LiveData<Long?>?
+//        get() = rekeningDAO?.totalSetoran
 
     fun exportToXls(uri: Uri) {
         executorService.execute {
@@ -184,7 +186,7 @@ class RekeningRepo(application: Application) {
 
             val sheet = workbook.createSheet()
 
-            val rekeningList = rekeningDAO?.rekeningExport
+            val rekeningList = _rekeningList
 
             // Create excel header
             val row0 = sheet.createRow(0)
@@ -199,21 +201,21 @@ class RekeningRepo(application: Application) {
 
             // Rest of excel file
             var rownum = 1
-            for (rekening in rekeningList!!) {
-                val row = sheet.createRow(rownum++)
-
-                val cellNoRek = row.createCell(0)
-                val cellNama = row.createCell(1)
-                val cellTgl = row.createCell(2)
-                val cellSetoran = row.createCell(3)
-                val date = if (rekening.tglTrans == 0L) "-"
-                else Date(rekening.tglTrans).let { formatter.format(it) }
-
-                cellNoRek.setCellValue(rekening.noRek)
-                cellNama.setCellValue(rekening.nama)
-                cellTgl.setCellValue(date)
-                cellSetoran.setCellValue(rekening.setoran.toDouble())
-            }
+//            for (rekening in rekeningList!!) {
+//                val row = sheet.createRow(rownum++)
+//
+//                val cellNoRek = row.createCell(0)
+//                val cellNama = row.createCell(1)
+//                val cellTgl = row.createCell(2)
+//                val cellSetoran = row.createCell(3)
+//                val date = if (rekening.tglTrans == 0L) "-"
+//                else Date(rekening.tglTrans).let { formatter.format(it) }
+//
+//                cellNoRek.setCellValue(rekening.noRek)
+//                cellNama.setCellValue(rekening.nama)
+//                cellTgl.setCellValue(date)
+//                cellSetoran.setCellValue(rekening.setoran.toDouble())
+//            }
             try {
                 val pickedDir = DocumentFile.fromTreeUri(context, uri)
                 if (pickedDir != null) {
@@ -240,7 +242,6 @@ class RekeningRepo(application: Application) {
     fun importFromXlsx(uri: Uri) {
         executorService.execute {
             try {
-                rekeningDAO!!.removeAll()
                 val inputStream = context.contentResolver.openInputStream(uri)
 
                 val workbook: Workbook = XSSFWorkbook(inputStream)
@@ -260,7 +261,7 @@ class RekeningRepo(application: Application) {
                         row.getCell(4).numericCellValue.toLong()
                     )
 
-                    rekeningDAO.insert(newRekening)
+//                    rekeningDAO.insert(newRekening)
                 }
                 inputStream!!.close()
                 success.postValue(true)

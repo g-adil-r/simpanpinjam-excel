@@ -48,7 +48,7 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
         rekViewModel?.foundRekening?.observe(this) {
             rekening = rekViewModel!!.foundRekening.value
             tvNoRek.text = rekening!!.noRek
-            tvNama.text = rekening!!.nama
+            tvNama.text = rekening!!.anggota!!.nama
             tvSimpanan.text = CurrencyHelper.format(rekening!!.saldoSimpanan)
             tvPinjaman.text = CurrencyHelper.format(rekening!!.saldoPinjaman)
             tvAngsuran.text = CurrencyHelper.format(rekening!!.angsuran)

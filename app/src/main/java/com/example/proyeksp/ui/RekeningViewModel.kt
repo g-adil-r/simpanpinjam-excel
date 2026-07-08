@@ -17,7 +17,7 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
     val _allRekening = MutableLiveData<List<Rekening>>()
     val foundRekening = MutableLiveData<Rekening>()
     val scanNum = MutableLiveData<Int>()
-//    val allRekening: LiveData<List<Rekening>> = mRepository.rekeningList
+    val allRekening: LiveData<List<Rekening>> = mRepository.rekeningList
 
     val success: LiveData<Boolean>
         get() = mRepository.getSuccess()
@@ -34,33 +34,34 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
         mRepository.exportToXls(uri)
     }
 
-    fun importFromXlsx(uri: Uri) {
-        try {
-            mRepository.importFromXlsx(uri)
-        } catch (e: RuntimeException) {
-            throw RuntimeException(e)
-        }
-    }
+//    fun importFromXlsx(uri: Uri) {
+//        try {
+//            mRepository.importFromXlsx(uri)
+//        } catch (e: RuntimeException) {
+//            throw RuntimeException(e)
+//        }
+//    }
 
 //    val daftarRekening: LiveData<List<Rekening>>?
 //        get() = mRepository.daftarRekening
-    val scanData: LiveData<Int>?
-        get() = mRepository.scanData
-    val totalSetoran: LiveData<Long?>?
-        get() = mRepository.totalSetoran
+//    val scanData: LiveData<Int>?
+//        get() = mRepository.scanData
+//    val totalSetoran: LiveData<Long?>?
+//        get() = mRepository.totalSetoran
 
     // -------------------------------------------------------------------------------------
 
-    fun fetchAllRekening() {
-        viewModelScope.launch {
-            _allRekening.value = mRepository.getAllRekening()
-            Log.d("RekeningViewModel", "Fetched ${_allRekening.value?.size} records")
-        }
-    }
+//    fun fetchAllRekening() {
+//        viewModelScope.launch {
+//            _allRekening.value = mRepository.getAllRekening()
+//            Log.d("RekeningViewModel", "Fetched ${_allRekening.value?.size} records")
+//        }
+//    }
 
     fun getRekeningFromNoRek(s: String) {
         viewModelScope.launch {
             foundRekening.value = mRepository.getRekeningFromNoRek(s)
+            Log.d("RekeningViewModel", "Found rekening: ${foundRekening.value}")
         }
     }
 
