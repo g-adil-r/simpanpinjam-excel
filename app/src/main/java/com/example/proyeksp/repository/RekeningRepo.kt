@@ -17,6 +17,7 @@ import io.github.jan.supabase.postgrest.query.Count
 import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonElement
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Workbook
@@ -24,6 +25,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.IOException
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -34,6 +36,7 @@ class RekeningRepo(application: Application) {
     private val context: Context
     // 1. Initialize as a MutableLiveData
     private val _rekeningList = MutableLiveData<List<Rekening>>()
+    private val _setoranList = MutableLiveData<List<Transaksi>>()
 
     val rekeningList: LiveData<List<Rekening>> = _rekeningList
     private var success = MutableLiveData<Boolean>()
@@ -105,7 +108,7 @@ class RekeningRepo(application: Application) {
     suspend fun getAllRekening(): List<Rekening> {
         return withContext(Dispatchers.IO) {
             try {
-                supabase.from("Rekening").select {
+                supabase.from("rekening").select {
                     order("no_rek", order = Order.ASCENDING)
                 }.decodeList<Rekening>()
             } catch (e: Exception) {
@@ -126,7 +129,7 @@ class RekeningRepo(application: Application) {
     suspend fun updateRekening(rekening: Rekening) {
         withContext(Dispatchers.IO) {
             try {
-                supabase.from("Rekening").update({
+                supabase.from("rekening").update({
                     set("tgl_trans", rekening.tglTrans)
                     set("setoran", rekening.setoran)
                 }) {
@@ -159,7 +162,7 @@ class RekeningRepo(application: Application) {
     suspend fun getNumberOfScan(): Int {
         return withContext(Dispatchers.IO) {
             try {
-                supabase.from("Rekening").select {
+                supabase.from("rekening").select {
                     count(Count.EXACT)
                 }.decodeSingle<Int>()
             } catch (e: Exception) {
@@ -169,6 +172,34 @@ class RekeningRepo(application: Application) {
             }
         }
     }
+
+
+    suspend fun getSetoran(): List<Transaksi> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val columns = Columns.raw("""
+                    id,
+                    setoran,
+                    rekening (
+                        no_rek,
+                        anggota (nama)
+                    )
+                """.trimIndent())
+                val setoran = supabase.from("setoran").select(
+                    columns
+                )
+                val rawJson = setoran.decodeList<JsonElement>()
+                Log.d("RekeningRepo", "Raw JSON: $rawJson")
+                Log.d("RekeningRepo", "Fetched ${setoran.decodeList<Transaksi>().size} setoran")
+                setoran.decodeList<Transaksi>()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e("RekeningRepo", "Error fetching setoran: ${e.message}")
+                emptyList() // Return empty list on failure to avoid crashes
+            }
+        }
+    }
+
 
 //    val totalSetoran: LiveData<Long?>?
 //        get() = rekeningDAO?.totalSetoran
@@ -181,7 +212,7 @@ class RekeningRepo(application: Application) {
 
             val sheet = workbook.createSheet()
 
-            val rekeningList = _rekeningList
+//            val rekeningList = _setoranList
 
             // Create excel header
             val row0 = sheet.createRow(0)
@@ -196,17 +227,18 @@ class RekeningRepo(application: Application) {
 
             // Rest of excel file
             var rownum = 1
-//            for (rekening in rekeningList!!) {
+//            for (setoran in _setoranList) {
 //                val row = sheet.createRow(rownum++)
 //
 //                val cellNoRek = row.createCell(0)
 //                val cellNama = row.createCell(1)
 //                val cellTgl = row.createCell(2)
 //                val cellSetoran = row.createCell(3)
-//                val date = if (rekening.tglTrans == 0L) "-"
-//                else Date(rekening.tglTrans).let { formatter.format(it) }
+////                val date = if (setoran.tglTrans == 0L) "-"
+////                else Date(setoran.tglTrans).let { formatter.format(it) }
+//                val date = "-"
 //
-//                cellNoRek.setCellValue(rekening.noRek)
+//                cellNoRek.setCellValue(setoran.noRek)
 //                cellNama.setCellValue(rekening.nama)
 //                cellTgl.setCellValue(date)
 //                cellSetoran.setCellValue(rekening.setoran.toDouble())

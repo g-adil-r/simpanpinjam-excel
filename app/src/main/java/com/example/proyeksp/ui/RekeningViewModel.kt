@@ -6,18 +6,26 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import com.example.proyeksp.database.Rekening
 import com.example.proyeksp.database.Transaksi
 import com.example.proyeksp.repository.RekeningRepo
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class RekeningViewModel(application: Application) : AndroidViewModel(application) {
     private val mRepository = RekeningRepo(application)
-    val _allRekening = MutableLiveData<List<Rekening>>()
     val foundRekening = MutableLiveData<Rekening>()
     val scanNum = MutableLiveData<Int>()
-    val allRekening: LiveData<List<Rekening>> = mRepository.rekeningList
+    private val _allSetoran = MutableLiveData<List<Transaksi>>()
+    val allSetoran: LiveData<List<Transaksi>> = _allSetoran
+
+    init {
+        fetchTransaksi()
+    }
 
     val success: LiveData<Boolean>
         get() = mRepository.getSuccess()
@@ -80,6 +88,13 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
     fun getScanData() {
         viewModelScope.launch {
             scanNum.value = mRepository.getNumberOfScan()
+        }
+    }
+
+    fun fetchTransaksi() {
+        viewModelScope.launch {
+            val res = mRepository.getSetoran()
+            _allSetoran.value = res
         }
     }
 }

@@ -35,9 +35,9 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     // TODO: Remove logout since this is for testing only
     init {
-//        viewModelScope.launch {
-//            mRepository.logout()
-//        }
+        viewModelScope.launch {
+            mRepository.logout()
+        }
         fetchProfile()
     }
 
