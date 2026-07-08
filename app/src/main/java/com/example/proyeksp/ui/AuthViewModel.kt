@@ -33,13 +33,12 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     val sessionStatus : StateFlow<SessionStatus> = mRepository.sessionStatus
 
-    // TODO: Remove this since this is for testing only
+    // TODO: Remove logout since this is for testing only
     init {
 //        viewModelScope.launch {
 //            mRepository.logout()
 //        }
-
-
+        fetchProfile()
     }
 
     fun login(emailInput: String, passwordInput: String) {

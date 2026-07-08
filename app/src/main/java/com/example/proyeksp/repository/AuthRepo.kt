@@ -72,7 +72,7 @@ class AuthRepo {
         val petugas = supabase
             .from("petugas")
             .select(
-                Columns.list("userid", "username", "role")
+                Columns.list("id", "userid", "username", "role")
             ) {
                 filter {
                     eq("userid", user.id)

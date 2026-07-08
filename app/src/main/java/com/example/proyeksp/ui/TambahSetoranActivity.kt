@@ -39,17 +39,20 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     val btSimpan: Button by lazy { findViewById(R.id.bt_simpan) }
     var rekening: Rekening? = null
     val nf: NumberFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag("ID"))
+    private var currentPetugas: Petugas? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tambah_setoran)
         rekViewModel = ViewModelProvider(this)[RekeningViewModel::class.java]
+        authViewModel = ViewModelProvider(this)[AuthViewModel::class.java]
 
         val noRek = intent.getStringExtra("rekening")
         Log.d("TambahSetoranActivity", "Received noRek: $noRek")
         rekViewModel?.getRekeningFromNoRek(noRek!!)
         rekViewModel?.foundRekening?.observe(this) {
             rekening = rekViewModel!!.foundRekening.value
+            Log.d("TambahSetoranActivity", "Rekening: $rekening")
             tvNoRek.text = rekening!!.noRek
             tvNama.text = rekening!!.anggota!!.nama
             tvSimpanan.text = CurrencyHelper.format(rekening!!.saldoSimpanan)
@@ -59,6 +62,12 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
             btSimpan.setOnClickListener(this)
             etSetoran.setText(nf.format(rekening!!.setoran))
             etSetoran.addTextChangedListener(currencyTextWatcher())
+        }
+
+        authViewModel?.currentPetugas?.observe(this) { petugas ->
+            if (petugas != null) {
+                currentPetugas = petugas
+            }
         }
 
 //        tvNoRek = findViewById(R.id.tv_no_rek)
@@ -82,18 +91,17 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
             if (rekening!!.setoran > 0) {
                 showEditAlert(setoran)
             } else {
-                editSetoran(setoran)
+                addSetoran(setoran)
             }
         }
     }
 
-    private fun editSetoran(setoran: Long) {
-        val petugas = authViewModel!!.currentPetugas
+    private fun addSetoran(setoran: Long) {
         val transaksi = Transaksi(
             noRek = rekening!!.noRek,
 //            tglTrans =  System.currentTimeMillis(),
             setoran = setoran,
-            petugasId = petugas.value!!.id!!
+            petugasId = currentPetugas!!.id!!
         )
 //        rekening!!.tglTrans = System.currentTimeMillis()
 //        rekening!!.setoran = setoran
@@ -168,7 +176,7 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
             .setMessage(Html.fromHtml(message, Html.FROM_HTML_MODE_LEGACY))
             .setPositiveButton(
                 "Simpan"
-            ) { dialogInterface: DialogInterface?, i: Int -> editSetoran(setoran) }
+            ) { dialogInterface: DialogInterface?, i: Int -> addSetoran(setoran) }
             .setNegativeButton(
                 "Batal"
             ) { dialogInterface: DialogInterface, i: Int -> dialogInterface.cancel() }
