@@ -1,8 +1,12 @@
 package com.example.proyeksp.ui
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.proyeksp.database.Petugas
 import com.example.proyeksp.repository.AuthRepo
 import io.github.jan.supabase.auth.status.SessionStatus
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,14 +27,20 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
+    private val _currentPetugas = MutableLiveData<Petugas?>(null)
+    val currentPetugas: LiveData<Petugas?> = _currentPetugas
+
+
     val sessionStatus : StateFlow<SessionStatus> = mRepository.sessionStatus
 
     // TODO: Remove this since this is for testing only
-//    init {
+    init {
 //        viewModelScope.launch {
 //            mRepository.logout()
 //        }
-//    }
+
+
+    }
 
     fun login(emailInput: String, passwordInput: String) {
         viewModelScope.launch {
@@ -51,11 +61,21 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                         message = "An unknown error occurred"
                     )
                 }
+                _currentPetugas.value = user
+                Log.d("AuthViewModel", "User: $user")
+                Log.d("AuthViewModel", "currentPetugas: $currentPetugas")
             }.onFailure { exception ->
                 _uiState.value = AuthUiState.Error(
                     message = exception.localizedMessage ?: "An unknown error occurred"
                 )
             }
+        }
+    }
+
+    fun fetchProfile() {
+        viewModelScope.launch {
+            val user = mRepository.getCurrentPetugas()
+            _currentPetugas.value = user
         }
     }
 }

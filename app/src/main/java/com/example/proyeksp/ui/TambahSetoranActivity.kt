@@ -15,8 +15,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModelProvider
 import com.example.proyeksp.R
+import com.example.proyeksp.database.Petugas
 import com.example.proyeksp.database.Rekening
 import com.example.proyeksp.database.Transaksi
 import com.example.proyeksp.helper.CurrencyHelper
@@ -27,6 +29,7 @@ import kotlin.math.min
 
 class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     var rekViewModel: RekeningViewModel? = null
+    var authViewModel: AuthViewModel? = null
     val tvNoRek: TextView by lazy { findViewById(R.id.tv_no_rek) }
     val tvNama: TextView by lazy { findViewById(R.id.tv_nama) }
     val tvSimpanan: TextView by lazy { findViewById(R.id.tv_simpanan) }
@@ -85,14 +88,16 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun editSetoran(setoran: Long) {
+        val petugas = authViewModel!!.currentPetugas
         val transaksi = Transaksi(
             noRek = rekening!!.noRek,
-            tglTrans =  System.currentTimeMillis(),
-            setoran = setoran
+//            tglTrans =  System.currentTimeMillis(),
+            setoran = setoran,
+            petugasId = petugas.value!!.id!!
         )
-        rekening!!.tglTrans = System.currentTimeMillis()
-        rekening!!.setoran = setoran
-        rekViewModel!!.updateRekening(rekening!!)
+//        rekening!!.tglTrans = System.currentTimeMillis()
+//        rekening!!.setoran = setoran
+//        rekViewModel!!.updateRekening(rekening!!)
         rekViewModel!!.addSetoran(transaksi)
 
         Toast.makeText(this, "Setoran berhasil disimpan", Toast.LENGTH_SHORT).show()

@@ -54,7 +54,7 @@ class ScanActivity : AppCompatActivity() {
         rekViewModel!!.getRekeningFromNoRek(s)
         rekViewModel!!.foundRekening.observe(this) {
             Log.d("ScanActivity", "Rekening found: ${it?.noRek}. Navigating.")
-            if (it != null && it.noRek != "") {
+            if (it != null) {
                 cameraController!!.unbind()
                 val i = Intent(this, TambahSetoranActivity::class.java)
                 i.putExtra("rekening", it.noRek)

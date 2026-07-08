@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 @Parcelize
 @Serializable
 data class Petugas (
-    var id: Int? = null,
+    var id: Long? = null,
 
     @SerialName("nama_lengkap")
     var namaLengkap: String? = null,

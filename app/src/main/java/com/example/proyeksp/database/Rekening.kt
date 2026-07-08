@@ -1,12 +1,6 @@
 package com.example.proyeksp.database
 
-import android.os.Parcelable
 import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
-import kotlinx.parcelize.Parcelize // Import for @Parcelize
-import kotlinx.parcelize.RawValue
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -46,7 +40,7 @@ data class Rekening( // Changed to a data class - highly recommended for entitie
 //    @ColumnInfo(name = "setoran")
     var setoran: Long = 0L,
 
-    var anggota: Nasabah? = null
+    var anggota: Anggota? = null
 )
 //    : Parcelable {
 //    constructor(

@@ -7,7 +7,6 @@ import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.proyeksp.database.Nasabah
 import com.example.proyeksp.database.Rekening
 import com.example.proyeksp.database.SupabaseService
 import com.example.proyeksp.database.Transaksi
@@ -16,7 +15,6 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
 import io.github.jan.supabase.postgrest.query.Order
-import io.github.jan.supabase.postgrest.query.filter.FilterOperator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
@@ -24,12 +22,9 @@ import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.IOException
-import java.lang.reflect.Array.set
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -93,10 +88,10 @@ class RekeningRepo(application: Application) {
                     filter {
                         eq("no_rek", s)
                     }
-                }
+                }.decodeSingle<Rekening>()
                 Log.d("ScanActivity", "Rekening found: $rekening")
 
-                rekening.decodeSingle<Rekening>()
+                rekening
             } catch (e: Exception) {
                 // Handle error (log, throw custom exception, return emptyList)
                 e.printStackTrace()
@@ -149,7 +144,7 @@ class RekeningRepo(application: Application) {
     suspend fun addSetoran(transaksi: Transaksi): Boolean {
         return withContext(Dispatchers.IO) {
             try {
-                supabase.from("transaksi").upsert(transaksi)
+                supabase.from("setoran").insert(transaksi)
                 true
             } catch (e: Exception) {
                 e.printStackTrace()

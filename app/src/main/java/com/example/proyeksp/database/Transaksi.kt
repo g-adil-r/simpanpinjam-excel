@@ -10,8 +10,11 @@ data class Transaksi (
     @SerialName("no_rek")
     val noRek: String,
 
-    @SerialName("tgl_trans")
-    val tglTrans: Long,
+//    @SerialName("created_at")
+//    val tglTrans: Long,
 
     val setoran: Long,
+
+    @SerialName("petugas_id")
+    val petugasId: Long
 )
