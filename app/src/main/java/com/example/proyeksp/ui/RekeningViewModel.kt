@@ -16,6 +16,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+sealed class ExportState {
+    object Idle : ExportState()
+    object Loading : ExportState()
+    object Success : ExportState()
+    data class Error(val message: String) : ExportState()
+}
+
 class RekeningViewModel(application: Application) : AndroidViewModel(application) {
     private val mRepository = RekeningRepo(application)
     val foundRekening = MutableLiveData<Rekening>()
@@ -24,54 +31,12 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
     val allSetoran: LiveData<List<Transaksi>> = _allSetoran
     val rekeningWithTodaySetoran: StateFlow<List<Rekening>> = mRepository.rekeningWithTodaySetoran
 
-    val success = MutableLiveData<Boolean?>()
+    private val _exportState = MutableStateFlow<ExportState>(ExportState.Idle)
+    val uiState: StateFlow<ExportState> = _exportState
 
     init {
         fetchTransaksi()
     }
-
-    fun resetSuccessState() {
-        // Resetting to null prevents duplicate/stale Toasts from appearing
-        success.value = null
-    }
-
-//    fun update(rekening: Rekening) {
-//        mRepository.update(rekening)
-//    }
-
-//    fun getRekeningByNoRek(s: String): Rekening? {
-//        return mRepository.findRekeningByNoRek(s)
-//    }
-
-    fun exportToXls(uri: Uri) {
-        viewModelScope.launch {
-            mRepository.exportToXls(uri)
-        }
-    }
-
-//    fun importFromXlsx(uri: Uri) {
-//        try {
-//            mRepository.importFromXlsx(uri)
-//        } catch (e: RuntimeException) {
-//            throw RuntimeException(e)
-//        }
-//    }
-
-//    val daftarRekening: LiveData<List<Rekening>>?
-//        get() = mRepository.daftarRekening
-//    val scanData: LiveData<Int>?
-//        get() = mRepository.scanData
-//    val totalSetoran: LiveData<Long?>?
-//        get() = mRepository.totalSetoran
-
-    // -------------------------------------------------------------------------------------
-
-//    fun fetchAllRekening() {
-//        viewModelScope.launch {
-//            _allRekening.value = mRepository.getAllRekening()
-//            Log.d("RekeningViewModel", "Fetched ${_allRekening.value?.size} records")
-//        }
-//    }
 
     fun getRekeningFromNoRek(s: String) {
         viewModelScope.launch {
@@ -103,5 +68,21 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
             mRepository.getRekeningWithTodaySetoran()
             Log.d("RekeningViewModel", "Fetched ${rekeningWithTodaySetoran.value.size} records")
         }
+    }
+
+    fun exportToXls(uri: Uri) {
+        viewModelScope.launch {
+            _exportState.value = ExportState.Loading
+            val result = mRepository.exportToXls(uri)
+            if (result.isSuccess) {
+                _exportState.value = ExportState.Success
+            } else {
+                _exportState.value = ExportState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
+            }
+        }
+    }
+
+    fun resetSuccessState() {
+        _exportState.value = ExportState.Idle
     }
 }

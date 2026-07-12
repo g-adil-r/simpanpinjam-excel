@@ -1,89 +1,152 @@
 package com.example.proyeksp.ui
 
-import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import android.widget.Button
+import android.view.LayoutInflater
+import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.ViewModelProvider
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyeksp.R
+import com.example.proyeksp.ui.theme.AppColors
+import com.example.proyeksp.ui.theme.MainButton
+import com.example.proyeksp.ui.theme.MyTypography
 
-class MainAdminActivity : AppCompatActivity() {
-    private val btManage: Button by lazy { findViewById(R.id.bt_manage) }
-    private val btViewData: Button by lazy { findViewById(R.id.bt_view_data) }
-    private val btReport: Button by lazy { findViewById(R.id.bt_report) }
-
-    private lateinit var exportCSVLauncher: ActivityResultLauncher<Intent>
-
-    private lateinit var rekViewModel: RekeningViewModel
-
+class MainAdminActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
-        setContentView(R.layout.activity_main_admin)
-//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-//            insets
-//        }
-
-        // 1. Initialize the Launcher (Register this during onCreate)
-        exportCSVLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { res: ActivityResult ->
-            Log.d("MainAdminActivity", "Result code: ${res.resultCode}")
-            Log.d("MainAdminActivity", "Is okay?: ${res.resultCode == RESULT_OK}")
-            Log.d("MainAdminActivity", "Result data: ${res.data}")
-            Log.d("MainAdminActivity", "Result data data: ${res.data?.data}")
-            if (res.resultCode == RESULT_OK) {
-                res.data?.data?.let { uri ->
-                    rekViewModel.exportToXls(uri)
-                }
-            } else {
-                Toast.makeText(this, "Gagal export data", Toast.LENGTH_SHORT).show()
+        setContent {
+            MaterialTheme {
+                MainAdminScreen()
             }
         }
+    }
+}
 
-        rekViewModel = ViewModelProvider(this)[RekeningViewModel::class.java]
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainAdminScreen(rekViewModel: RekeningViewModel = viewModel()) {
+    val context = LocalContext.current
+    val uiSuccessState by rekViewModel.uiState.collectAsState()
 
-        // 2. Observe LiveData ONCE (Do NOT place this inside the launcher callback!)
-        rekViewModel.success.observe(this) { success ->
-            // Safely handle nullable Boolean without success!!
-            when (success) {
-                true -> {
-                    Toast.makeText(this, "Berhasil export data", Toast.LENGTH_SHORT).show()
-                    // ⚠️ Reset the LiveData state to null so the Toast doesn't pop up again
-                    // when you rotate the screen or perform a second export.
-                    rekViewModel.resetSuccessState()
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            rekViewModel.exportToXls(uri)
+        } else {
+            Toast.makeText(context, "Batal export data", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(uiSuccessState) {
+        if (uiSuccessState is ExportState.Success) {
+            Toast.makeText(context, "Berhasil export data", Toast.LENGTH_SHORT).show()
+            rekViewModel.resetSuccessState()
+        } else if (uiSuccessState is ExportState.Error) {
+            Toast.makeText(context, (uiSuccessState as ExportState.Error).message, Toast.LENGTH_SHORT).show()
+            rekViewModel.resetSuccessState()
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .paint(
+                painter = painterResource(id = R.drawable.background),
+                contentScale = ContentScale.FillBounds
+            ),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            AndroidView(
+                modifier = Modifier.fillMaxWidth(),
+                factory = { context ->
+                    LayoutInflater.from(context).inflate(R.layout.header, null)
+                },
+                update = { view ->
+                    // Gambar tidak muncul kalau tidak diset manual
+                    val imageView = view.findViewById<ImageView>(R.id.imageView)
+                    imageView.setImageResource(R.drawable.logo_bumdes)
                 }
-                false -> {
-                    Toast.makeText(this, "Gagal export data", Toast.LENGTH_SHORT).show()
-                    rekViewModel.resetSuccessState()
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                MainButton(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AppColors.Lavender,
+                    ),
+                    onClick = {
+                        context.startActivity(Intent(context, ManagePetugasActivity::class.java))
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.kelola_petugas), style = MyTypography.textButton)
                 }
-                null -> {
-                    // Do nothing when state is idle/reset
+
+                MainButton(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AppColors.Green,
+                    ),
+                    onClick = {
+                        context.startActivity(Intent(context, ManagePetugasActivity::class.java))
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.lihat_data), style = MyTypography.textButton)
+                }
+
+                MainButton(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AppColors.Pink,
+                    ),
+                    onClick = {
+                        exportLauncher.launch(null)
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.export_data), style = MyTypography.textButton)
                 }
             }
+            Spacer(modifier = Modifier.height(10.dp))
+            AndroidView(
+                modifier = Modifier.fillMaxWidth(),
+                factory = { context ->
+                    LayoutInflater.from(context).inflate(R.layout.footer, null)
+                }
+            )
         }
+    }
+}
 
-        btManage.setOnClickListener {
-            startActivity(Intent(this, ManagePetugasActivity::class.java))
-        }
-
-        btViewData.setOnClickListener {
-            startActivity(Intent(this, DaftarSetoranActivity::class.java))
-        }
-
-        btReport.setOnClickListener {
-            exportCSVLauncher.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE))
-        }
+@Preview(showBackground = true)
+@Composable
+fun MainAdminScreenPreview() {
+    MaterialTheme {
+        MainAdminScreen()
     }
 }
