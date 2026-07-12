@@ -37,6 +37,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -55,44 +56,17 @@ import com.example.proyeksp.R
 import com.example.proyeksp.database.Rekening
 import com.example.proyeksp.database.Transaksi
 import com.example.proyeksp.helper.CurrencyHelper
+import com.example.proyeksp.helper.DateHelper
 import com.example.proyeksp.ui.theme.MyTypography
 
 class DaftarSetoranActivity : ComponentActivity() {
     private val viewModel: RekeningViewModel by lazy { RekeningViewModel(application) }
 
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_daftar_setoran)
-//
-////        tvNoData = findViewById(R.id.tv_no_data)
-////        rvRekening = findViewById(R.id.rek_recycler)
-//        rvRekening.setLayoutManager(LinearLayoutManager(this))
-//
-//        rekViewModel = ViewModelProvider(this)[RekeningViewModel::class.java]
-////        rekViewModel!!.fetchAllRekening()
-//        rekViewModel!!._allRekening.observe(
-//            this
-//        ) { rekenings: List<Rekening?>? ->
-//            rekAdapter = RekeningAdapter(this, rekenings)
-//            rvRekening.setAdapter(rekAdapter)
-//            if (rekenings!!.isEmpty()) {
-//                tvNoData.visibility = View.VISIBLE
-//            }
-//        }
-//    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-    //        enableEdgeToEdge()
+//        enableEdgeToEdge()
         setContent {
-            // Use your app theme here
-    //            MaterialTheme {
-    //                Surface(
-    //                    modifier = Modifier.fillMaxSize(),
-    //                ) {
             DaftarSetoranScreen(viewModel)
-    //                }
-    //            }
         }
     }
 }
@@ -112,7 +86,6 @@ fun DaftarSetoranScreen(viewModel: RekeningViewModel = viewModel()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
         ) {
             AndroidView(
                 modifier = Modifier.fillMaxWidth(),
@@ -133,20 +106,17 @@ fun DaftarSetoranScreen(viewModel: RekeningViewModel = viewModel()) {
                     Text(text = "Tidak ada data rekening...", style = MaterialTheme.typography.bodyLarge)
                 }
             } else {
-                // Replaces RecyclerView
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(rekeningList) { rek ->
                         val setoran = rek.setoran?.getOrNull(0)
-                        Log.d("DaftarSetoranScreen", "Setoran: $setoran")
                         val anggota = rek.anggota
+                        val tanggalStr = DateHelper.formatInstant(setoran?.tglTrans)
                         SetoranItem(
                             nama = anggota?.nama ?: "",
                             noRek = rek.noRek,
-                            tglTransaksi = "",
+                            tglTransaksi = tanggalStr,
                             setoran = setoran?.setoran
                         )
                     }
@@ -174,7 +144,6 @@ fun SetoranItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            // Replicates the CardView's margin (15dp horizontal, 5dp vertical)
             .padding(horizontal = 15.dp, vertical = 5.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
@@ -184,12 +153,10 @@ fun SetoranItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                // Replicates the inner ConstraintLayout's margin/padding
                 .padding(horizontal = 15.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            // Replicates the LinearLayout (vertical) with 55% width percent
             Column(
                 modifier = Modifier
                     .weight(0.55f)
@@ -197,22 +164,30 @@ fun SetoranItem(
                 Text(
                     text = nama,
                     fontSize = 24.sp,
-                    // Maps to @style/text.title (Change to your app's title style)
                     style = MyTypography.textTitle,
-                    softWrap = true // singleLine = false
+                    softWrap = true
                 )
                 Text(
                     text = noRek,
-                    // Maps to @style/text.normal
                     style = MyTypography.textNormal,
                     modifier = Modifier.padding(top = 4.dp)
                 )
-                Text(
-                    text = tglTransaksi,
-                    // Maps to @style/text.normal
-                    style = MyTypography.textNormal,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
+                if (tglTransaksi!= "-") {
+                    Text(
+                        text = tglTransaksi,
+                        style = MyTypography.textNormal,
+                        modifier = Modifier.padding(top = 4.dp),
+                        color = Color(red = 34, green = 177, blue = 76)
+                    )
+                } else {
+                    Text(
+                        text = "Belum ada setoran",
+                        style = MyTypography.textNormal,
+                        modifier = Modifier.padding(top = 4.dp),
+                        color = Color.Red
+                    )
+                }
+
             }
 
             Spacer(modifier = Modifier.weight(0.05f))
@@ -237,7 +212,6 @@ fun SetoranItem(
     }
 }
 
-// Quick Preview to see your UI inside Android Studio
 @Preview(showBackground = true)
 @Composable
 fun SetoranItemPreview() {
