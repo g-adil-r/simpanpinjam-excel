@@ -37,28 +37,8 @@ object MyTypography {
     )
 
     val textButton = TextStyle(
-        fontSize = 20.sp,
-        fontWeight = FontWeight.Bold,
+        fontSize = 25.sp,
+        fontWeight = FontWeight.Black,
         color = Color.White
-    )
-}
-
-@Composable
-fun MainButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    colors: ButtonColors = ButtonDefaults.buttonColors(),
-    content: @Composable RowScope.() -> Unit
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier.size(width = 320.dp, height = 70.dp),
-        enabled = enabled,
-        colors = colors,
-        content = content,
-
-        shape = RoundedCornerShape(8.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
     )
 }

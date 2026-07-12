@@ -11,6 +11,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ManageSearch
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,9 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyeksp.R
+import com.example.proyeksp.ui.components.MainButton
 import com.example.proyeksp.ui.theme.AppColors
-import com.example.proyeksp.ui.theme.MainButton
-import com.example.proyeksp.ui.theme.MyTypography
 
 class MainAdminActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +46,6 @@ class MainAdminActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainAdminScreen(rekViewModel: RekeningViewModel = viewModel()) {
     val context = LocalContext.current
@@ -93,46 +94,62 @@ fun MainAdminScreen(rekViewModel: RekeningViewModel = viewModel()) {
                     imageView.setImageResource(R.drawable.logo_bumdes)
                 }
             )
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.weight(1f))
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 MainButton(
+                    text = stringResource(id = R.string.kelola_petugas),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = AppColors.Lavender,
                     ),
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Kelola Petugas",
+                            tint = Color.White,
+                        )
+                    },
                     onClick = {
                         context.startActivity(Intent(context, ManagePetugasActivity::class.java))
                     }
-                ) {
-                    Text(text = stringResource(id = R.string.kelola_petugas), style = MyTypography.textButton)
-                }
-
+                )
                 MainButton(
+                    text = stringResource(id = R.string.lihat_data),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = AppColors.Green,
                     ),
+                    icon = {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ManageSearch,
+                            contentDescription = "Lihat Data",
+                            tint = Color.White,
+                        )
+                    },
                     onClick = {
-                        context.startActivity(Intent(context, ManagePetugasActivity::class.java))
+                        context.startActivity(Intent(context, DaftarSetoranActivity::class.java))
                     }
-                ) {
-                    Text(text = stringResource(id = R.string.lihat_data), style = MyTypography.textButton)
-                }
-
+                )
                 MainButton(
+                    text = stringResource(id = R.string.export_data),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = AppColors.Pink,
                     ),
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.outline_docs_24),
+                            contentDescription = "Lihat Data",
+                            tint = Color.White,
+                        )
+                    },
                     onClick = {
                         exportLauncher.launch(null)
                     }
-                ) {
-                    Text(text = stringResource(id = R.string.export_data), style = MyTypography.textButton)
-                }
+                )
             }
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.weight(1f))
             AndroidView(
                 modifier = Modifier.fillMaxWidth(),
                 factory = { context ->

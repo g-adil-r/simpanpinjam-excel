@@ -65,7 +65,6 @@ class ManagePetugasActivity : ComponentActivity() {
     }
 }
 
-//@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun ManagePetugasScreen(petugasViewModel: PetugasViewModel = viewModel()) {
     val petugasList by petugasViewModel.petugasList.collectAsStateWithLifecycle()
@@ -126,7 +125,6 @@ fun ManagePetugasScreen(petugasViewModel: PetugasViewModel = viewModel()) {
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
-
             AndroidView(
                 modifier = Modifier.fillMaxWidth(),
                 factory = { context ->
