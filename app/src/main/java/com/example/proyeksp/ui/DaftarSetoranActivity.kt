@@ -2,6 +2,7 @@ package com.example.proyeksp.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
@@ -53,6 +54,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.proyeksp.R
 import com.example.proyeksp.database.Rekening
 import com.example.proyeksp.database.Transaksi
+import com.example.proyeksp.helper.CurrencyHelper
 import com.example.proyeksp.ui.theme.MyTypography
 
 class DaftarSetoranActivity : ComponentActivity() {
@@ -138,13 +140,14 @@ fun DaftarSetoranScreen(viewModel: RekeningViewModel = viewModel()) {
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(rekeningList) { rek ->
-                        val setoran = rek.setoran?.getOrNull(0)?.setoran
+                        val setoran = rek.setoran?.getOrNull(0)
+                        Log.d("DaftarSetoranScreen", "Setoran: $setoran")
                         val anggota = rek.anggota
                         SetoranItem(
                             nama = anggota?.nama ?: "",
                             noRek = rek.noRek,
                             tglTransaksi = "",
-                            setoran = setoran.toString()
+                            setoran = setoran?.setoran
                         )
                     }
                 }
@@ -165,7 +168,7 @@ fun SetoranItem(
     nama: String,
     noRek: String,
     tglTransaksi: String,
-    setoran: String,
+    setoran: Long?,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -212,12 +215,12 @@ fun SetoranItem(
                 )
             }
 
-            // Spacer to prevent text collision
             Spacer(modifier = Modifier.weight(0.05f))
 
-            if (setoran.isNotEmpty()) {
+            if (setoran != null) {
+                val setoranStr = CurrencyHelper.format(setoran)
                 Text(
-                    text = setoran,
+                    text = setoranStr,
                     style = MyTypography.textTitle,
                     modifier = Modifier.weight(0.4f),
                     textAlign = TextAlign.End
@@ -243,7 +246,7 @@ fun SetoranItemPreview() {
             nama = "John Doe",
             noRek = "1234567890",
             tglTransaksi = "08 Jul 2026",
-            setoran = "Rp150.000"
+            setoran = 150000
         )
     }
 }

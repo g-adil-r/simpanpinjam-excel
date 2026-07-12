@@ -230,6 +230,7 @@ class RekeningRepo(application: Application) {
             val rawJson = setoran.decodeList<JsonElement>()
             Log.d("RekeningRepo", "Raw JSON: $rawJson")
             Log.d("RekeningRepo", "Fetched ${setoran.decodeList<Rekening>().size} setoran")
+            _rekeningWithTodaySetoran.value = setoran.decodeList<Rekening>()
             Result.success(setoran.decodeList<Rekening>())
         } catch (e: Exception) {
             Log.e("RekeningRepo", "Error fetching rekening with today setoran: ${e.message}")

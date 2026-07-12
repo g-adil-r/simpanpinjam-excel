@@ -101,6 +101,7 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
     fun fetchTransaksi() {
         viewModelScope.launch {
             mRepository.getRekeningWithTodaySetoran()
+            Log.d("RekeningViewModel", "Fetched ${rekeningWithTodaySetoran.value.size} records")
         }
     }
 }
