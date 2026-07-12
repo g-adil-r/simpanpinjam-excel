@@ -24,6 +24,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toJavaInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.JsonElement
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
@@ -34,6 +35,7 @@ import java.io.IOException
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
@@ -390,26 +392,61 @@ class RekeningRepo(application: Application) {
     suspend fun exportToXls(uri: Uri): Result<Unit> = withContext(Dispatchers.IO) {
         Log.d("RekeningRepo", "Exporting to XLS...")
         try {
-            val todayISO = ""
+            getRekeningWithTodaySetoran()
 
-            val columns = Columns.raw("""
-            setoran,
-            created_at,
-            rekening (
-                no_rek,
-                anggota (
-                    nama
+            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZoneId.systemDefault())
+            val workbook: Workbook = HSSFWorkbook()
+            val sheet = workbook.createSheet()
+
+            // Create excel header
+            val row0 = sheet.createRow(0)
+
+            // Excel header
+            var cellnum = 0
+            for (title in headerExportTable) {
+                val cell = row0.createCell(cellnum++)
+                cell.setCellValue(title)
+            }
+
+            // Rest of excel file
+            var rownum = 1
+            for (rekening in rekeningWithTodaySetoran.value) {
+                val setoran = rekening.setoran?.getOrNull(0)
+
+                val row = sheet.createRow(rownum++)
+
+                val cellNoRek = row.createCell(0)
+                val cellNama = row.createCell(1)
+                val cellTgl = row.createCell(2)
+                val cellSetoran = row.createCell(3)
+
+                val date = if (setoran != null && setoran.tglTrans != null)
+                    formatter.format(setoran.tglTrans.toJavaInstant())
+                else "-"
+
+                // 4. Safely chain nested relationships
+                val namaAnggota = rekening.anggota?.nama ?: "-"
+                val setoranAmount = setoran?.setoran ?: 0
+
+                cellNoRek.setCellValue(rekening.noRek)
+                cellNama.setCellValue(namaAnggota)
+                cellTgl.setCellValue(date)
+                cellSetoran.setCellValue(setoranAmount.toDouble())
+            }
+
+            val pickedDir = DocumentFile.fromTreeUri(context, uri)
+            if (pickedDir != null) {
+                val newFile = pickedDir.createFile(
+                    "application/vnd.ms-excel",
+                    "Export_" + DateHelper.currentDateString
                 )
-            )
-            """.trimIndent())
 
-            // 3. Tarik data transaksi khusus HARI INI dari Supabase
-            val transaksiList = SupabaseService.client.from("setoran")
-                .select(columns = columns)
-
-            Log.d("RekeningRepo", "Fetched ${transaksiList.decodeList<Transaksi>().size} setoran")
-            Log.d("RekeningRepo", "Data: ${transaksiList.decodeList<JsonElement>()}")
-
+                if (newFile != null) {
+                    val out = context.contentResolver.openOutputStream(newFile.uri)
+                    workbook.write(out)
+                    out?.close()
+                }
+            }
             Result.success(Unit)
         } catch (e: RestException) {
             Log.d("RekeningRepo", "Error: ${e.message}")
@@ -420,43 +457,6 @@ class RekeningRepo(application: Application) {
         } catch (e: Exception) {
             Log.d("RekeningRepo", "Error: ${e.message}")
             Result.failure(e)
-        }
-    }
-
-    @Throws(RuntimeException::class)
-    fun importFromXlsx(uri: Uri) {
-        executorService.execute {
-            try {
-                val inputStream = context.contentResolver.openInputStream(uri)
-
-                val workbook: Workbook = XSSFWorkbook(inputStream)
-
-                val sheet = workbook.getSheetAt(0)
-                val rows: Iterator<Row> =
-                    sheet.iterator()
-                rows.next() // Skips the header row
-
-                while (rows.hasNext()) {
-                    val row = rows.next()
-                    val newRekening = Rekening(
-                        row.getCell(0).stringCellValue,
-                        row.getCell(1).stringCellValue,
-                        row.getCell(2).numericCellValue.toLong(),
-                        row.getCell(3).numericCellValue.toLong(),
-                        row.getCell(4).numericCellValue.toLong()
-                    )
-
-//                    rekeningDAO.insert(newRekening)
-                }
-                inputStream!!.close()
-                success.postValue(true)
-                success = MutableLiveData()
-            } catch (e: IOException) {
-                e.stackTrace
-            } catch (e: RuntimeException) {
-                success.postValue(false)
-                success = MutableLiveData()
-            }
         }
     }
 }
