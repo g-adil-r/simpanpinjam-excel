@@ -1,5 +1,6 @@
 package com.example.proyeksp.database
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -10,8 +11,8 @@ data class Transaksi (
     @SerialName("no_rek")
     val noRek: String? = null,
 
-//    @SerialName("created_at")
-//    val tglTrans: Long,
+    @SerialName("created_at")
+    val tglTrans: Instant? = null,
 
     val setoran: Long? = null,
 

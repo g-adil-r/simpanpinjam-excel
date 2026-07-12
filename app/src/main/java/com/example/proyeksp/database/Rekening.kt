@@ -20,25 +20,25 @@ data class Rekening( // Changed to a data class - highly recommended for entitie
 
 //    @ColumnInfo(name = "saldo_simpanan")
     @SerialName("saldo_simpanan")
-    var saldoSimpanan: Long = 0L, // Use L for Long literals for clarity
+    var saldoSimpanan: Long? = 0L, // Use L for Long literals for clarity
 
 //    @ColumnInfo(name = "saldo_pinjaman")
     @SerialName("saldo_pinjaman")
-    var saldoPinjaman: Long = 0L,
+    var saldoPinjaman: Long? = 0L,
 
 //    @ColumnInfo(name = "pinjaman_awal")
     @SerialName("pinjaman_awal")
-    var pinjamanAwal: Long = 0L,
+    var pinjamanAwal: Long? = 0L,
 
     @ColumnInfo(name = "angsuran")
-    var angsuran: Long = 0L,
+    var angsuran: Long? = 0L,
 
 //    @ColumnInfo(name = "tgl_trans")
     @SerialName("tgl_trans")
-    var tglTrans: Long = 0L,
+    var tglTrans: Long? = 0L,
 
 //    @ColumnInfo(name = "setoran")
-    var setoran: Long = 0L,
+    var setoran: List<Transaksi>? = null,
 
     var anggota: Anggota? = null
 )

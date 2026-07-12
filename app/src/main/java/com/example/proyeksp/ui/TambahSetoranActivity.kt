@@ -55,9 +55,9 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
             Log.d("TambahSetoranActivity", "Rekening: $rekening")
             tvNoRek.text = rekening!!.noRek
             tvNama.text = rekening!!.anggota!!.nama
-            tvSimpanan.text = CurrencyHelper.format(rekening!!.saldoSimpanan)
-            tvPinjaman.text = CurrencyHelper.format(rekening!!.saldoPinjaman)
-            tvAngsuran.text = CurrencyHelper.format(rekening!!.angsuran)
+//            tvSimpanan.text = CurrencyHelper.format(rekening!!.saldoSimpanan)
+//            tvPinjaman.text = CurrencyHelper.format(rekening!!.saldoPinjaman)
+//            tvAngsuran.text = CurrencyHelper.format(rekening!!.angsuran)
 
             btSimpan.setOnClickListener(this)
             etSetoran.setText(nf.format(rekening!!.setoran))
@@ -88,11 +88,13 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
 
             val setoran = etSetoran.text.toString().replace(".", "").toLong()
 
-            if (rekening!!.setoran > 0) {
-                showEditAlert(setoran)
-            } else {
-                addSetoran(setoran)
-            }
+//            rekening!!.setoran?.let {
+//                if (it > 0) {
+//                    showEditAlert(setoran)
+//                } else {
+//                    addSetoran(setoran)
+//                }
+//            }
         }
     }
 
@@ -168,8 +170,8 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
     fun showEditAlert(setoran: Long) {
         val message = this.getString(
             R.string.alert_dialog,
-            rekening!!.nama,
-            CurrencyHelper.format(rekening!!.setoran)
+            rekening!!.nama, ""
+//            CurrencyHelper.format(rekening!!.setoran)
         )
 
         val alert = AlertDialog.Builder(this)

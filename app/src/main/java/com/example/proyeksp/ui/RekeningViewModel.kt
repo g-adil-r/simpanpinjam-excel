@@ -22,13 +22,18 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
     val scanNum = MutableLiveData<Int>()
     private val _allSetoran = MutableLiveData<List<Transaksi>>()
     val allSetoran: LiveData<List<Transaksi>> = _allSetoran
+    val rekeningWithTodaySetoran: StateFlow<List<Rekening>> = mRepository.rekeningWithTodaySetoran
+
+    val success = MutableLiveData<Boolean?>()
 
     init {
         fetchTransaksi()
     }
 
-    val success: LiveData<Boolean>
-        get() = mRepository.getSuccess()
+    fun resetSuccessState() {
+        // Resetting to null prevents duplicate/stale Toasts from appearing
+        success.value = null
+    }
 
 //    fun update(rekening: Rekening) {
 //        mRepository.update(rekening)
@@ -39,7 +44,9 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
 //    }
 
     fun exportToXls(uri: Uri) {
-        mRepository.exportToXls(uri)
+        viewModelScope.launch {
+            mRepository.exportToXls(uri)
+        }
     }
 
 //    fun importFromXlsx(uri: Uri) {
@@ -93,8 +100,7 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
 
     fun fetchTransaksi() {
         viewModelScope.launch {
-            val res = mRepository.getSetoran()
-            _allSetoran.value = res
+            mRepository.getRekeningWithTodaySetoran()
         }
     }
 }

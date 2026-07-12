@@ -1,7 +1,9 @@
 package com.example.proyeksp.ui
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -11,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import com.example.proyeksp.R
 
 class MainAdminActivity : AppCompatActivity() {
@@ -18,9 +21,9 @@ class MainAdminActivity : AppCompatActivity() {
     private val btViewData: Button by lazy { findViewById(R.id.bt_view_data) }
     private val btReport: Button by lazy { findViewById(R.id.bt_report) }
 
-    var exportCSVLauncher: ActivityResultLauncher<Intent>? = null
+    private lateinit var exportCSVLauncher: ActivityResultLauncher<Intent>
 
-    var rekViewModel: RekeningViewModel? = null
+    private lateinit var rekViewModel: RekeningViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,30 +35,41 @@ class MainAdminActivity : AppCompatActivity() {
 //            insets
 //        }
 
-        exportCSVLauncher = registerForActivityResult<Intent, ActivityResult>(
+        // 1. Initialize the Launcher (Register this during onCreate)
+        exportCSVLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { res: ActivityResult ->
+            Log.d("MainAdminActivity", "Result code: ${res.resultCode}")
+            Log.d("MainAdminActivity", "Is okay?: ${res.resultCode == RESULT_OK}")
+            Log.d("MainAdminActivity", "Result data: ${res.data}")
+            Log.d("MainAdminActivity", "Result data data: ${res.data?.data}")
             if (res.resultCode == RESULT_OK) {
-                val data = res.data
-                if (data != null) {
-                    val uri = data.data
-                    if (uri != null) {
-                        rekViewModel!!.exportToXls(uri)
-                    }
-                    rekViewModel?.success?.observe(
-                        this
-                    ) { success: Boolean? ->
-                        if (success!!) Toast.makeText(
-                            this,
-                            "Berhasil export data",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        else Toast.makeText(
-                            this,
-                            "Gagal export data",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                res.data?.data?.let { uri ->
+                    rekViewModel.exportToXls(uri)
+                }
+            } else {
+                Toast.makeText(this, "Gagal export data", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        rekViewModel = ViewModelProvider(this)[RekeningViewModel::class.java]
+
+        // 2. Observe LiveData ONCE (Do NOT place this inside the launcher callback!)
+        rekViewModel.success.observe(this) { success ->
+            // Safely handle nullable Boolean without success!!
+            when (success) {
+                true -> {
+                    Toast.makeText(this, "Berhasil export data", Toast.LENGTH_SHORT).show()
+                    // ⚠️ Reset the LiveData state to null so the Toast doesn't pop up again
+                    // when you rotate the screen or perform a second export.
+                    rekViewModel.resetSuccessState()
+                }
+                false -> {
+                    Toast.makeText(this, "Gagal export data", Toast.LENGTH_SHORT).show()
+                    rekViewModel.resetSuccessState()
+                }
+                null -> {
+                    // Do nothing when state is idle/reset
                 }
             }
         }
@@ -69,10 +83,7 @@ class MainAdminActivity : AppCompatActivity() {
         }
 
         btReport.setOnClickListener {
-            val i = Intent(Intent.ACTION_OPEN_DOCUMENT)
-            i.addCategory(Intent.CATEGORY_OPENABLE)
-            i.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-            exportCSVLauncher!!.launch(i)
+            exportCSVLauncher.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE))
         }
     }
 }

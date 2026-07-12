@@ -56,9 +56,6 @@ import com.example.proyeksp.database.Transaksi
 import com.example.proyeksp.ui.theme.MyTypography
 
 class DaftarSetoranActivity : ComponentActivity() {
-    val tvNoData: TextView by lazy { findViewById(R.id.tv_no_data) }
-    val rvRekening: RecyclerView by lazy { findViewById(R.id.rek_recycler) }
-    var rekAdapter: RekeningAdapter? = null
     private val viewModel: RekeningViewModel by lazy { RekeningViewModel(application) }
 
 //    override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,7 +97,7 @@ class DaftarSetoranActivity : ComponentActivity() {
 
 @Composable
 fun DaftarSetoranScreen(viewModel: RekeningViewModel = viewModel()) {
-    val transaksiList by viewModel.allSetoran.observeAsState(initial = emptyList())
+    val rekeningList by viewModel.rekeningWithTodaySetoran.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier
@@ -126,13 +123,12 @@ fun DaftarSetoranScreen(viewModel: RekeningViewModel = viewModel()) {
                     imageView.setImageResource(R.drawable.logo_bumdes)
                 }
             )
-            if (transaksiList.isEmpty()) {
-                // Replaces R.id.tv_no_data
+            if (rekeningList.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "Tidak ada data rekening", style = MaterialTheme.typography.bodyLarge)
+                    Text(text = "Tidak ada data rekening...", style = MaterialTheme.typography.bodyLarge)
                 }
             } else {
                 // Replaces RecyclerView
@@ -141,14 +137,14 @@ fun DaftarSetoranScreen(viewModel: RekeningViewModel = viewModel()) {
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(transaksiList) { transaksi ->
-                        val rekening = transaksi.rekening
-                        val anggota = rekening?.anggota
+                    items(rekeningList) { rek ->
+                        val setoran = rek.setoran?.getOrNull(0)?.setoran
+                        val anggota = rek.anggota
                         SetoranItem(
                             nama = anggota?.nama ?: "",
-                            noRek = rekening?.noRek ?: "",
+                            noRek = rek.noRek,
                             tglTransaksi = "",
-                            setoran = transaksi.setoran.toString()
+                            setoran = setoran.toString()
                         )
                     }
                 }
@@ -219,16 +215,21 @@ fun SetoranItem(
             // Spacer to prevent text collision
             Spacer(modifier = Modifier.weight(0.05f))
 
-            // Replicates the right-aligned setor_item_setoran TextView (takes remaining 40% width)
-            Text(
-                text = setoran,
-                // Maps to @style/text.title
-                style = MyTypography.textTitle,
-                textAlign = TextAlign.End,
-                modifier = Modifier
-                    .weight(0.40f)
-                    .wrapContentHeight(Alignment.CenterVertically)
-            )
+            if (setoran.isNotEmpty()) {
+                Text(
+                    text = setoran,
+                    style = MyTypography.textTitle,
+                    modifier = Modifier.weight(0.4f),
+                    textAlign = TextAlign.End
+                )
+            } else {
+                Text(
+                    text = "-",
+                    style = MyTypography.textTitle,
+                    modifier = Modifier.weight(0.4f),
+                    textAlign = TextAlign.End
+                )
+            }
         }
     }
 }
@@ -242,7 +243,7 @@ fun SetoranItemPreview() {
             nama = "John Doe",
             noRek = "1234567890",
             tglTransaksi = "08 Jul 2026",
-            setoran = "Rp 150.000"
+            setoran = "Rp150.000"
         )
     }
 }

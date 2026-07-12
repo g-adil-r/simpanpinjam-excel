@@ -11,12 +11,20 @@ import com.example.proyeksp.database.Rekening
 import com.example.proyeksp.database.SupabaseService
 import com.example.proyeksp.database.Transaksi
 import com.example.proyeksp.helper.DateHelper
+import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
 import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.JsonElement
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.ss.usermodel.Row
@@ -25,6 +33,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.IOException
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.ExecutorService
@@ -36,7 +46,8 @@ class RekeningRepo(application: Application) {
     private val context: Context
     // 1. Initialize as a MutableLiveData
     private val _rekeningList = MutableLiveData<List<Rekening>>()
-    private val _setoranList = MutableLiveData<List<Transaksi>>()
+    private val _rekeningWithTodaySetoran = MutableStateFlow<List<Rekening>>(emptyList())
+    val rekeningWithTodaySetoran: StateFlow<List<Rekening>> = _rekeningWithTodaySetoran
 
     val rekeningList: LiveData<List<Rekening>> = _rekeningList
     private var success = MutableLiveData<Boolean>()
@@ -131,7 +142,6 @@ class RekeningRepo(application: Application) {
             try {
                 supabase.from("rekening").update({
                     set("tgl_trans", rekening.tglTrans)
-                    set("setoran", rekening.setoran)
                 }) {
                     filter {
                         eq("no_rek", rekening.noRek)
@@ -200,33 +210,60 @@ class RekeningRepo(application: Application) {
         }
     }
 
+    suspend fun getRekeningWithTodaySetoran(): Result<List<Rekening>> = withContext(Dispatchers.IO) {
+        try {
+            val timeZone = TimeZone.currentSystemDefault()
+            val todayStr = Clock.System.now().toLocalDateTime(timeZone).date.atStartOfDayIn(timeZone)
+
+            val columns = Columns.raw("""
+                no_rek,
+                anggota ( nama ),
+                setoran ( setoran, created_at )
+            """.trimIndent())
+
+            val setoran = supabase.from("rekening").select(columns) {
+                filter {
+                    gte("setoran.created_at", todayStr.toString())
+                }
+            }
+
+            val rawJson = setoran.decodeList<JsonElement>()
+            Log.d("RekeningRepo", "Raw JSON: $rawJson")
+            Log.d("RekeningRepo", "Fetched ${setoran.decodeList<Rekening>().size} setoran")
+            Result.success(setoran.decodeList<Rekening>())
+        } catch (e: Exception) {
+            Log.e("RekeningRepo", "Error fetching rekening with today setoran: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
 
 //    val totalSetoran: LiveData<Long?>?
 //        get() = rekeningDAO?.totalSetoran
 
-    fun exportToXls(uri: Uri) {
-        executorService.execute {
-            val formatter: DateFormat =
-                SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            val workbook: Workbook = HSSFWorkbook()
-
-            val sheet = workbook.createSheet()
-
-//            val rekeningList = _setoranList
-
-            // Create excel header
-            val row0 = sheet.createRow(0)
-
-            // Excel header
-            var cellnum = 0
-            for (title in headerExportTable) {
-                val cell = row0.createCell(cellnum++)
-
-                cell.setCellValue(title)
-            }
-
-            // Rest of excel file
-            var rownum = 1
+//    fun exportToXls(uri: Uri) {
+//        executorService.execute {
+//            val formatter: DateFormat =
+//                SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+//            val workbook: Workbook = HSSFWorkbook()
+//
+//            val sheet = workbook.createSheet()
+//
+////            val rekeningList = _setoranList
+//
+//            // Create excel header
+//            val row0 = sheet.createRow(0)
+//
+//            // Excel header
+//            var cellnum = 0
+//            for (title in headerExportTable) {
+//                val cell = row0.createCell(cellnum++)
+//
+//                cell.setCellValue(title)
+//            }
+//
+//            // Rest of excel file
+//            var rownum = 1
 //            for (setoran in _setoranList) {
 //                val row = sheet.createRow(rownum++)
 //
@@ -234,34 +271,154 @@ class RekeningRepo(application: Application) {
 //                val cellNama = row.createCell(1)
 //                val cellTgl = row.createCell(2)
 //                val cellSetoran = row.createCell(3)
-////                val date = if (setoran.tglTrans == 0L) "-"
-////                else Date(setoran.tglTrans).let { formatter.format(it) }
-//                val date = "-"
+//                val date = if (setoran.tglTrans == 0L) "-"
+//                else Date(setoran.tglTrans).let { formatter.format(it) }
 //
 //                cellNoRek.setCellValue(setoran.noRek)
 //                cellNama.setCellValue(rekening.nama)
 //                cellTgl.setCellValue(date)
 //                cellSetoran.setCellValue(rekening.setoran.toDouble())
 //            }
-            try {
-                val pickedDir = DocumentFile.fromTreeUri(context, uri)
-                if (pickedDir != null) {
-                    val newFile = pickedDir.createFile(
-                        "application/vnd.ms-excel",
-                        "Export_" + DateHelper.currentDateString
-                    )
+//            try {
+//                val pickedDir = DocumentFile.fromTreeUri(context, uri)
+//                if (pickedDir != null) {
+//                    val newFile = pickedDir.createFile(
+//                        "application/vnd.ms-excel",
+//                        "Export_" + DateHelper.currentDateString
+//                    )
+//
+//                    val out = context.contentResolver.openOutputStream(
+//                        newFile!!.uri
+//                    )
+//                    workbook.write(out)
+//                    out!!.close()
+//                    success.postValue(true)
+//                    success = MutableLiveData()
+//                }
+//            } catch (e: IOException) {
+//                e.stackTrace
+//            }
+//        }
+//    }
 
-                    val out = context.contentResolver.openOutputStream(
-                        newFile!!.uri
-                    )
-                    workbook.write(out)
-                    out!!.close()
-                    success.postValue(true)
-                    success = MutableLiveData()
-                }
-            } catch (e: IOException) {
-                e.stackTrace
-            }
+//    fun exportToXls(uri: Uri): Result<Unit> {
+//        // 1. Read the list value on the Main Thread safely before going to background
+//        val setoranList = _setoranList.value ?: return Result.failure(RuntimeException("No data to export"))
+//
+//        executorService.execute {
+//            val formatter: DateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+//            val workbook: Workbook = HSSFWorkbook()
+//            val sheet = workbook.createSheet()
+//
+//            // Create excel header
+//            val row0 = sheet.createRow(0)
+//
+//            // Excel header
+//            var cellnum = 0
+//            for (title in headerExportTable) {
+//                val cell = row0.createCell(cellnum++)
+//                cell.setCellValue(title)
+//            }
+//
+//            // Rest of excel file
+//            var rownum = 1
+//            for (setoran in setoranList) { // 2. Iterate over the extracted list, not the LiveData
+//                val row = sheet.createRow(rownum++)
+//
+//                val cellNoRek = row.createCell(0)
+//                val cellNama = row.createCell(1)
+//                val cellTgl = row.createCell(2)
+//                val cellSetoran = row.createCell(3)
+//
+//                // 3. Safe ISO-8601 Date Parsing
+////                val date = if (setoran.tglTrans.isNullOrEmpty()) {
+////                    "-"
+////                } else {
+////                    try {
+////                        // Supabase sends TIMESTAMPTZ as "yyyy-MM-dd'T'HH:mm:ss..."
+////                        val isoParser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).apply {
+////                            timeZone = TimeZone.getTimeZone("UTC") // Supabase time is always UTC
+////                        }
+////                        val parsedDate = isoParser.parse(setoran.tglTrans)
+////                        parsedDate?.let { formatter.format(it) } ?: "-"
+////                    } catch (e: Exception) {
+////                        "-" // Fallback if parsing fails
+////                    }
+////                }
+//                val date = "-"
+//
+//                // 4. Safely chain nested relationships
+//                val namaAnggota = setoran.rekening?.anggota?.nama ?: "-"
+//                val setoranAmount = setoran.setoran?.toDouble() ?: 0.0
+//
+//                cellNoRek.setCellValue(setoran.noRek)
+//                cellNama.setCellValue(namaAnggota)
+//                cellTgl.setCellValue(date)
+//                cellSetoran.setCellValue(setoranAmount)
+//            }
+//
+//            try {
+//                val pickedDir = DocumentFile.fromTreeUri(context, uri)
+//                if (pickedDir != null) {
+//                    val newFile = pickedDir.createFile(
+//                        "application/vnd.ms-excel",
+//                        "Export_" + DateHelper.currentDateString
+//                    )
+//
+//                    if (newFile != null) {
+//                        val out = context.contentResolver.openOutputStream(newFile.uri)
+//                        workbook.write(out)
+//                        out?.close()
+//
+//                        // 5. Signal success safely
+//                        success.postValue(true)
+//
+//                        // ⚠️ DO NOT reassign success = MutableLiveData() here,
+//                        // as it breaks the UI observers bound to the original object.
+//                    }
+//
+//                    Result.success(Unit)
+//                }
+//            } catch (e: IOException) {
+//                Log.e("ExportExcel", "Export failed: ${e.message}")
+//                Result.failure(Exception("Export failed"))
+//            }
+//        }
+//    }
+
+    suspend fun exportToXls(uri: Uri): Result<Unit> = withContext(Dispatchers.IO) {
+        Log.d("RekeningRepo", "Exporting to XLS...")
+        try {
+            val todayISO = ""
+
+            val columns = Columns.raw("""
+            setoran,
+            created_at,
+            rekening (
+                no_rek,
+                anggota (
+                    nama
+                )
+            )
+            """.trimIndent())
+
+            // 3. Tarik data transaksi khusus HARI INI dari Supabase
+            val transaksiList = SupabaseService.client.from("setoran")
+                .select(columns = columns)
+
+            Log.d("RekeningRepo", "Fetched ${transaksiList.decodeList<Transaksi>().size} setoran")
+            Log.d("RekeningRepo", "Data: ${transaksiList.decodeList<JsonElement>()}")
+
+            Result.success(Unit)
+        } catch (e: RestException) {
+            Log.d("RekeningRepo", "Error: ${e.message}")
+            Result.failure(Exception("Gagal menarik data dari Supabase: ${e.error}"))
+        } catch (e: IOException) {
+            Log.d("RekeningRepo", "Error: ${e.message}")
+            Result.failure(e)
+        } catch (e: Exception) {
+            Log.d("RekeningRepo", "Error: ${e.message}")
+            Result.failure(e)
         }
     }
 
