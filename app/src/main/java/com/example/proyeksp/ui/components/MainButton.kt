@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.proyeksp.ui.theme.MyTypography
+import com.example.proyeksp.ui.theme.AppTypography
 
 @Composable
 fun MainButton(
@@ -38,7 +38,7 @@ fun MainButton(
         }
         Text(
             text = text.uppercase(),
-            style = MyTypography.textButton,
+            style = AppTypography.textButton,
             modifier = Modifier.weight(1f),
             textAlign = TextAlign.Center
         )

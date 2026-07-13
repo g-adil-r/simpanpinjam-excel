@@ -15,21 +15,9 @@ sealed class AdminState {
     data class Error(val message: String) : AdminState()
 }
 
-class PetugasViewModel : ViewModel() {
-    val petugasList : StateFlow<List<Petugas>> = PetugasRepo.petugasList
-
+class PetugasFormViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<AdminState>(AdminState.Idle)
     val uiState: StateFlow<AdminState> = _uiState
-
-    init {
-        viewModelScope.launch {
-            getAllPetugas()
-        }
-    }
-
-    suspend fun getAllPetugas() {
-        PetugasRepo.getAllPetugas()
-    }
 
     fun addPetugas(petugas: Petugas, password: String) {
         viewModelScope.launch {

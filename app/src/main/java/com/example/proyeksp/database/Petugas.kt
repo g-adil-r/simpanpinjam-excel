@@ -24,6 +24,9 @@ data class Petugas (
     var alamat: String? = null,
 
     var role: String? = null,
+
+    @SerialName("is_aktif")
+    var isAktif: Boolean? = null
 ) : Parcelable {
     fun isAdmin(): Boolean {
         return this.role?.lowercase() == "admin"

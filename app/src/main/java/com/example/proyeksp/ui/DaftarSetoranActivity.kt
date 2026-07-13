@@ -37,7 +37,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyeksp.R
 import com.example.proyeksp.helper.CurrencyHelper
 import com.example.proyeksp.helper.DateHelper
-import com.example.proyeksp.ui.theme.MyTypography
+import com.example.proyeksp.ui.theme.AppTypography
 
 class DaftarSetoranActivity : ComponentActivity() {
     private val viewModel: RekeningViewModel by lazy { RekeningViewModel(application) }
@@ -81,7 +81,7 @@ fun DaftarSetoranScreen(viewModel: RekeningViewModel = viewModel()) {
             Text(
                 text = stringResource(id = R.string.daftar_title),
                 fontSize = 24.sp,
-                style = MyTypography.textTitle,
+                style = AppTypography.textTitle,
                 softWrap = true,
                 modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, start = 15.dp)
             )
@@ -90,7 +90,7 @@ fun DaftarSetoranScreen(viewModel: RekeningViewModel = viewModel()) {
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = stringResource(id = R.string.no_data), style = MyTypography.textNormal)
+                    Text(text = stringResource(id = R.string.no_data), style = AppTypography.textNormal)
                 }
             } else {
                 LazyColumn(
@@ -151,25 +151,25 @@ fun SetoranItem(
                 Text(
                     text = nama,
                     fontSize = 24.sp,
-                    style = MyTypography.textTitle,
+                    style = AppTypography.textTitle,
                     softWrap = true
                 )
                 Text(
                     text = noRek,
-                    style = MyTypography.textNormal,
+                    style = AppTypography.textNormal,
                     modifier = Modifier.padding(top = 4.dp)
                 )
                 if (tglTransaksi!= "-") {
                     Text(
                         text = tglTransaksi,
-                        style = MyTypography.textNormal,
+                        style = AppTypography.textNormal,
                         modifier = Modifier.padding(top = 4.dp),
                         color = Color(red = 34, green = 177, blue = 76)
                     )
                 } else {
                     Text(
                         text = stringResource(id = R.string.no_date_setor),
-                        style = MyTypography.textNormal,
+                        style = AppTypography.textNormal,
                         modifier = Modifier.padding(top = 4.dp),
                         color = Color.Red
                     )
@@ -183,14 +183,14 @@ fun SetoranItem(
                 val setoranStr = CurrencyHelper.format(setoran)
                 Text(
                     text = setoranStr,
-                    style = MyTypography.textTitle,
+                    style = AppTypography.textTitle,
                     modifier = Modifier.weight(0.4f),
                     textAlign = TextAlign.End
                 )
             } else {
                 Text(
                     text = "-",
-                    style = MyTypography.textTitle,
+                    style = AppTypography.textTitle,
                     modifier = Modifier.weight(0.4f),
                     textAlign = TextAlign.End
                 )

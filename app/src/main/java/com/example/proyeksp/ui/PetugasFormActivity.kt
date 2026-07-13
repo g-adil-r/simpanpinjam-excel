@@ -53,12 +53,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyeksp.R
 import com.example.proyeksp.database.Petugas
-import com.example.proyeksp.ui.theme.MyTypography
+import com.example.proyeksp.ui.theme.AppTypography
 
 enum class WorkerRole { PETUGAS, ADMIN }
 
 class PetugasFormActivity : ComponentActivity() {
-    private val viewModel: PetugasViewModel by lazy { PetugasViewModel() }
+    private val viewModel: PetugasFormViewModel by lazy { PetugasFormViewModel() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,11 +87,18 @@ class PetugasFormActivity : ComponentActivity() {
         }
 
         val onCancelClick: () -> Unit = {
+            setResult(RESULT_CANCELED)
+            finish()
+        }
+
+        val onSuccess: () -> Unit = {
+            Toast.makeText(this, "Petugas berhasil ditambahkan", Toast.LENGTH_SHORT).show()
+            setResult(RESULT_OK)
             finish()
         }
 
         setContent {
-            PetugasFormScreen(petugas, onSaveClick, onCancelClick, viewModel)
+            PetugasFormScreen(petugas, onSaveClick, onCancelClick, onSuccess, viewModel)
         }
     }
 }
@@ -104,7 +111,8 @@ fun PetugasFormScreen(
         user: String, pass: String, role: WorkerRole
     ) -> Unit,
     onCancelClick: () -> Unit,
-    viewModel: PetugasViewModel = viewModel(),
+    onSuccess: () -> Unit,
+    viewModel: PetugasFormViewModel = viewModel(),
 ) {
     // Form States
     var namaLengkap by remember { mutableStateOf(petugas?.namaLengkap ?: "") }
@@ -134,8 +142,7 @@ fun PetugasFormScreen(
 
     LaunchedEffect(uiState.value) {
         if (uiState.value is AdminState.Success) {
-            Toast.makeText(ctx, "Petugas berhasil ditambahkan", Toast.LENGTH_SHORT).show()
-            onCancelClick()
+            onSuccess()
         }
         else if (uiState.value is AdminState.Error) {
             Toast.makeText(ctx, (uiState.value as AdminState.Error).message, Toast.LENGTH_SHORT).show()
@@ -171,7 +178,7 @@ fun PetugasFormScreen(
         ) {
             Text(
                 text = if (petugas == null) "Tambah Petugas" else "Edit Petugas",
-                style = MyTypography.textTitle
+                style = AppTypography.textTitle
             )
 
             OutlinedTextField(
@@ -320,8 +327,8 @@ fun PetugasFormScreenPreview() {
     }
 
     val dummyOnCancel: () -> Unit = {}
-
+    val dummyOnSuccess: () -> Unit = {}
     val dummyData = Petugas(0,"Ghifari Adil", "username", "08123456789", "3507229191910001", "Jalan Puncak Indah", "petugas")
 
-    PetugasFormScreen(dummyData, dummyOnSave, dummyOnCancel)
+    PetugasFormScreen(dummyData, dummyOnSave, dummyOnCancel, dummyOnSuccess)
 }

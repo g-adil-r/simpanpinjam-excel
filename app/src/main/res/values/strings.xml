@@ -35,6 +35,7 @@
     <string name="no_date_setor">Belum ada setoran</string>
 
     <string name="alert_dialog">%1$s sudah melakukan setoran sebesar &lt;b>%2$s&lt;/b> &lt;br> &lt;br> Simpan perubahan?</string>
+    <string name="petugas_alert_dialog">Yakin ingin menonaktifkan akun petugas &lt;b>%1$s&lt;/b>? Petugas terkait tidak akan bisa login ke dalam aplikasi.</string>
 
     <string name="ellipsis">…</string>
     <string name="long_placeholder">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</string>
