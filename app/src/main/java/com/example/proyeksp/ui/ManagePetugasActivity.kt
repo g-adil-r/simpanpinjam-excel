@@ -117,22 +117,26 @@ fun ManagePetugasScreen(
             )
             when (val state = uiState)  {
                 is ListState.Idle -> {
-                    // nothing...
+                    Spacer(modifier = Modifier.weight(1f))
                 }
                 is ListState.Error -> {
+                    Spacer(modifier = Modifier.weight(1f))
                     Toast.makeText(ctx, state.message, Toast.LENGTH_SHORT).show()
                     viewModel.resetUiState()
                 }
                 is ListState.Loading -> {
                     Spacer(modifier = Modifier.weight(1f))
                     CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier
+                            .size(24.dp)
+                            .align(Alignment.CenterHorizontally),
                         color = AppColors.Lavender,
-                        strokeWidth = 2.dp
+                        strokeWidth = 2.dp,
                     )
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 is ListState.Success -> {
+                    if (state.message != null) Toast.makeText(ctx, state.message, Toast.LENGTH_SHORT).show()
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -164,7 +168,6 @@ fun ManagePetugasScreen(
                                 onEditClick = { onEditClick(petugas) },
                                 onDeactivateClick = {
                                     viewModel.deactivatePetugas(petugas)
-                                    Toast.makeText(ctx, "Deaktivasi berhasil", Toast.LENGTH_SHORT).show()
                                 }
                             )
                             Spacer(modifier = Modifier.height(8.dp))
@@ -186,7 +189,6 @@ fun ManagePetugasScreen(
 fun PetugasItem(petugas: Petugas, onEditClick: () -> Unit, onDeactivateClick: (Petugas) -> Unit, ) {
     var expanded by remember { mutableStateOf(false) }
     var showAlert by remember { mutableStateOf(false) }
-    val ctx = LocalContext.current
 
     // 1. Animate the rotation angle (0 degrees when collapsed, 180 degrees when expanded)
     val rotationState by animateFloatAsState(
@@ -327,7 +329,7 @@ fun InfoRow(label: String, value: String) {
         )
 
         Text(
-            text = value,
+            text = if (value == "") "-" else value,
             style = AppTypography.textNormal,
             textAlign = TextAlign.End,
             modifier = Modifier

@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 sealed class ListState {
     object Idle : ListState()
     object Loading : ListState()
-    data class Success(val data: List<Petugas>) : ListState()
+    data class Success(val data: List<Petugas>, val message: String?) : ListState()
     data class Error(val message: String) : ListState()
 }
 
@@ -32,7 +32,7 @@ class PetugasListViewModel : ViewModel() {
             _uiState.value = ListState.Loading
             val result = PetugasRepo.getAllPetugas()
             if (result.isSuccess) {
-                _uiState.value = ListState.Success(PetugasRepo.petugasList.value)
+                _uiState.value = ListState.Success(petugasList.value, null)
             } else {
                 _uiState.value = ListState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
             }
@@ -45,7 +45,7 @@ class PetugasListViewModel : ViewModel() {
             val result = PetugasRepo.deactivatePetugas(petugas)
             if (result.isSuccess) {
                 PetugasRepo.getAllPetugas()
-                _uiState.value = ListState.Success(PetugasRepo.petugasList.value)
+                _uiState.value = ListState.Success(petugasList.value, "Deaktivasi berhasil")
             } else {
                 _uiState.value = ListState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
             }
