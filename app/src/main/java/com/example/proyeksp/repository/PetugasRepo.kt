@@ -44,7 +44,7 @@ object PetugasRepo {
                     .from("petugas")
                     .select(columns = columns)
                 _petugasList.value = data.decodeList<Petugas>()
-                Log.d("PetugasRepo", "Response status: ${data.decodeList<JsonElement>()}")
+                Log.d("PetugasRepo", "Get all status: ${data.decodeList<JsonElement>()}")
                 Result.success(_petugasList.value)
             } catch (e: Exception) {
                 Log.d("PetugasRepo", "Error: ${e.message}")
@@ -80,10 +80,34 @@ object PetugasRepo {
         }
     }
 
-//    suspend fun editPetugas(petugas: Petugas, password: String): Result<Unit> {
-//        val payload = PetugasPayload(petugas, password)
-//        val requestBody = RequestBody("update", payload)
-//    }
+    suspend fun editPetugas(petugas: Petugas, password: String): Result<Unit> {
+        val payload = PetugasPayload(petugas, password)
+        val requestBody = RequestBody("update", payload)
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = supabase.functions.invoke(
+                    function = funcName,
+                    body = requestBody,
+                    headers = Headers.build {
+                        append(HttpHeaders.ContentType, "application/json")
+                    }
+                )
+                if (response.status.value == 200) {
+                    getAllPetugas()
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("Failed to add petugas"))
+                }
+            } catch (e: BadRequestRestException) {
+                Log.d("PetugasRepo", "Error: ${e.message}")
+                if (e.error == "user_already_exists") Result.failure(Exception("Username sudah digunakan"))
+                else Result.failure(e)
+            } catch (e: Exception) {
+                Log.d("PetugasRepo", "Error: ${e.message}")
+                Result.failure(e)
+            }
+        }
+    }
 
     suspend fun deactivatePetugas(petugas: Petugas): Result<Unit> {
         val requestBody = RequestBody("deactivate", petugas.id)

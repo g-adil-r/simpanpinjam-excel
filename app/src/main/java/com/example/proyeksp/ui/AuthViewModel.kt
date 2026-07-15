@@ -64,6 +64,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 Log.d("AuthViewModel", "User: $user")
                 Log.d("AuthViewModel", "currentPetugas: $currentPetugas")
             }.onFailure { exception ->
+                Log.d("AuthViewModel", "Exception: ${exception.localizedMessage}")
                 _uiState.value = AuthUiState.Error(
                     message = exception.localizedMessage ?: "An unknown error occurred"
                 )

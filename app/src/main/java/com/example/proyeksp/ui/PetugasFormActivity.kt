@@ -65,6 +65,9 @@ class PetugasFormActivity : ComponentActivity() {
 //        enableEdgeToEdge()
 
         val petugas = IntentCompat.getParcelableExtra(intent, "petugas", Petugas::class.java)
+        if (petugas != null) {
+            viewModel.setEditMode(true)
+        }
 
         val onSaveClick: (
             nama: String, ktp: String, telp: String, alamat: String,
@@ -75,6 +78,7 @@ class PetugasFormActivity : ComponentActivity() {
                     WorkerRole.ADMIN -> "admin"
                 }
                 val petugas = Petugas(
+                    id = petugas?.id,
                     namaLengkap = nama,
                     noKtp = ktp,
                     noTelp = telp,
@@ -83,7 +87,7 @@ class PetugasFormActivity : ComponentActivity() {
                     role = roleString
                 )
 
-                viewModel.addPetugas(petugas, pass)
+                viewModel.submitForm(petugas, pass)
         }
 
         val onCancelClick: () -> Unit = {
@@ -92,7 +96,10 @@ class PetugasFormActivity : ComponentActivity() {
         }
 
         val onSuccess: () -> Unit = {
-            Toast.makeText(this, "Petugas berhasil ditambahkan", Toast.LENGTH_SHORT).show()
+            if (viewModel.uiState.value.isEditMode)
+                Toast.makeText(this, "Petugas berhasil diperbarui", Toast.LENGTH_SHORT).show()
+            else
+                Toast.makeText(this, "Petugas berhasil ditambahkan", Toast.LENGTH_SHORT).show()
             setResult(RESULT_OK)
             finish()
         }
@@ -114,7 +121,11 @@ fun PetugasFormScreen(
     onSuccess: () -> Unit,
     viewModel: PetugasFormViewModel = viewModel(),
 ) {
-    // Form States
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val netState = uiState.networkState
+    val isLoading = netState == NetworkState.Loading
+    val ctx = LocalContext.current
+
     var namaLengkap by remember { mutableStateOf(petugas?.namaLengkap ?: "") }
     var nomorKtp by remember { mutableStateOf(petugas?.noKtp ?: "") }
     var nomorTelepon by remember { mutableStateOf(petugas?.noTelp ?: "") }
@@ -132,20 +143,16 @@ fun PetugasFormScreen(
     var isPasswordVisible by remember { mutableStateOf(false) }
 
     var isUsernameValid = username.isNotEmpty()
-    var isPasswordValid = password.isNotEmpty()
+    var isPasswordValid = uiState.isEditMode || password.isNotEmpty()
 
     var isFormValid = isUsernameValid && isPasswordValid
 
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
-    val isLoading = uiState.value == AdminState.Loading
-    val ctx = LocalContext.current
-
-    LaunchedEffect(uiState.value) {
-        if (uiState.value is AdminState.Success) {
+    LaunchedEffect(netState) {
+        if (netState is NetworkState.Success) {
             onSuccess()
         }
-        else if (uiState.value is AdminState.Error) {
-            Toast.makeText(ctx, (uiState.value as AdminState.Error).message, Toast.LENGTH_SHORT).show()
+        else if (netState is NetworkState.Error) {
+            Toast.makeText(ctx, netState.message, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -213,7 +220,7 @@ fun PetugasFormScreen(
             )
 
             HorizontalDivider()
-            Text("Kredensial Akun", style = MaterialTheme.typography.titleMedium)
+            Text("Kredensial Akun", style = AppTypography.textTitle)
 
             OutlinedTextField(
                 value = username,
@@ -228,27 +235,29 @@ fun PetugasFormScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password*") },
-                isError = !isPasswordValid,
-                supportingText = {
-                    if (!isPasswordValid) {
-                        Text("Password harus diisi")
-                    }
-                },
-                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                        Icon(
-                            imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = "Toggle Password Visibility"
-                        )
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (!uiState.isEditMode) {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password*") },
+                    isError = !isPasswordValid,
+                    supportingText = {
+                        if (!isPasswordValid) {
+                            Text("Password harus diisi")
+                        }
+                    },
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                            Icon(
+                                imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = "Toggle Password Visibility"
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             HorizontalDivider()
             Text("Peran (Role)", style = MaterialTheme.typography.titleMedium)

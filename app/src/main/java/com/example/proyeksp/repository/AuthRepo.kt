@@ -7,6 +7,7 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.auth.user.UserSession
+import io.github.jan.supabase.exceptions.UnauthorizedRestException
 import io.github.jan.supabase.functions.functions
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
@@ -44,6 +45,8 @@ class AuthRepo {
             } else {
                 Result.failure(Exception("Gagal masuk: Username atau password salah"))
             }
+        } catch (e: UnauthorizedRestException) {
+            Result.failure(Exception("Gagal masuk: Username atau password salah"))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -56,10 +59,6 @@ class AuthRepo {
         } catch (e: Exception) {
             Result.failure(e)
         }
-    }
-
-    fun getCurrentUserEmail(): String? {
-        return supabase.auth.currentUserOrNull()?.email
     }
 
     suspend fun getCurrentPetugas(): Petugas? {
