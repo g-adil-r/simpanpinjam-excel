@@ -35,18 +35,12 @@ class PetugasFormViewModel : ViewModel() {
 
     fun addPetugas(petugas: Petugas, password: String) {
         viewModelScope.launch {
-            _uiState.update {
-                it.copy(networkState = NetworkState.Loading)
-            }
+            _uiState.update { it.copy(networkState = NetworkState.Loading) }
             val result = PetugasRepo.addPetugas(petugas, password)
             if (result.isSuccess) {
-                _uiState.update {
-                    it.copy(networkState = NetworkState.Success)
-                }
+                _uiState.update { it.copy(networkState = NetworkState.Success) }
             } else {
-                _uiState.update {
-                    it.copy(networkState = NetworkState.Error(result.exceptionOrNull()?.message ?: "Unknown error"))
-                }
+                _uiState.update { it.copy(networkState = NetworkState.Error(result.exceptionOrNull()?.message ?: "Unknown error")) }
             }
         }
     }

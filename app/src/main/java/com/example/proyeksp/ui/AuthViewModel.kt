@@ -30,7 +30,6 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentPetugas = MutableLiveData<Petugas?>(null)
     val currentPetugas: LiveData<Petugas?> = _currentPetugas
 
-
     val sessionStatus : StateFlow<SessionStatus> = mRepository.sessionStatus
 
     // TODO: Remove logout since this is for testing only
