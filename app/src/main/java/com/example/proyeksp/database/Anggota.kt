@@ -1,6 +1,5 @@
 package com.example.proyeksp.database
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable

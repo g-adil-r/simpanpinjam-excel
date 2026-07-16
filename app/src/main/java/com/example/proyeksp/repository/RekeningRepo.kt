@@ -34,7 +34,6 @@ import java.time.format.DateTimeFormatter
 class RekeningRepo(application: Application) {
     private val supabase = SupabaseService.client
     private val context: Context
-    // 1. Initialize as a MutableLiveData
     private val _rekeningWithTodaySetoran = MutableStateFlow<List<Rekening>>(emptyList())
     val rekeningWithTodaySetoran: StateFlow<List<Rekening>> = _rekeningWithTodaySetoran
 
@@ -49,7 +48,7 @@ class RekeningRepo(application: Application) {
         this.context = application.applicationContext
     }
 
-    suspend fun getRekeningFromNoRek(s: String): Rekening {
+    suspend fun getRekeningFromNoRek(s: String): Result<Rekening> {
         return withContext(Dispatchers.IO) {
             try {
                 val columns = Columns.raw("""
@@ -70,13 +69,13 @@ class RekeningRepo(application: Application) {
                 }.decodeSingle<Rekening>()
                 Log.d("ScanActivity", "Rekening found: $rekening")
 
-                rekening
+                Result.success(rekening)
             } catch (e: Exception) {
                 // Handle error (log, throw custom exception, return emptyList)
                 e.printStackTrace()
                 Log.d("ScanActivity", "Error: ${e.printStackTrace()}")
                 Log.d("ScanActivity", "Rekening not found. Return empty instead")
-                Rekening("", "", 0, 0, 0)
+                Result.failure(e)
             }
         }
     }
@@ -134,33 +133,6 @@ class RekeningRepo(application: Application) {
                 // Handle error (log, throw custom exception, return emptyList)
                 e.printStackTrace()
                 0
-            }
-        }
-    }
-
-
-    suspend fun getSetoran(): List<Transaksi> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val columns = Columns.raw("""
-                    id,
-                    setoran,
-                    rekening (
-                        no_rek,
-                        anggota (nama)
-                    )
-                """.trimIndent())
-                val setoran = supabase.from("setoran").select(
-                    columns
-                )
-                val rawJson = setoran.decodeList<JsonElement>()
-                Log.d("RekeningRepo", "Raw JSON: $rawJson")
-                Log.d("RekeningRepo", "Fetched ${setoran.decodeList<Transaksi>().size} setoran")
-                setoran.decodeList<Transaksi>()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Log.e("RekeningRepo", "Error fetching setoran: ${e.message}")
-                emptyList() // Return empty list on failure to avoid crashes
             }
         }
     }

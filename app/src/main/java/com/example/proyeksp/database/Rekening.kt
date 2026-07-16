@@ -1,43 +1,33 @@
 package com.example.proyeksp.database
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-//@Entity(
-//    tableName = "rekening",
-//    indices = [Index(name = "no_rek_index", value = ["no_rek"], unique = true)]
-//)
 @Serializable
-data class Rekening( // Changed to a data class - highly recommended for entities
-//    @PrimaryKey
-//    @ColumnInfo(name = "no_rek")
+data class Rekening(
     @SerialName("no_rek")
-    var noRek: String, // << CHANGED: Now non-nullable String
+    var noRek: String,
 
-//    @ColumnInfo(name = "nama")
-    var nama: String? = null, // Can remain nullable if 'nama' can be absent
+    var nama: String? = null,
 
-//    @ColumnInfo(name = "saldo_simpanan")
     @SerialName("saldo_simpanan")
-    var saldoSimpanan: Long? = 0L, // Use L for Long literals for clarity
+    var saldoSimpanan: Long? = 0L,
 
-//    @ColumnInfo(name = "saldo_pinjaman")
     @SerialName("saldo_pinjaman")
     var saldoPinjaman: Long? = 0L,
 
-//    @ColumnInfo(name = "pinjaman_awal")
     @SerialName("pinjaman_awal")
     var pinjamanAwal: Long? = 0L,
 
     @ColumnInfo(name = "angsuran")
     var angsuran: Long? = 0L,
 
-//    @ColumnInfo(name = "tgl_trans")
     @SerialName("tgl_trans")
     var tglTrans: Long? = 0L,
 
-//    @ColumnInfo(name = "setoran")
     var setoran: List<Transaksi>? = null,
 
     var anggota: Anggota? = null

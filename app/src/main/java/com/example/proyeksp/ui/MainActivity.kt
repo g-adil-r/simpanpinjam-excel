@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 //    val btExport: Button by lazy { findViewById(R.id.bt_export) }
 //    val tvScanCount: TextView by lazy { findViewById(R.id.tv_scan_count) }
 //    val tvTotalSetoran: TextView by lazy { findViewById(R.id.tv_total_setoran) }
-    var rekViewModel: RekeningViewModel? = null
+//    var rekViewModel: RekeningViewModel? = null
     var authViewModel: AuthViewModel? = null
     var exportCSVLauncher: ActivityResultLauncher<Intent>? = null
     var importCSVLauncher: ActivityResultLauncher<Intent>? = null
@@ -40,10 +40,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         val splashScreen: SplashScreen = installSplashScreen()
         setContentView(R.layout.activity_main)
 
-        rekViewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        )[RekeningViewModel::class.java]
+//        rekViewModel = ViewModelProvider(
+//            this,
+//            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+//        )[RekeningViewModel::class.java]
         authViewModel = ViewModelProvider(
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(application)
@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         btViewData.setOnClickListener(this)
 //        btExport.setOnClickListener(this)
 
-        rekViewModel!!.getScanData()
+//        rekViewModel!!.getScanData()
 //        rekViewModel!!.scanNum.observe(
 //            this
 //        ) { scanCount: Int? -> tvScanCount.setText(scanCount.toString()) }

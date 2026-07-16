@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import com.example.proyeksp.database.Rekening
@@ -23,7 +24,7 @@ sealed class ExportState {
     data class Error(val message: String) : ExportState()
 }
 
-class RekeningViewModel(application: Application) : AndroidViewModel(application) {
+class RekeningViewModel(application: Application) : ViewModel() {
     private val mRepository = RekeningRepo(application)
     val foundRekening = MutableLiveData<Rekening>()
     val scanNum = MutableLiveData<Int>()
@@ -36,19 +37,6 @@ class RekeningViewModel(application: Application) : AndroidViewModel(application
 
     init {
         fetchTransaksi()
-    }
-
-    fun getRekeningFromNoRek(s: String) {
-        viewModelScope.launch {
-            foundRekening.value = mRepository.getRekeningFromNoRek(s)
-            Log.d("RekeningViewModel", "Found rekening: ${foundRekening.value}")
-        }
-    }
-
-    fun updateRekening(rekening: Rekening) {
-        viewModelScope.launch {
-            mRepository.updateRekening(rekening)
-        }
     }
 
     fun addSetoran(transaksi: Transaksi) {

@@ -49,20 +49,20 @@ class TambahSetoranActivity : AppCompatActivity(), View.OnClickListener {
 
         val noRek = intent.getStringExtra("rekening")
         Log.d("TambahSetoranActivity", "Received noRek: $noRek")
-        rekViewModel?.getRekeningFromNoRek(noRek!!)
-        rekViewModel?.foundRekening?.observe(this) {
-            rekening = rekViewModel!!.foundRekening.value
-            Log.d("TambahSetoranActivity", "Rekening: $rekening")
-            tvNoRek.text = rekening!!.noRek
-            tvNama.text = rekening!!.anggota!!.nama
-//            tvSimpanan.text = CurrencyHelper.format(rekening!!.saldoSimpanan)
-//            tvPinjaman.text = CurrencyHelper.format(rekening!!.saldoPinjaman)
-//            tvAngsuran.text = CurrencyHelper.format(rekening!!.angsuran)
-
-            btSimpan.setOnClickListener(this)
-            etSetoran.setText(nf.format(rekening!!.setoran))
-            etSetoran.addTextChangedListener(currencyTextWatcher())
-        }
+//        rekViewModel?.getRekeningFromNoRek(noRek!!)
+//        rekViewModel?.foundRekening?.observe(this) {
+//            rekening = rekViewModel!!.foundRekening.value
+//            Log.d("TambahSetoranActivity", "Rekening: $rekening")
+//            tvNoRek.text = rekening!!.noRek
+//            tvNama.text = rekening!!.anggota!!.nama
+////            tvSimpanan.text = CurrencyHelper.format(rekening!!.saldoSimpanan)
+////            tvPinjaman.text = CurrencyHelper.format(rekening!!.saldoPinjaman)
+////            tvAngsuran.text = CurrencyHelper.format(rekening!!.angsuran)
+//
+//            btSimpan.setOnClickListener(this)
+//            etSetoran.setText(nf.format(rekening!!.setoran))
+//            etSetoran.addTextChangedListener(currencyTextWatcher())
+//        }
 
         authViewModel?.currentPetugas?.observe(this) { petugas ->
             if (petugas != null) {
