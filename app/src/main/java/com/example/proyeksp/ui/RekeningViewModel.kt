@@ -1,6 +1,7 @@
 package com.example.proyeksp.ui
 
 import android.app.Application
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -24,8 +25,8 @@ sealed class ExportState {
     data class Error(val message: String) : ExportState()
 }
 
-class RekeningViewModel(application: Application) : ViewModel() {
-    private val mRepository = RekeningRepo(application)
+class RekeningViewModel() : ViewModel() {
+    private val mRepository = RekeningRepo()
     val foundRekening = MutableLiveData<Rekening>()
     val scanNum = MutableLiveData<Int>()
     private val _allSetoran = MutableLiveData<List<Transaksi>>()
@@ -58,10 +59,10 @@ class RekeningViewModel(application: Application) : ViewModel() {
         }
     }
 
-    fun exportToXls(uri: Uri) {
+    fun exportToXls(uri: Uri, context: Context) {
         viewModelScope.launch {
             _exportState.value = ExportState.Loading
-            val result = mRepository.exportToXls(uri)
+            val result = mRepository.exportToXls(uri, context)
             if (result.isSuccess) {
                 _exportState.value = ExportState.Success
             } else {

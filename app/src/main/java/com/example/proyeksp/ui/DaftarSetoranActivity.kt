@@ -40,7 +40,7 @@ import com.example.proyeksp.helper.DateHelper
 import com.example.proyeksp.ui.theme.AppTypography
 
 class DaftarSetoranActivity : ComponentActivity() {
-    private val viewModel: RekeningViewModel by lazy { RekeningViewModel(application) }
+    private val viewModel: RekeningViewModel by lazy { RekeningViewModel() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.proyeksp.database.Petugas
+import com.example.proyeksp.ui.components.InfoRow
 import com.example.proyeksp.ui.theme.AppColors
 import com.example.proyeksp.ui.theme.AppTypography
 import kotlin.jvm.java
@@ -309,34 +310,7 @@ fun PetugasItem(petugas: Petugas, onEditClick: () -> Unit, onDeactivateClick: (P
     }
 }
 
-@Composable
-fun InfoRow(label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth(),
-    ) {
-        Text(
-            text = label,
-            style = AppTypography.textNormal,
-            modifier = Modifier
-                .weight(4f)
-        )
 
-        Text(
-            text = ":",
-            style = AppTypography.textNormal,
-            modifier = Modifier.weight(0.1f)
-        )
-
-        Text(
-            text = if (value == "") "-" else value,
-            style = AppTypography.textNormal,
-            textAlign = TextAlign.End,
-            modifier = Modifier
-                .weight(6f)
-        )
-    }
-}
 
 
 @Preview(showBackground = true)

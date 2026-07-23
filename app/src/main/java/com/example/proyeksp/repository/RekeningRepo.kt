@@ -1,11 +1,9 @@
 package com.example.proyeksp.repository
 
-import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
-import androidx.lifecycle.MutableLiveData
 import com.example.proyeksp.database.Rekening
 import com.example.proyeksp.database.SupabaseService
 import com.example.proyeksp.database.Transaksi
@@ -31,9 +29,8 @@ import java.io.IOException
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class RekeningRepo(application: Application) {
+class RekeningRepo() {
     private val supabase = SupabaseService.client
-    private val context: Context
     private val _rekeningWithTodaySetoran = MutableStateFlow<List<Rekening>>(emptyList())
     val rekeningWithTodaySetoran: StateFlow<List<Rekening>> = _rekeningWithTodaySetoran
 
@@ -43,10 +40,6 @@ class RekeningRepo(application: Application) {
         "TglTrans",
         "Setoran"
     )
-
-    init {
-        this.context = application.applicationContext
-    }
 
     suspend fun getRekeningFromNoRek(s: String): Result<Rekening> {
         return withContext(Dispatchers.IO) {
@@ -111,14 +104,13 @@ class RekeningRepo(application: Application) {
         }
     }
 
-    suspend fun addSetoran(transaksi: Transaksi): Boolean {
+    suspend fun addSetoran(transaksi: Transaksi): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
                 supabase.from("setoran").insert(transaksi)
-                true
+                Result.success(Unit)
             } catch (e: Exception) {
-                e.printStackTrace()
-                false
+                Result.failure(e)
             }
         }
     }
@@ -165,7 +157,7 @@ class RekeningRepo(application: Application) {
         }
     }
 
-    suspend fun exportToXls(uri: Uri): Result<Unit> = withContext(Dispatchers.IO) {
+    suspend fun exportToXls(uri: Uri, context: Context): Result<Unit> = withContext(Dispatchers.IO) {
         Log.d("RekeningRepo", "Exporting to XLS...")
         try {
             getRekeningWithTodaySetoran()

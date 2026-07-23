@@ -55,7 +55,7 @@ fun MainAdminScreen(rekViewModel: RekeningViewModel = viewModel()) {
         contract = ActivityResultContracts.OpenDocumentTree()
     ) { uri: Uri? ->
         if (uri != null) {
-            rekViewModel.exportToXls(uri)
+            rekViewModel.exportToXls(uri, context)
         } else {
             Toast.makeText(context, "Batal export data", Toast.LENGTH_SHORT).show()
         }

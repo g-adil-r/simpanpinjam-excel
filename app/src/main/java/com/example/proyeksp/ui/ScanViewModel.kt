@@ -17,10 +17,10 @@ sealed class ScanUiState() {
     data class Error(val message: String) : ScanUiState()
 }
 
-class ScanViewModel(application: Application) : ViewModel() {
+class ScanViewModel() : ViewModel() {
     private val _uiState = MutableStateFlow<ScanUiState>(ScanUiState.Idle)
     val uiState: StateFlow<ScanUiState> = _uiState.asStateFlow()
-    private val mRepository = RekeningRepo(application)
+    private val mRepository = RekeningRepo()
 
     fun getRekeningFromNoRek(s: String) {
         if (_uiState.value == ScanUiState.Loading) return

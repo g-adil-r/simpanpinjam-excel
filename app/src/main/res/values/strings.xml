@@ -23,7 +23,8 @@
     <string name="info_nama">Nama</string>
     <string name="info_saldo_simpanan">Saldo Simpanan</string>
     <string name="info_saldo_pinjaman">Saldo Pinjaman</string>
-    <string name="info_angsuran">Angsuran Bulan Ini</string>
+    <string name="info_angsuran">Angsuran</string>
+    <string name="info_pinjaman_awal">Pinjaman Awal</string>
     <string name="setoran_label">Masukkan setoran:</string>
     <string name="colon">:</string>
     <string name="currency">Rp</string>

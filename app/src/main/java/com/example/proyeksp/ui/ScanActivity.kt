@@ -43,7 +43,7 @@ import kotlinx.serialization.json.Json
 import java.util.concurrent.Executors
 
 class ScanActivity : ComponentActivity() {
-    private val viewModel by lazy { ScanViewModel(application) }
+    private val viewModel by lazy { ScanViewModel() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

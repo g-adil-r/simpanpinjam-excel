@@ -29,4 +29,9 @@ object AppTypography {
         fontWeight = FontWeight.Black,
         color = Color.White
     )
+
+    val textLargeBold = text.copy(
+        fontSize = 30.sp,
+        fontWeight = FontWeight.Bold
+    )
 }
