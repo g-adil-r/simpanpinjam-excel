@@ -1,20 +1,16 @@
 package com.example.proyeksp.ui
 
-import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import com.example.proyeksp.database.Rekening
 import com.example.proyeksp.database.Transaksi
 import com.example.proyeksp.repository.RekeningRepo
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -26,7 +22,7 @@ sealed class ExportState {
 }
 
 class RekeningViewModel() : ViewModel() {
-    private val mRepository = RekeningRepo()
+    private val mRepository by lazy { RekeningRepo() }
     val foundRekening = MutableLiveData<Rekening>()
     val scanNum = MutableLiveData<Int>()
     private val _allSetoran = MutableLiveData<List<Transaksi>>()
@@ -54,7 +50,7 @@ class RekeningViewModel() : ViewModel() {
 
     fun fetchTransaksi() {
         viewModelScope.launch {
-            mRepository.getRekeningWithTodaySetoran()
+            mRepository.getRekeningsWithTodaySetoran()
             Log.d("RekeningViewModel", "Fetched ${rekeningWithTodaySetoran.value.size} records")
         }
     }

@@ -12,7 +12,6 @@ import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
-import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -105,7 +104,7 @@ class RekeningRepo() {
         }
     }
 
-    suspend fun getRekeningWithTodaySetoran(): Result<List<Rekening>> = withContext(Dispatchers.IO) {
+    suspend fun getRekeningsWithTodaySetoran(): Result<List<Rekening>> = withContext(Dispatchers.IO) {
         try {
             val timeZone = TimeZone.currentSystemDefault()
             val todayStr = Clock.System.now().toLocalDateTime(timeZone).date.atStartOfDayIn(timeZone)
@@ -124,9 +123,13 @@ class RekeningRepo() {
 
             val rawJson = setoran.decodeList<JsonElement>()
             Log.d("RekeningRepo", "Raw JSON: $rawJson")
-            Log.d("RekeningRepo", "Fetched ${setoran.decodeList<Rekening>().size} setoran")
-            _rekeningWithTodaySetoran.value = setoran.decodeList<Rekening>()
-            Result.success(setoran.decodeList<Rekening>())
+            val rawList = setoran.decodeList<Rekening>()
+            Log.d("RekeningRepo", "Fetched ${rawList.size} setoran")
+            val sortedList = rawList.sortedByDescending { rekening ->
+                rekening.setoran?.firstOrNull()?.tglTrans?.toEpochMilliseconds() ?: 0
+            }
+            _rekeningWithTodaySetoran.value = sortedList
+            Result.success(sortedList)
         } catch (e: Exception) {
             Log.e("RekeningRepo", "Error fetching rekening with today setoran: ${e.message}")
             Result.failure(e)
@@ -136,7 +139,7 @@ class RekeningRepo() {
     suspend fun exportToXls(uri: Uri, context: Context): Result<Unit> = withContext(Dispatchers.IO) {
         Log.d("RekeningRepo", "Exporting to XLS...")
         try {
-            getRekeningWithTodaySetoran()
+            getRekeningsWithTodaySetoran()
 
             val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZoneId.systemDefault())
             val workbook: Workbook = HSSFWorkbook()

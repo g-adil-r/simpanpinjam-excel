@@ -26,8 +26,8 @@ data class SetoranFormUiState(
 )
 
 class TambahSetoranViewModel(): ViewModel() {
-    private val rekeningRepo: RekeningRepo = RekeningRepo()
-    private val authRepo: AuthRepo = AuthRepo()
+    private val rekeningRepo: RekeningRepo by lazy { RekeningRepo() }
+    private val authRepo: AuthRepo by lazy { AuthRepo() }
 
     private val _uiState = MutableStateFlow<SetoranFormUiState>(SetoranFormUiState())
     val uiState: StateFlow<SetoranFormUiState> = _uiState

@@ -20,7 +20,7 @@ sealed class ScanUiState() {
 class ScanViewModel() : ViewModel() {
     private val _uiState = MutableStateFlow<ScanUiState>(ScanUiState.Idle)
     val uiState: StateFlow<ScanUiState> = _uiState.asStateFlow()
-    private val mRepository = RekeningRepo()
+    private val mRepository by lazy { RekeningRepo() }
 
     fun getRekeningFromNoRek(s: String) {
         if (_uiState.value == ScanUiState.Loading) return
