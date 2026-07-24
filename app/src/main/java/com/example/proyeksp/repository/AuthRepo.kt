@@ -25,7 +25,6 @@ class AuthRepo {
 
     suspend fun login(username: String, pass: String): Result<Unit> {
         return try {
-            // 1. Invoke the Edge Function with the raw credentials
             val response = supabase.functions.invoke(
                 function = funcName,
                 body = RequestBody(username, pass),
@@ -35,11 +34,8 @@ class AuthRepo {
             )
 
             if (response.status.value == 200) {
-                // 2. Deserialize the JSON directly into supabase-kt's UserSession object
                 val session = response.body<UserSession>()
-
-                // 3. Import the session into your local Supabase client
-                supabase.auth.importSession(session) // Local persistence & auto-refresh starts here!
+                supabase.auth.importSession(session)
 
                 Result.success(Unit)
             } else {
@@ -62,9 +58,14 @@ class AuthRepo {
     }
 
     suspend fun getCurrentPetugas(): Petugas? {
+        supabase.auth.awaitInitialization()
         val user = supabase.auth.currentUserOrNull()
+        Log.d("AuthRepo", "User?: $user")
 
-        if (user == null) return null
+        if (user == null) {
+            Log.e("AuthRepo", "User is null! Status is: ${supabase.auth.sessionStatus.value}")
+            return null
+        }
 
         Log.d("AuthRepo", "ID: ${user.id}")
 

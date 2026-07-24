@@ -30,16 +30,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.proyeksp.R
 
 class LoginActivity : ComponentActivity() {
-    private lateinit var authViewModel: AuthViewModel
+    private val authViewModel: AuthViewModel by lazy { AuthViewModel() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        enableEdgeToEdge()
-
-        authViewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        )[AuthViewModel::class.java]
 
         setContent {
             LoginScreen(

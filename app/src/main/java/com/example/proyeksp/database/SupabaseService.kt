@@ -14,7 +14,9 @@ object SupabaseService {
             supabaseKey = BuildConfig.SUPABASE_KEY
         ) {
             install(Postgrest)
-            install(Auth)
+            install(Auth) {
+                alwaysAutoRefresh = true
+            }
             install(Functions)
         }
     }

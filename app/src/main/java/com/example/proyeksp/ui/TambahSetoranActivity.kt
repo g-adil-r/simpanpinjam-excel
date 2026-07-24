@@ -1,30 +1,13 @@
 package com.example.proyeksp.ui
 
-import android.content.DialogInterface
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.text.Editable
-import android.text.Html
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.getValue
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,24 +17,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,40 +39,26 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyeksp.R
-import com.example.proyeksp.analyzer.QrCodeAnalyzer
-import com.example.proyeksp.database.Petugas
 import com.example.proyeksp.database.Rekening
 import com.example.proyeksp.database.Transaksi
 import com.example.proyeksp.helper.CurrencyHelper
 import com.example.proyeksp.ui.components.InfoRow
-import com.example.proyeksp.ui.components.MainButton
 import com.example.proyeksp.ui.theme.AppColors
 import com.example.proyeksp.ui.theme.AppTypography
 import kotlinx.serialization.json.Json
 import java.text.NumberFormat
 import java.util.Locale
-import kotlin.math.max
-import kotlin.math.min
 
 class TambahSetoranActivity : ComponentActivity() {
     private val viewModel: TambahSetoranViewModel by lazy { TambahSetoranViewModel() }
-    val nf: NumberFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag("ID"))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,14 +69,10 @@ class TambahSetoranActivity : ComponentActivity() {
         //parse jsonstring rekening to rekening
         val rekening = rekeningJson?.let { Json.decodeFromString<Rekening>(it) }
         Log.d("TambahSetoranActivity", "Rekening: $rekening")
+        Log.d("TambahSetoranActivity", "Petugas: $viewModel")
 
-        val onSubmit: (setoran: Long) -> Unit = { setoran ->
-            val newTransaksi = Transaksi(
-                noRek = rekening!!.noRek,
-                setoran = setoran,
-                petugasId = 1
-            )
-            viewModel.addSetoran(newTransaksi)
+        val onSubmit: (noRek: String, setoran: Long) -> Unit = { norek, setoran ->
+            viewModel.addSetoran(norek, setoran)
         }
 
         val onSuccess: () -> Unit = {
@@ -129,6 +87,7 @@ class TambahSetoranActivity : ComponentActivity() {
             SetoranScreen(
                 viewModel = viewModel,
                 rekening = rekening!!,
+                onSubmit = onSubmit,
                 onSuccess = onSuccess
             )
         }
@@ -139,12 +98,12 @@ class TambahSetoranActivity : ComponentActivity() {
 fun SetoranScreen(
     viewModel: TambahSetoranViewModel = viewModel(),
     rekening: Rekening,
-    onSubmit: () -> Unit = {},
+    onSubmit: (noRek: String, setoran: Long) -> Unit = {noRek, setoran ->},
     onSuccess: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val netState = uiState.networkState
-    var setoran by remember { mutableStateOf(rekening.setoran ?: 0) }
+    var setoran by remember { mutableStateOf(rekening.setoran.toString()) }
     val ctx = LocalContext.current
 
     LaunchedEffect(netState) {
@@ -254,11 +213,15 @@ fun SetoranScreen(
                 }
                 Spacer(modifier = Modifier.height(15.dp))
                 Button(
-                    onClick = onSubmit,
+                    onClick = {
+                        val setor = setoran.toLongOrNull() ?: 0
+                        onSubmit(rekening.noRek, setor)
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = AppColors.Lavender,
                     ),
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    enabled = netState !is SetorNetworkState.Loading
                 ) {
                     Text(
                         text = stringResource(R.string.simpan),
@@ -267,6 +230,7 @@ fun SetoranScreen(
                     )
                 }
             }
+            Spacer(modifier = Modifier.weight(1f))
             AndroidView(
                 modifier = Modifier.fillMaxWidth(),
                 factory = { context ->

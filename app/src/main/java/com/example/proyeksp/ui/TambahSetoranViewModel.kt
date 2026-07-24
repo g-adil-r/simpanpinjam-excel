@@ -1,8 +1,8 @@
 package com.example.proyeksp.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.proyeksp.database.Petugas
 import com.example.proyeksp.database.Rekening
 import com.example.proyeksp.database.Transaksi
 import com.example.proyeksp.repository.AuthRepo
@@ -21,7 +21,6 @@ sealed class SetorNetworkState() {
 
 data class SetoranFormUiState(
     val rekening: Rekening? = null,
-    val currentPetugas: Petugas? = null,
     val networkState: SetorNetworkState = SetorNetworkState.Idle,
 )
 
@@ -32,11 +31,12 @@ class TambahSetoranViewModel(): ViewModel() {
     private val _uiState = MutableStateFlow<SetoranFormUiState>(SetoranFormUiState())
     val uiState: StateFlow<SetoranFormUiState> = _uiState
 
-    fun addSetoran(transaksi: Transaksi) {
+    fun addSetoran(noRek: String, setoran: Long) {
         viewModelScope.launch {
             _uiState.update { it.copy(networkState = SetorNetworkState.Loading) }
 
             val currentPetugas = authRepo.getCurrentPetugas()
+            Log.d("TambahSetoranViewModel", "Current Petugas: $currentPetugas")
 
             if (currentPetugas == null) {
                 _uiState.update { it.copy(
@@ -46,8 +46,8 @@ class TambahSetoranViewModel(): ViewModel() {
             }
 
             val newTransaksi = Transaksi(
-                noRek = transaksi.noRek,
-                setoran = transaksi.setoran,
+                noRek = noRek,
+                setoran = setoran,
                 petugasId = currentPetugas.id!!
             )
 

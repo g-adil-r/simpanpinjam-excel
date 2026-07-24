@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 //    val tvScanCount: TextView by lazy { findViewById(R.id.tv_scan_count) }
 //    val tvTotalSetoran: TextView by lazy { findViewById(R.id.tv_total_setoran) }
 //    var rekViewModel: RekeningViewModel? = null
-    var authViewModel: AuthViewModel? = null
+    val authViewModel: AuthViewModel by lazy { AuthViewModel() }
     var exportCSVLauncher: ActivityResultLauncher<Intent>? = null
     var importCSVLauncher: ActivityResultLauncher<Intent>? = null
 
@@ -44,10 +44,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 //            this,
 //            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
 //        )[RekeningViewModel::class.java]
-        authViewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        )[AuthViewModel::class.java]
 
 //        btImport = findViewById(R.id.bt_import)
 //        btScan = findViewById(R.id.bt_scan)
