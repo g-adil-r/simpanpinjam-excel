@@ -20,6 +20,7 @@ sealed class SetorNetworkState() {
 }
 
 data class SetoranFormUiState(
+    val isEditMode: Boolean = false,
     val rekening: Rekening? = null,
     val networkState: SetorNetworkState = SetorNetworkState.Idle,
 )
@@ -30,6 +31,14 @@ class TambahSetoranViewModel(): ViewModel() {
 
     private val _uiState = MutableStateFlow<SetoranFormUiState>(SetoranFormUiState())
     val uiState: StateFlow<SetoranFormUiState> = _uiState
+
+    fun setEditMode(isEditMode: Boolean) {
+        _uiState.update {
+            it.copy(
+                isEditMode = isEditMode
+            )
+        }
+    }
 
     fun addSetoran(noRek: String, setoran: Long) {
         viewModelScope.launch {

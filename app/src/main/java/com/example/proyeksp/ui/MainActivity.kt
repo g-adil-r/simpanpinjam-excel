@@ -32,8 +32,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 //    val tvTotalSetoran: TextView by lazy { findViewById(R.id.tv_total_setoran) }
 //    var rekViewModel: RekeningViewModel? = null
     val authViewModel: AuthViewModel by lazy { AuthViewModel() }
-    var exportCSVLauncher: ActivityResultLauncher<Intent>? = null
-    var importCSVLauncher: ActivityResultLauncher<Intent>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

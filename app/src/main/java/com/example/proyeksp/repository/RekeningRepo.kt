@@ -44,6 +44,9 @@ class RekeningRepo() {
     suspend fun getRekeningFromNoRek(s: String): Result<Rekening> {
         return withContext(Dispatchers.IO) {
             try {
+                val timeZone = TimeZone.currentSystemDefault()
+                val todayStr = Clock.System.now().toLocalDateTime(timeZone).date.atStartOfDayIn(timeZone)
+
                 val columns = Columns.raw("""
                     no_rek,
                     angsuran,
@@ -51,6 +54,9 @@ class RekeningRepo() {
                     anggota (
                         nama,
                         no_ktp
+                    ),
+                    setoran (
+                        setoran
                     )
                 """.trimIndent())
                 val rekening = supabase.from("rekening").select(
@@ -58,6 +64,7 @@ class RekeningRepo() {
                 ) {
                     filter {
                         eq("no_rek", s)
+                        gte("setoran.created_at", todayStr) // Ambil yang setorannya hari ini
                     }
                 }.decodeSingle<Rekening>()
                 Log.d("ScanActivity", "Rekening found: $rekening")
@@ -69,37 +76,6 @@ class RekeningRepo() {
                 Log.d("ScanActivity", "Error: ${e.printStackTrace()}")
                 Log.d("ScanActivity", "Rekening not found. Return empty instead")
                 Result.failure(e)
-            }
-        }
-    }
-
-    suspend fun getAllRekening(): List<Rekening> {
-        return withContext(Dispatchers.IO) {
-            try {
-                supabase.from("rekening").select {
-                    order("no_rek", order = Order.ASCENDING)
-                }.decodeList<Rekening>()
-            } catch (e: Exception) {
-                // Handle error (log, throw custom exception, return emptyList)
-                e.printStackTrace()
-                emptyList()
-            }
-        }
-    }
-
-    suspend fun updateRekening(rekening: Rekening) {
-        withContext(Dispatchers.IO) {
-            try {
-                supabase.from("rekening").update({
-                    set("tgl_trans", rekening.tglTrans)
-                }) {
-                    filter {
-                        eq("no_rek", rekening.noRek)
-                    }
-                }
-            } catch (e: Exception) {
-                // Handle error (log, throw custom exception, return emptyList)
-                e.printStackTrace()
             }
         }
     }
@@ -142,7 +118,7 @@ class RekeningRepo() {
 
             val setoran = supabase.from("rekening").select(columns) {
                 filter {
-                    gte("setoran.created_at", todayStr.toString())
+                    gte("setoran.created_at", todayStr) // Ambil yang setorannya hari ini
                 }
             }
 

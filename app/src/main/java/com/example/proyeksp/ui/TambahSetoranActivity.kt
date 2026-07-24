@@ -18,12 +18,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -35,10 +37,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,14 +53,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyeksp.R
 import com.example.proyeksp.database.Rekening
-import com.example.proyeksp.database.Transaksi
 import com.example.proyeksp.helper.CurrencyHelper
 import com.example.proyeksp.ui.components.InfoRow
 import com.example.proyeksp.ui.theme.AppColors
 import com.example.proyeksp.ui.theme.AppTypography
 import kotlinx.serialization.json.Json
-import java.text.NumberFormat
-import java.util.Locale
 
 class TambahSetoranActivity : ComponentActivity() {
     private val viewModel: TambahSetoranViewModel by lazy { TambahSetoranViewModel() }
@@ -68,8 +70,13 @@ class TambahSetoranActivity : ComponentActivity() {
 
         //parse jsonstring rekening to rekening
         val rekening = rekeningJson?.let { Json.decodeFromString<Rekening>(it) }
+        val setoran = rekening?.setoran
         Log.d("TambahSetoranActivity", "Rekening: $rekening")
         Log.d("TambahSetoranActivity", "Petugas: $viewModel")
+
+        if (setoran != null && setoran.isNotEmpty()) {
+            viewModel.setEditMode(true)
+        }
 
         val onSubmit: (noRek: String, setoran: Long) -> Unit = { norek, setoran ->
             viewModel.addSetoran(norek, setoran)
@@ -103,8 +110,11 @@ fun SetoranScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val netState = uiState.networkState
-    var setoran by remember { mutableStateOf(rekening.setoran.toString()) }
+    val setoranInit = rekening.setoran?.firstOrNull()?.setoran ?: 0L
     val ctx = LocalContext.current
+
+    var setoranInput by remember { mutableStateOf(setoranInit.toString()) }
+    var showAlert by remember { mutableStateOf(false) }
 
     LaunchedEffect(netState) {
         if (netState is SetorNetworkState.Success) {
@@ -113,6 +123,34 @@ fun SetoranScreen(
         else if (netState is SetorNetworkState.Error) {
             Toast.makeText(ctx, netState.message, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    if (showAlert) {
+        val nama = rekening.anggota?.nama.toString()
+        val message = stringResource(R.string.alert_dialog, nama, setoranInit)
+        AlertDialog(
+            onDismissRequest = { showAlert = false },
+            text = {
+                Text(
+                    text = AnnotatedString.fromHtml(message)
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onSubmit(rekening.noRek, setoranInit)
+                        showAlert = false
+                    }
+                ) {
+                    Text(text = "Simpan", color = AppColors.Lavender)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAlert = false }) {
+                    Text("Batal")
+                }
+            }
+        )
     }
 
     Box(
@@ -199,8 +237,8 @@ fun SetoranScreen(
                             style = AppTypography.textLargeBold,
                         )
                         TextField(
-                            value = setoran.toString(),
-                            onValueChange = { setoran = it.filter { it.isDigit() } },
+                            value = setoranInput.toString(),
+                            onValueChange = { setoranInput = it.filter { it.isDigit() } },
                             colors = TextFieldDefaults.colors(
                                 unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                                 focusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -214,7 +252,11 @@ fun SetoranScreen(
                 Spacer(modifier = Modifier.height(15.dp))
                 Button(
                     onClick = {
-                        val setor = setoran.toLongOrNull() ?: 0
+                        if (uiState.isEditMode) {
+                            showAlert = true
+                            return@Button
+                        }
+                        val setor = setoranInput.toLongOrNull() ?: 0
                         onSubmit(rekening.noRek, setor)
                     },
                     colors = ButtonDefaults.buttonColors(
