@@ -90,20 +90,6 @@ class RekeningRepo() {
         }
     }
 
-    suspend fun getNumberOfScan(): Int {
-        return withContext(Dispatchers.IO) {
-            try {
-                supabase.from("rekening").select {
-                    count(Count.EXACT)
-                }.decodeSingle<Int>()
-            } catch (e: Exception) {
-                // Handle error (log, throw custom exception, return emptyList)
-                e.printStackTrace()
-                0
-            }
-        }
-    }
-
     suspend fun getRekeningsWithTodaySetoran(): Result<List<Rekening>> = withContext(Dispatchers.IO) {
         try {
             val timeZone = TimeZone.currentSystemDefault()

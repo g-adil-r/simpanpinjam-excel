@@ -38,11 +38,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.StartActivity"
-            android:exported="true">
-
-        </activity>
-        <activity
             android:name=".ui.TambahSetoranActivity"
             android:exported="false" />
         <activity

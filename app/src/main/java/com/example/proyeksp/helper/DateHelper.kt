@@ -20,7 +20,7 @@ class DateHelper {
                 return formatter.format(current)
             }
 
-        // Format an Instant object
+        // Format tipe data Instant
         fun formatInstant(instant: Instant?): String {
             if (instant == null) return "-"
 

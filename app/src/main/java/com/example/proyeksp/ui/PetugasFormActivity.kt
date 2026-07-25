@@ -62,7 +62,6 @@ class PetugasFormActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
 
         val petugas = IntentCompat.getParcelableExtra(intent, "petugas", Petugas::class.java)
         if (petugas != null) {
@@ -311,7 +310,7 @@ fun PetugasFormScreen(
             OutlinedButton(
                 onClick = onCancelClick,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading // Disable cancel while saving
+                enabled = !isLoading // Matiin cancel kalau loading
             ) {
                 Text("Batal")
             }

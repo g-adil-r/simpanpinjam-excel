@@ -23,10 +23,7 @@ sealed class ExportState {
 
 class RekeningViewModel() : ViewModel() {
     private val mRepository by lazy { RekeningRepo() }
-    val foundRekening = MutableLiveData<Rekening>()
     val scanNum = MutableLiveData<Int>()
-    private val _allSetoran = MutableLiveData<List<Transaksi>>()
-    val allSetoran: LiveData<List<Transaksi>> = _allSetoran
     val rekeningWithTodaySetoran: StateFlow<List<Rekening>> = mRepository.rekeningWithTodaySetoran
 
     private val _exportState = MutableStateFlow<ExportState>(ExportState.Idle)
@@ -34,18 +31,6 @@ class RekeningViewModel() : ViewModel() {
 
     init {
         fetchTransaksi()
-    }
-
-    fun addSetoran(transaksi: Transaksi) {
-        viewModelScope.launch {
-            mRepository.addSetoran(transaksi)
-        }
-    }
-
-    fun getScanData() {
-        viewModelScope.launch {
-            scanNum.value = mRepository.getNumberOfScan()
-        }
     }
 
     fun fetchTransaksi() {

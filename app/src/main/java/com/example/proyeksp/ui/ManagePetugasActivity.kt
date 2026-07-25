@@ -2,66 +2,67 @@ package com.example.proyeksp.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
-import com.example.proyeksp.R
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.fromHtml
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyeksp.R
 import com.example.proyeksp.database.Petugas
 import com.example.proyeksp.ui.components.InfoRow
 import com.example.proyeksp.ui.theme.AppColors
 import com.example.proyeksp.ui.theme.AppTypography
-import kotlin.jvm.java
 
 class ManagePetugasActivity : ComponentActivity() {
     private val viewModel: PetugasListViewModel by lazy { PetugasListViewModel() }
-    private val formLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            Log.d("ManagePetugasActivity", "Form result OK")
-            viewModel.getAllPetugas() // Refresh List
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,13 +72,13 @@ class ManagePetugasActivity : ComponentActivity() {
                 viewModel,
                 onAddClick = {
                     val intent = Intent(this, PetugasFormActivity::class.java)
-                    formLauncher.launch(intent)
+                    startActivity(intent)
                 },
                 onEditClick = { petugas ->
                     val intent = Intent(this, PetugasFormActivity::class.java).apply {
                         putExtra("petugas", petugas)
                     }
-                    formLauncher.launch(intent)
+                    startActivity(intent)
                 }
             )
         }
@@ -191,7 +192,7 @@ fun PetugasItem(petugas: Petugas, onEditClick: () -> Unit, onDeactivateClick: (P
     var expanded by remember { mutableStateOf(false) }
     var showAlert by remember { mutableStateOf(false) }
 
-    // 1. Animate the rotation angle (0 degrees when collapsed, 180 degrees when expanded)
+    // Animasi untuk panah
     val rotationState by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         label = "ChevronRotation"
@@ -228,7 +229,7 @@ fun PetugasItem(petugas: Petugas, onEditClick: () -> Unit, onDeactivateClick: (P
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .animateContentSize(), // 2. Smoothly animates height changes during expansion
+            .animateContentSize(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
@@ -240,7 +241,6 @@ fun PetugasItem(petugas: Petugas, onEditClick: () -> Unit, onDeactivateClick: (P
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // 3. Wrap Title and Chevron in a Row to push the arrow to the right
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -251,12 +251,12 @@ fun PetugasItem(petugas: Petugas, onEditClick: () -> Unit, onDeactivateClick: (P
                     style = AppTypography.textTitle,
                     fontWeight = FontWeight.Bold,
                     fontSize = 27.sp,
-                    modifier = Modifier.weight(1f) // Prevents long names from overlapping the icon
+                    modifier = Modifier.weight(1f)
                 )
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = if (expanded) "Sembunyikan Detail" else "Tampilkan Detail",
-                    modifier = Modifier.rotate(rotationState) // Applies the rotating transition
+                    modifier = Modifier.rotate(rotationState)
                 )
             }
 
@@ -313,13 +313,13 @@ fun PetugasItem(petugas: Petugas, onEditClick: () -> Unit, onDeactivateClick: (P
 
 
 
-@Preview(showBackground = true)
-@Composable
-fun ScreenPreview() {
+//@Preview(showBackground = true)
+//@Composable
+//fun ScreenPreview() {
 //    val petugasList = listOf(
 //        Petugas(1, "Budi Santoso", "budi123", "08123456789", "1234567890123456", "Jl.123", "Admin"),
 //        Petugas(2, "Siti Aminah", "sssiti", "08123456789", "1234567890123456", "Jl.1245","Petugas Lapangan"),
 //        Petugas(3, "Agus Hermawan", "AgusH", "08123456789", "1234567890123456", "Jl.Aapap", "Bendahara")
 //    )
 //    ManagePetugasScreen()
-}
+//}
