@@ -11,7 +11,6 @@ import com.example.proyeksp.helper.DateHelper
 import io.github.jan.supabase.exceptions.RestException
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
-import io.github.jan.supabase.postgrest.query.Count
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +20,9 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toJavaInstant
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.buildJsonObject
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.ss.usermodel.Workbook
 import java.io.IOException
@@ -54,7 +55,8 @@ class RekeningRepo() {
                         nama,
                         no_ktp
                     ),
-                    setoran (
+                    transaksi (
+                        id,
                         setoran
                     )
                 """.trimIndent())
@@ -63,14 +65,13 @@ class RekeningRepo() {
                 ) {
                     filter {
                         eq("no_rek", s)
-                        gte("setoran.created_at", todayStr) // Ambil yang setorannya hari ini
+                        gte("transaksi.created_at", todayStr) // Ambil yang setorannya hari ini
                     }
                 }.decodeSingle<Rekening>()
                 Log.d("ScanActivity", "Rekening found: $rekening")
 
                 Result.success(rekening)
             } catch (e: Exception) {
-                // Handle error (log, throw custom exception, return emptyList)
                 e.printStackTrace()
                 Log.d("ScanActivity", "Error: ${e.printStackTrace()}")
                 Log.d("ScanActivity", "Rekening not found. Return empty instead")
@@ -82,7 +83,24 @@ class RekeningRepo() {
     suspend fun addSetoran(transaksi: Transaksi): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
-                supabase.from("setoran").insert(transaksi)
+                supabase.from("transaksi").insert(transaksi)
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    suspend fun editSetoran(oldTransaksiId: Long, newTransaksi: Transaksi): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d("RekeningRepo", "Old transaksi: $oldTransaksiId")
+                Log.d("RekeningRepo", "New transaksi: $newTransaksi")
+                supabase.from("transaksi").update(newTransaksi) {
+                    filter {
+                        eq("id", oldTransaksiId)
+                    }
+                }
                 Result.success(Unit)
             } catch (e: Exception) {
                 Result.failure(e)
@@ -98,12 +116,12 @@ class RekeningRepo() {
             val columns = Columns.raw("""
                 no_rek,
                 anggota ( nama ),
-                setoran ( setoran, created_at )
+                transaksi ( setoran, created_at )
             """.trimIndent())
 
             val setoran = supabase.from("rekening").select(columns) {
                 filter {
-                    gte("setoran.created_at", todayStr) // Ambil yang setorannya hari ini
+                    gte("transaksi.created_at", todayStr) // Ambil yang setorannya hari ini
                 }
             }
 
@@ -112,7 +130,7 @@ class RekeningRepo() {
             val rawList = setoran.decodeList<Rekening>()
             Log.d("RekeningRepo", "Fetched ${rawList.size} setoran")
             val sortedList = rawList.sortedByDescending { rekening ->
-                rekening.setoran?.firstOrNull()?.tglTrans?.toEpochMilliseconds() ?: 0
+                rekening.transaksi?.firstOrNull()?.tglTrans?.toEpochMilliseconds() ?: 0
             }
             _rekeningWithTodaySetoran.value = sortedList
             Result.success(sortedList)
@@ -144,7 +162,7 @@ class RekeningRepo() {
             // Rest of excel file
             var rownum = 1
             for (rekening in rekeningWithTodaySetoran.value) {
-                val setoran = rekening.setoran?.getOrNull(0)
+                val setoran = rekening.transaksi?.getOrNull(0)
 
                 val row = sheet.createRow(rownum++)
 
@@ -192,4 +210,7 @@ class RekeningRepo() {
             Result.failure(e)
         }
     }
+
+    @Serializable
+    data class EditSetorPayload(val setoran: Long, val petugas_id: Long)
 }

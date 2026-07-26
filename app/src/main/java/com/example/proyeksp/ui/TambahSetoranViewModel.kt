@@ -43,32 +43,79 @@ class TambahSetoranViewModel(): ViewModel() {
     fun addSetoran(noRek: String, setoran: Long) {
         viewModelScope.launch {
             _uiState.update { it.copy(networkState = SetorNetworkState.Loading) }
+            authRepo.getCurrentPetugas()
+                .onSuccess { currentPetugas ->
+                    if (currentPetugas?.id == null) {
+                        _uiState.update { it.copy(
+                            networkState = SetorNetworkState.Error("Petugas tidak ditemukan. Silakan login ulang.")
+                        )}
+                        return@launch
+                    }
 
-            val currentPetugas = authRepo.getCurrentPetugas()
-            Log.d("TambahSetoranViewModel", "Current Petugas: $currentPetugas")
+                    val newTransaksi = Transaksi(
+                        noRek = noRek,
+                        setoran = setoran,
+                        petugasId = currentPetugas.id!!
+                    )
 
-            if (currentPetugas == null) {
-                _uiState.update { it.copy(
-                    networkState = SetorNetworkState.Error("Petugas tidak ditemukan")
-                )}
-                return@launch
-            }
-
-            val newTransaksi = Transaksi(
-                noRek = noRek,
-                setoran = setoran,
-                petugasId = currentPetugas.id!!
-            )
-
-            rekeningRepo.addSetoran(newTransaksi)
-                .onSuccess {
-                    _uiState.update { it.copy(networkState = SetorNetworkState.Success)}
+                    rekeningRepo.addSetoran(newTransaksi)
+                        .onSuccess {
+                            _uiState.update { it.copy(networkState = SetorNetworkState.Success)}
+                        }
+                        .onFailure { e ->
+                            _uiState.update { it.copy(
+                                networkState = SetorNetworkState.Error(e.message ?: "Unknown error")
+                            )}
+                        }
                 }
                 .onFailure { e ->
                     _uiState.update { it.copy(
-                        networkState = SetorNetworkState.Error(e.message ?: "Unknown error")
+                        networkState = SetorNetworkState.Error(e.message ?: "Gagal mengambil data petugas")
                     )}
                 }
         }
+    }
+
+    fun editSetoran(setoranInit: Transaksi, noRek: String, setoran: Long) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(networkState = SetorNetworkState.Loading) }
+            authRepo.getCurrentPetugas()
+                .onSuccess { currentPetugas ->
+                    if (currentPetugas?.id == null) {
+                        _uiState.update { it.copy(
+                            networkState = SetorNetworkState.Error("Petugas tidak ditemukan. Silakan login ulang.")
+                        )}
+                        return@launch
+                    }
+
+                    val newTransaksi = Transaksi(
+                        id = setoranInit.id,
+                        noRek = noRek,
+                        setoran = setoran,
+                        petugasId = currentPetugas.id!!
+                    )
+
+                    Log.d("TambahSetoranViewModel", "New transaksi: $newTransaksi")
+
+                    rekeningRepo.editSetoran(setoranInit.id!!, newTransaksi)
+                        .onSuccess {
+                            _uiState.update { it.copy(networkState = SetorNetworkState.Success)}
+                        }
+                        .onFailure { e ->
+                            _uiState.update { it.copy(
+                                networkState = SetorNetworkState.Error(e.message ?: "Unknown error")
+                            )}
+                        }
+                }
+                .onFailure { e ->
+                    _uiState.update { it.copy(
+                        networkState = SetorNetworkState.Error(e.message ?: "Gagal mengambil data petugas")
+                    )}
+                }
+        }
+    }
+
+    fun resetNetworkState() {
+        _uiState.update { it.copy(networkState = SetorNetworkState.Idle) }
     }
 }

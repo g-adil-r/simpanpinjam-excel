@@ -29,9 +29,6 @@ class AuthViewModel() : ViewModel() {
     private val _currentPetugas = MutableLiveData<Petugas?>(null)
     val currentPetugas: LiveData<Petugas?> = _currentPetugas
 
-    val sessionStatus : StateFlow<SessionStatus> = mRepository.sessionStatus
-
-    // TODO: Remove logout since this is for testing only
     init {
         viewModelScope.launch {
             mRepository.logout()
@@ -46,25 +43,29 @@ class AuthViewModel() : ViewModel() {
             val result = mRepository.login(emailInput, passwordInput)
 
             result.onSuccess {
-                val user = mRepository.getCurrentPetugas()
-                if (user != null) {
-                    if (user.isAdmin()) {
-                        _uiState.value = AuthUiState.SuccessAdmin
-                    } else {
-                        _uiState.value = AuthUiState.SuccessPetugas
+                mRepository.getCurrentPetugas()
+                    .onSuccess { user ->
+                        if (user != null) {
+                            _currentPetugas.value = user
+                            if (user.isAdmin()) {
+                                _uiState.value = AuthUiState.SuccessAdmin
+                            } else {
+                                _uiState.value = AuthUiState.SuccessPetugas
+                            }
+                        } else {
+                            _uiState.value = AuthUiState.Error(
+                                message = "Data profil petugas tidak ditemukan."
+                            )
+                        }
                     }
-                } else {
-                    _uiState.value = AuthUiState.Error(
-                        message = "An unknown error occurred"
-                    )
-                }
-                _currentPetugas.value = user
-                Log.d("AuthViewModel", "User: $user")
-                Log.d("AuthViewModel", "currentPetugas: $currentPetugas")
-            }.onFailure { exception ->
-                Log.d("AuthViewModel", "Exception: ${exception.localizedMessage}")
+                    .onFailure { e ->
+                        _uiState.value = AuthUiState.Error(
+                            message = e.localizedMessage ?: "Gagal memuat data profil petugas."
+                        )
+                    }
+            }.onFailure { e ->
                 _uiState.value = AuthUiState.Error(
-                    message = exception.localizedMessage ?: "An unknown error occurred"
+                    message = e.localizedMessage ?: "An unknown error occurred"
                 )
             }
         }
@@ -72,8 +73,15 @@ class AuthViewModel() : ViewModel() {
 
     fun fetchProfile() {
         viewModelScope.launch {
-            val user = mRepository.getCurrentPetugas()
-            _currentPetugas.value = user
+            mRepository.getCurrentPetugas()
+                .onSuccess { user ->
+                    _currentPetugas.value = user
+            }
+                .onFailure { e ->
+                    _uiState.value = AuthUiState.Error(
+                        message = e.localizedMessage ?: "Gagal memuat data profil petugas."
+                    )
+                }
         }
     }
 }

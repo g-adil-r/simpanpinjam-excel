@@ -1,8 +1,6 @@
 package com.example.proyeksp.database
 
-import android.os.Parcelable
 import androidx.room.ColumnInfo
-import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -19,7 +17,7 @@ data class Rekening(
     @ColumnInfo(name = "angsuran")
     var angsuran: Long? = 0L,
 
-    var setoran: List<Transaksi>? = null,
+    var transaksi: List<Transaksi>? = null,
 
     var anggota: Anggota? = null
 )

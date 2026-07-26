@@ -23,7 +23,6 @@ sealed class ExportState {
 
 class RekeningViewModel() : ViewModel() {
     private val mRepository by lazy { RekeningRepo() }
-    val scanNum = MutableLiveData<Int>()
     val rekeningWithTodaySetoran: StateFlow<List<Rekening>> = mRepository.rekeningWithTodaySetoran
 
     private val _exportState = MutableStateFlow<ExportState>(ExportState.Idle)

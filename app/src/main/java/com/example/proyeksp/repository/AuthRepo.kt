@@ -15,7 +15,9 @@ import io.ktor.client.call.body
 import io.ktor.client.request.setBody
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 
 class AuthRepo {
@@ -57,30 +59,33 @@ class AuthRepo {
         }
     }
 
-    suspend fun getCurrentPetugas(): Petugas? {
-        supabase.auth.awaitInitialization()
-        val user = supabase.auth.currentUserOrNull()
-        Log.d("AuthRepo", "User?: $user")
-
-        if (user == null) {
-            Log.e("AuthRepo", "User is null! Status is: ${supabase.auth.sessionStatus.value}")
-            return null
-        }
-
-        Log.d("AuthRepo", "ID: ${user.id}")
-
-        val petugas = supabase
-            .from("petugas")
-            .select(
-                Columns.list("id", "userid", "username", "role")
-            ) {
-                filter {
-                    eq("userid", user.id)
+    suspend fun getCurrentPetugas(): Result<Petugas?> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val user = supabase.auth.currentUserOrNull()
+                if (user == null) {
+                    // User is not logged in -> Return Success containing 'null'
+                    return@withContext Result.success(null)
                 }
+
+                Log.d("AuthRepo", "ID: ${user.id}")
+
+                val petugas = supabase
+                    .from("petugas")
+                    .select(
+                        Columns.list("id", "userid", "username", "role")
+                    ) {
+                        filter {
+                            eq("userid", user.id)
+                        }
+                    }
+                    .decodeSingleOrNull<Petugas>()
+                Log.d("AuthRepo", "Petugas: $petugas")
+                Result.success(petugas)
+            } catch (e: Exception) {
+                Result.failure(e)
             }
-            .decodeSingleOrNull<Petugas>()
-        Log.d("AuthRepo", "Petugas: $petugas")
-        return petugas
+        }
     }
 
     @Serializable

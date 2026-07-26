@@ -96,7 +96,7 @@ fun DaftarSetoranScreen(viewModel: RekeningViewModel = viewModel()) {
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     items(rekeningList) { rek ->
-                        val setoran = rek.setoran?.getOrNull(0)
+                        val setoran = rek.transaksi?.getOrNull(0)
                         val anggota = rek.anggota
                         val tanggalStr = DateHelper.formatInstant(setoran?.tglTrans)
                         SetoranItem(

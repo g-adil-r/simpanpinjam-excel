@@ -69,16 +69,27 @@ class TambahSetoranActivity : ComponentActivity() {
 
         //parse jsonstring rekening to rekening
         val rekening = rekeningJson?.let { Json.decodeFromString<Rekening>(it) }
-        val setoran = rekening?.setoran
+        val transaksi = rekening?.transaksi
         Log.d("TambahSetoranActivity", "Rekening: $rekening")
         Log.d("TambahSetoranActivity", "Petugas: $viewModel")
 
-        if (setoran != null && setoran.isNotEmpty()) {
+        if (transaksi != null && transaksi.isNotEmpty()) {
             viewModel.setEditMode(true)
         }
 
         val onSubmit: (noRek: String, setoran: Long) -> Unit = { norek, setoran ->
-            viewModel.addSetoran(norek, setoran)
+            val isEditMode = viewModel.uiState.value.isEditMode
+            if (isEditMode) {
+                val setoranInit = rekening?.transaksi?.firstOrNull()
+                Log.d("TambahSetoranActivity", "Setoran init: $setoranInit")
+                if (setoranInit == null) {
+                    Toast.makeText(this, "Transaksi tidak ditemukan", Toast.LENGTH_SHORT).show()
+                } else {
+                    viewModel.editSetoran(setoranInit, norek, setoran)
+                }
+            } else {
+                viewModel.addSetoran(norek, setoran)
+            }
         }
 
         val onSuccess: () -> Unit = {
@@ -109,7 +120,7 @@ fun SetoranScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val netState = uiState.networkState
-    val setoranInit = rekening.setoran?.firstOrNull()?.setoran ?: 0L
+    val setoranInit = rekening.transaksi?.firstOrNull()?.setoran ?: 0L
     val ctx = LocalContext.current
 
     var setoranInput by remember { mutableStateOf(setoranInit.toString()) }
@@ -121,6 +132,7 @@ fun SetoranScreen(
         }
         else if (netState is SetorNetworkState.Error) {
             Toast.makeText(ctx, netState.message, Toast.LENGTH_SHORT).show()
+            viewModel.resetNetworkState()
         }
     }
 
@@ -137,7 +149,7 @@ fun SetoranScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        onSubmit(rekening.noRek, setoranInit)
+                        onSubmit(rekening.noRek, setoranInput.toLongOrNull() ?: 0)
                         showAlert = false
                     }
                 ) {

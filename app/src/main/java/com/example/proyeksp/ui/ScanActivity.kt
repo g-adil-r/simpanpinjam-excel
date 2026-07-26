@@ -76,7 +76,6 @@ fun ScanScreen(
         onDispose { cameraExecutor.shutdown() }
     }
 
-    // 1. Tangani Perpindahan Layar saat Rekening Ditemukan
     LaunchedEffect(uiState) {
         if (uiState is ScanUiState.Success) {
             onNavigateToSetoran((uiState as ScanUiState.Success).rekening)
