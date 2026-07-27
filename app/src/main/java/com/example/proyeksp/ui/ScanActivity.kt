@@ -22,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
@@ -44,12 +46,14 @@ import java.util.concurrent.Executors
 
 class ScanActivity : ComponentActivity() {
     private val viewModel by lazy { ScanViewModel() }
+    private val analyzer = QrCodeAnalyzer { qrValue -> viewModel.getRekeningFromNoRek(qrValue) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ScanScreen(
                 viewModel = viewModel,
+                analyzer = analyzer,
                 onNavigateToSetoran = { rekening ->
                     val intent = Intent(this, TambahSetoranActivity::class.java).apply {
                         val jsonString = Json.encodeToString(rekening)
@@ -61,17 +65,24 @@ class ScanActivity : ComponentActivity() {
             )
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        analyzer.reset()
+    }
 }
 
 @Composable
 fun ScanScreen(
     viewModel: ScanViewModel,
-    onNavigateToSetoran: (rekening: Rekening) -> Unit
+    onNavigateToSetoran: (rekening: Rekening) -> Unit,
+    analyzer: QrCodeAnalyzer = remember { QrCodeAnalyzer { } }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
+
     DisposableEffect(Unit) {
         onDispose { cameraExecutor.shutdown() }
     }
@@ -82,6 +93,7 @@ fun ScanScreen(
         } else if (uiState is ScanUiState.Error) {
             Toast.makeText(context, (uiState as ScanUiState.Error).message, Toast.LENGTH_SHORT).show()
             viewModel.resetUiState()
+            analyzer.reset()
         }
     }
 
@@ -109,7 +121,6 @@ fun ScanScreen(
                 }
             )
             Box(modifier = Modifier.fillMaxSize()) {
-                // 3. Tampilkan Kamera PreviewView menggunakan AndroidView
                 AndroidView(
                     factory = { ctx ->
                         PreviewView(ctx).apply {
@@ -136,11 +147,7 @@ fun ScanScreen(
                                 .apply {
                                     setAnalyzer(
                                         cameraExecutor,
-                                        QrCodeAnalyzer(
-                                            enabled = { uiState !is ScanUiState.Loading }
-                                        ) { qrValue ->
-                                            viewModel.getRekeningFromNoRek(qrValue)
-                                        }
+                                        analyzer
                                     )
                                 }
 

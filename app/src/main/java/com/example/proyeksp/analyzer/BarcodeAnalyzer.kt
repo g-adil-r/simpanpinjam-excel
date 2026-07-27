@@ -11,7 +11,6 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 
 class QrCodeAnalyzer(
-    private val enabled: () -> Boolean, // Akan di-disable kalau query DB
     private val onQrCodeScanned: (String) -> Unit
 ) : ImageAnalysis.Analyzer {
 
@@ -21,28 +20,42 @@ class QrCodeAnalyzer(
 
     private val scanner = BarcodeScanning.getClient(options)
 
+    private var isProcessing = false
+
     @OptIn(ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {
-        if (!enabled()) {
+        if (isProcessing) {
             imageProxy.close()
             return
         }
 
         val mediaImage = imageProxy.image
         if (mediaImage != null) {
+            isProcessing = true
             val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
 
             scanner.process(image)
                 .addOnSuccessListener { barcodes ->
-                    barcodes.firstOrNull()?.rawValue?.let { qrValue ->
-                        onQrCodeScanned(qrValue)
+                    val value = barcodes.firstOrNull()?.rawValue
+                    if (value != null) {
+                        onQrCodeScanned(value)
+                    } else {
+                        isProcessing = false
                     }
+                }
+                .addOnFailureListener {
+                    isProcessing = false
                 }
                 .addOnCompleteListener {
                     imageProxy.close()
                 }
         } else {
+            isProcessing = false
             imageProxy.close()
         }
+    }
+
+    fun reset() {
+        isProcessing = false
     }
 }
