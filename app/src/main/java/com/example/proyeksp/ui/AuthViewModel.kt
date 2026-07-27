@@ -21,13 +21,11 @@ sealed class AuthUiState {
     data class Error(val message: String) : AuthUiState()
 }
 
-class AuthViewModel() : ViewModel() {
-    private val mRepository = AuthRepo()
+class AuthViewModel(private val mRepository: AuthRepo = AuthRepo()) : ViewModel() {
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
     private val _currentPetugas = MutableLiveData<Petugas?>(null)
-    val currentPetugas: LiveData<Petugas?> = _currentPetugas
 
     init {
         viewModelScope.launch {

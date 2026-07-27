@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -67,12 +68,20 @@ class ManagePetugasActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val formLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                viewModel.getAllPetugas()
+            }
+        }
+
         setContent {
             ManagePetugasScreen(
                 viewModel,
                 onAddClick = {
                     val intent = Intent(this, PetugasFormActivity::class.java)
-                    startActivity(intent)
+                    formLauncher.launch(intent)
                 },
                 onEditClick = { petugas ->
                     val intent = Intent(this, PetugasFormActivity::class.java).apply {
@@ -309,17 +318,3 @@ fun PetugasItem(petugas: Petugas, onEditClick: () -> Unit, onDeactivateClick: (P
         }
     }
 }
-
-
-
-
-//@Preview(showBackground = true)
-//@Composable
-//fun ScreenPreview() {
-//    val petugasList = listOf(
-//        Petugas(1, "Budi Santoso", "budi123", "08123456789", "1234567890123456", "Jl.123", "Admin"),
-//        Petugas(2, "Siti Aminah", "sssiti", "08123456789", "1234567890123456", "Jl.1245","Petugas Lapangan"),
-//        Petugas(3, "Agus Hermawan", "AgusH", "08123456789", "1234567890123456", "Jl.Aapap", "Bendahara")
-//    )
-//    ManagePetugasScreen()
-//}

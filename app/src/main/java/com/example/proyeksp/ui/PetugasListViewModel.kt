@@ -15,8 +15,8 @@ sealed class ListState {
     data class Error(val message: String) : ListState()
 }
 
-class PetugasListViewModel : ViewModel() {
-    val petugasList : StateFlow<List<Petugas>> = PetugasRepo.petugasList
+class PetugasListViewModel(private val petugasRepo: PetugasRepo = PetugasRepo) : ViewModel() {
+    val petugasList : StateFlow<List<Petugas>> = petugasRepo.petugasList
 
     private val _uiState = MutableStateFlow<ListState>(ListState.Idle)
     val uiState: StateFlow<ListState> = _uiState
@@ -30,7 +30,7 @@ class PetugasListViewModel : ViewModel() {
     fun getAllPetugas() {
         viewModelScope.launch {
             _uiState.value = ListState.Loading
-            val result = PetugasRepo.getAllPetugas()
+            val result = petugasRepo.getAllPetugas()
             if (result.isSuccess) {
                 _uiState.value = ListState.Success(petugasList.value, null)
             } else {
@@ -42,9 +42,9 @@ class PetugasListViewModel : ViewModel() {
     fun deactivatePetugas(petugas: Petugas) {
         viewModelScope.launch {
             _uiState.value = ListState.Loading
-            val result = PetugasRepo.deactivatePetugas(petugas)
+            val result = petugasRepo.deactivatePetugas(petugas)
             if (result.isSuccess) {
-                PetugasRepo.getAllPetugas()
+                petugasRepo.getAllPetugas()
                 _uiState.value = ListState.Success(petugasList.value, "Deaktivasi berhasil")
             } else {
                 _uiState.value = ListState.Error(result.exceptionOrNull()?.message ?: "Unknown error")

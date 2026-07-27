@@ -21,8 +21,7 @@ sealed class ExportState {
     data class Error(val message: String) : ExportState()
 }
 
-class RekeningViewModel() : ViewModel() {
-    private val mRepository by lazy { RekeningRepo() }
+class RekeningViewModel(private val mRepository: RekeningRepo = RekeningRepo()) : ViewModel() {
     val rekeningWithTodaySetoran: StateFlow<List<Rekening>> = mRepository.rekeningWithTodaySetoran
 
     private val _exportState = MutableStateFlow<ExportState>(ExportState.Idle)

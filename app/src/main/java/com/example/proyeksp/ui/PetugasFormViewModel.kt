@@ -21,7 +21,9 @@ data class PetugasFormUiState(
     val networkState: NetworkState = NetworkState.Idle,
 )
 
-class PetugasFormViewModel : ViewModel() {
+class PetugasFormViewModel(
+    private val petugasRepo: PetugasRepo = PetugasRepo
+) : ViewModel() {
     private val _uiState = MutableStateFlow<PetugasFormUiState>(PetugasFormUiState())
     val uiState: StateFlow<PetugasFormUiState> = _uiState
 
@@ -36,7 +38,7 @@ class PetugasFormViewModel : ViewModel() {
     fun addPetugas(petugas: Petugas, password: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(networkState = NetworkState.Loading) }
-            val result = PetugasRepo.addPetugas(petugas, password)
+            val result = petugasRepo.addPetugas(petugas, password)
             if (result.isSuccess) {
                 _uiState.update { it.copy(networkState = NetworkState.Success) }
             } else {
@@ -50,7 +52,7 @@ class PetugasFormViewModel : ViewModel() {
             _uiState.update {
                 it.copy(networkState = NetworkState.Loading)
             }
-            val result = PetugasRepo.editPetugas(petugas, password)
+            val result = petugasRepo.editPetugas(petugas, password)
             if (result.isSuccess) {
                 _uiState.update {
                     it.copy(networkState = NetworkState.Success)

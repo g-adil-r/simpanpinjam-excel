@@ -1,6 +1,5 @@
 package com.example.proyeksp.ui
 
-import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proyeksp.database.Rekening
@@ -17,10 +16,9 @@ sealed class ScanUiState() {
     data class Error(val message: String) : ScanUiState()
 }
 
-class ScanViewModel() : ViewModel() {
+class ScanViewModel(private val mRepository: RekeningRepo = RekeningRepo()) : ViewModel() {
     private val _uiState = MutableStateFlow<ScanUiState>(ScanUiState.Idle)
     val uiState: StateFlow<ScanUiState> = _uiState.asStateFlow()
-    private val mRepository by lazy { RekeningRepo() }
 
     fun getRekeningFromNoRek(s: String) {
         if (_uiState.value == ScanUiState.Loading) return

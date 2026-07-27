@@ -234,7 +234,7 @@ fun PetugasFormScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            if (!uiState.isEditMode) {
+//            if (!uiState.isEditMode) {
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
@@ -256,12 +256,11 @@ fun PetugasFormScreen(
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
-            }
+//            }
 
             HorizontalDivider()
             Text("Peran (Role)", style = MaterialTheme.typography.titleMedium)
 
-            // Role selection with Radio Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
@@ -298,7 +297,7 @@ fun PetugasFormScreen(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading // Disable button while saving
+                enabled = !isLoading
             ) {
                 if (isLoading) {
                     Text("Menyimpan...")
