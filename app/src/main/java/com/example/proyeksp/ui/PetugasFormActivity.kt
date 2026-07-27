@@ -234,29 +234,27 @@ fun PetugasFormScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-//            if (!uiState.isEditMode) {
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password*") },
-                    isError = !isPasswordValid,
-                    supportingText = {
-                        if (!isPasswordValid) {
-                            Text("Password harus diisi")
-                        }
-                    },
-                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                            Icon(
-                                imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = "Toggle Password Visibility"
-                            )
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-//            }
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Password*") },
+                isError = !isPasswordValid,
+                supportingText = {
+                    if (!isPasswordValid) {
+                        Text("Password harus diisi")
+                    }
+                },
+                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                        Icon(
+                            imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = "Toggle Password Visibility"
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
 
             HorizontalDivider()
             Text("Peran (Role)", style = MaterialTheme.typography.titleMedium)
