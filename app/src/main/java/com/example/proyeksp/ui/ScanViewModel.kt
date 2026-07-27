@@ -1,5 +1,6 @@
 package com.example.proyeksp.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proyeksp.database.Rekening
@@ -30,8 +31,11 @@ class ScanViewModel(private val mRepository: RekeningRepo = RekeningRepo()) : Vi
                 .onSuccess { rekening ->
                     _uiState.value = ScanUiState.Success(rekening)
                 }
-                .onFailure {
-                    _uiState.value = ScanUiState.Error(it.message ?: "Unknown error")
+                .onFailure { e ->
+                    val message = if (e is NoSuchElementException)
+                        "Nomor rekening $s tidak ditemukan"
+                    else (e.message?: "Unknown error")
+                    _uiState.value = ScanUiState.Error(message)
                 }
         }
     }

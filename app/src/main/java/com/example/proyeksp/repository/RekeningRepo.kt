@@ -73,8 +73,7 @@ class RekeningRepo() {
                 Result.success(rekening)
             } catch (e: Exception) {
                 e.printStackTrace()
-                Log.d("ScanActivity", "Error: ${e.printStackTrace()}")
-                Log.d("ScanActivity", "Rekening not found. Return empty instead")
+                Log.d("RekeningRepo", "Error: ${e}")
                 Result.failure(e)
             }
         }
