@@ -201,12 +201,10 @@ fun SetoranItem(
 @Preview(showBackground = true)
 @Composable
 fun SetoranItemPreview() {
-    MaterialTheme {
-        SetoranItem(
-            nama = "John Doe",
-            noRek = "1234567890",
-            tglTransaksi = "08 Jul 2026",
-            setoran = 150000
-        )
-    }
+    SetoranItem(
+        nama = "John Doe",
+        noRek = "1234567890",
+        tglTransaksi = "08 Jul 2026",
+        setoran = 150000
+    )
 }

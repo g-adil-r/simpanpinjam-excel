@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 
 object PetugasRepo {
@@ -72,8 +74,7 @@ object PetugasRepo {
                     Result.failure(Exception("Failed to add petugas"))
                 }
             } catch (e: BadRequestRestException) {
-                if (e.error == "user_already_exists") Result.failure(Exception("Username sudah digunakan"))
-                else Result.failure(e)
+                Result.failure(e)
             } catch (e: Exception) {
                 Result.failure(e)
             }

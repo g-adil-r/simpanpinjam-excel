@@ -1,13 +1,16 @@
 package com.example.proyeksp.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proyeksp.database.Petugas
 import com.example.proyeksp.repository.PetugasRepo
+import io.github.jan.supabase.exceptions.BadRequestRestException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
 sealed class NetworkState {
     object Idle : NetworkState()
@@ -42,7 +45,15 @@ class PetugasFormViewModel(
             if (result.isSuccess) {
                 _uiState.update { it.copy(networkState = NetworkState.Success) }
             } else {
-                _uiState.update { it.copy(networkState = NetworkState.Error(result.exceptionOrNull()?.message ?: "Unknown error")) }
+                val e = result.exceptionOrNull()
+                val message = if (e is BadRequestRestException) {
+                    val errorObj = Json.decodeFromString<Map<String, String>>(e.error)
+                    if (errorObj["error"] == "user_already_exists") "Username ${petugas.username} sudah digunakan"
+                    else errorObj["message"] ?: "Unknown error"
+                }
+                else (e?.message ?: "Unknown error")
+                Log.d("PetugasFormViewModel", "Error: ${(e as BadRequestRestException).error}")
+                _uiState.update { it.copy(networkState = NetworkState.Error(message)) }
             }
         }
     }
