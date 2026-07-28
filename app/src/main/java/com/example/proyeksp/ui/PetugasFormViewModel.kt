@@ -69,9 +69,15 @@ class PetugasFormViewModel(
                     it.copy(networkState = NetworkState.Success)
                 }
             } else {
-                _uiState.update {
-                    it.copy(networkState = NetworkState.Error(result.exceptionOrNull()?.message ?: "Unknown error"))
+                val e = result.exceptionOrNull()
+                val message = if (e is BadRequestRestException) {
+                    val errorObj = Json.decodeFromString<Map<String, String>>(e.error)
+                    if (errorObj["error"] == "user_already_exists") "Username ${petugas.username} sudah digunakan"
+                    else errorObj["message"] ?: "Unknown error"
                 }
+                else (e?.message ?: "Unknown error")
+                Log.d("PetugasFormViewModel", "Error: ${(e as BadRequestRestException).error}")
+                _uiState.update { it.copy(networkState = NetworkState.Error(message)) }
             }
         }
     }
